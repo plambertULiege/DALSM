@@ -1,0 +1,21 @@
+exportPattern("^[[:alpha:]]+")
+
+S3method(plot,DALSM)
+S3method(print,DALSM)
+S3method(predict,DALSM)
+S3method(plot,densHazardConstrainedFit)
+S3method(print,densHazardConstrainedFit)
+
+importFrom(cubicBsplines,Bsplines)
+importFrom(cubicBsplines,D1Bsplines)
+importFrom(cubicBsplines,D2Bsplines)
+importFrom(plyr,rbind.fill)
+
+importFrom("grDevices", "dev.new", "x11")
+importFrom("graphics", "abline", "curve", "hist", "lines", "par",
+           "polygon")
+importFrom("stats", "dnorm", "dt", "integrate", "model.matrix",
+                "pchisq", "pnorm", "pt", "qchisq", "qnorm", "sd",
+                "splinefun", "quantile", "optim")
+importFrom("utils", "tail")
+

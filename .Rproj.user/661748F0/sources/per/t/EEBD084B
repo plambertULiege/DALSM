@@ -1,0 +1,26 @@
+{
+    "id": "EEBD084B",
+    "path": "~/Dropbox/Myfiles/LaplacePsplines/DALSM/R/densityGivenMeanVariance.R",
+    "project_path": "R/densityGivenMeanVariance.R",
+    "type": "r_source",
+    "hash": "662774831",
+    "contents": "",
+    "dirty": false,
+    "created": 1619437841847.0,
+    "source_on_save": false,
+    "relative_order": 11,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "462,14",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1619466680,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1619466680898,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,41 @@
+install.packages("roxygen2")
+library("roxygen2")
+usethis::use_package("MASS")
+?usethis
+devtools::document()
+devtools::document()
+devtools::document()
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+source('~/Myfiles/LaplacePsplines/DALSM/R/DALSM.R', echo=TRUE)
+library(DALSM)
+library(help=DALSM)
+?DALSM
+library(DALSM)
+library(help=DALSM)
+?DALSM
+header(DALSM)
+header<-function(x){
+UseMethod('header',x)
+}
+header(DALSM)
+header.function <-function(x){
+y<-list(args(x))
+x<-as.character(substitute(x))
+print(sprintf('%s=%s',x,y))
+}
+header(DALSM)
+f
+f = function(x,y) x^2+y^2
+obj
+obj=f(4,5)
+header(obj)
+header(g)
+header(f)
+rm header.function()
+rm header.function
+rm(header.function)
+rm(header)
