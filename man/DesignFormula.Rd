@@ -6,7 +6,46 @@
 \usage{
 DesignFormula(formula, data, K = 10, pen.order = 2, n = NULL)
 }
+\arguments{
+\item{formula}{a formula describing the fixed effects and the additive terms in a regression model}
+
+\item{data}{a dataframe containing the data}
+
+\item{K}{number of B-splines to describe an additive term}
+
+\item{pen.order}{desired penalty order for the spline parameters in the additive terms}
+
+\item{n}{number of units (Default: number of rows in the design matrix constructed from the formula and the data frame)}
+}
+\value{
+a list with
+\itemize{
+\item{\code{Z} : \verb{ }}{(n x nfixed) design matrix with fixed effects (including a first column of 1)}
+\item{\code{X} : \verb{ }}{(n x J) design matrix with covariates on (0,1) having additive effects}
+\item{\code{nfixed} : \verb{ }}{number of fixed effect regression parameters}
+\item{\code{J} : \verb{ }}{number of additive terms}
+\item{\code{K} : \verb{ }}{number of B-splines in a basis used to estimate an additive term}
+\item{\code{Bx} : \verb{ }}{list with J objects (one per additive term) including (B,Dd,Pd,K,cm)}
+\item{\code{Pd.x, Dd.x} : \verb{ }}{penalty and difference penalty matrices applied on spline parameters of an additive term}
+\item{\code{knots.x} : \verb{ }}{list of length J with the knots associated to each of the J additive terms}
+\item{\code{Bcal} : \verb{ }}{column-stacked matrix with the J centered B-spline bases}
+\item{\code{Xcal} : \verb{ }}{Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels)}
+\item{\code{pen.order} : \verb{ }}{penalty order for the spline parameters in the additive terms}
+\item{\code{additive.lab} : \verb{ }}{labels for the columns in <Bcal> associated to the additive terms}
+\item{\code{lambda.lab} : \verb{ }}{labels for the penalty parameters}
+}
+}
 \description{
 Internal function extracting design matrices from formulas in the DALSM function and computing penalty related matrices.
+}
+\references{
+Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+in nonparametric double additive location-scale models with right- and
+interval-censored data.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
+\url{https://doi.org/10.1016/j.csda.2021.107250}
+}
+\author{
+Philippe Lambert \email{p.lambert@uliege.be}
 }
 \keyword{internal}

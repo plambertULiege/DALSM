@@ -2,22 +2,13 @@
 % Please edit documentation in R/densityGivenMeanVariance.R
 \name{densityGivenMeanVariance}
 \alias{densityGivenMeanVariance}
-\title{Constrained density estimation from potentially right- or interval-censored data, with given mean or variance.}
+\title{Constrained density estimation from censored data with given mean and variance.}
 \usage{
-densityGivenMeanVariance(
-  obj.data,
-  is.density = TRUE,
-  Mean0 = NULL,
-  Var0 = NULL,
-  fixed.penalty = FALSE,
-  method = c("evidence", "Schall"),
-  fixed.phi = FALSE,
-  phi.ref = NULL,
-  phi0 = NULL,
-  tau0 = exp(5),
-  tau.min = 0.1,
-  verbose = TRUE
-)
+densityGivenMeanVariance(obj.data,
+       is.density=TRUE, Mean0=NULL, Var0=NULL,
+       fixed.penalty=FALSE, method=c("evidence","Schall"),
+       fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
+       verbose=FALSE)
 }
 \arguments{
 \item{obj.data}{a list created from potentially right- or interval-censored data using \code{\link{Dens1d}}. It includes summary statistics, assumed density support, knots for the B-spline basis, etc.}
@@ -30,7 +21,7 @@ densityGivenMeanVariance(
 
 \item{fixed.penalty}{(optional) logical indicating whether the penalty parameter should be selected from the data (\code{fixed.penalty}=FALSE) or fixed (\code{fixed.penalty}=TRUE) at its initial value \code{tau0}}
 
-\item{method}{method used for penaly selection: "evidence" or "Schall"}
+\item{method}{method used for penaly selection: "evidence" (by maximizing the marginal posterior for <tau>) or "Schall" (Schall's method)}
 
 \item{fixed.phi}{(optional) logical indicating whether the spline parameters are fixed (\code{fixed.phi}=TRUE) or estimated from the data (default: \code{fixed.phi}=FALSE)}
 
@@ -38,9 +29,9 @@ densityGivenMeanVariance(
 
 \item{phi0}{starting value for the spline parameters (default: spline parameters corresponding to a Student density with 5 DF)}
 
-\item{tau0}{(optional) initial value for the penalty parameter (default: exp(5))}
+\item{tau0}{(optional) initial value for the penalty parameter <tau> (default: exp(5))}
 
-\item{tau.min}{(optional) minimal value for the penalty parameter (default: .1)}
+\item{tau.min}{(optional) minimal value for the penalty parameter <tau> (default: .1)}
 
 \item{verbose}{(optional) logical indicating whether estimation step details should be displayed (default: FALSE)}
 }
@@ -48,5 +39,30 @@ densityGivenMeanVariance(
 a \code{\link{densityGivenMeanVariance.object}} containing the density estimation results
 }
 \description{
-Constrained density estimation from potentially right- or interval-censored data, with given mean or variance.
+P-spline estimation of the hazard, cumulative hazard, density
+and cdf from interval- or right-censored data under possible marginal
+mean and/or variance constraints. The penalty parameter tuning the smoothness of
+the log-hazard can be selected by maximizing its approximate marginal posterior
+(also named the 'evidence') or using Schall's method.
+}
+\examples{
+library(DALSM)
+data(DALSM_IncomeData)
+resp = DALSM_IncomeData[,1:2]
+head(resp,n=20)
+temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
+obj = densityGivenMeanVariance(temp) ## Density estimation for IC & RC data
+print(obj) ## Summary information on the estimated density
+plot(obj) ## Visualize the estimated density
+
+}
+\references{
+Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+in nonparametric double additive location-scale models with right- and
+interval-censored data.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
+\url{https://doi.org/10.1016/j.csda.2021.107250}
+}
+\author{
+Philippe Lambert \email{p.lambert@uliege.be}
 }

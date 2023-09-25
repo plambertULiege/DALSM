@@ -1,80 +1,55 @@
-###################################################################################
-## GOAL
-##  P-spline estimation of the hazard, cumulative hazard, density, cdf
-##     from right censored data under possible Mean and/or Variance constraints
-##
-## INPUT:
-##  - obj.data: Dens1d object
-##  - is.density = TRUE: make sure that \int f(x)dx = 1, i.e. that it yields a density
-##  - Mean0: requested mean value for the estimated density
-##  - Var0: requested variance value for the estimated density
-##  - fixed.phi = TRUE: requests to run the procedure for fixed spline parameter values
-##
-## OUTPUT: list with class name "densHazardFit"
-##  - input
-##  - Functions: ddens, pdens, qdens
-##  - Parameter estimates:
-##       -- phi: Spline parameter
-##       -- U.phi: conditional Score U(phi|tau)
-##       -- tau: penalty parameter
-##       -- est: c(phi,tau)
-##  - Variance/Obs info matrices:
-##       -- BWB: t(Bgrid) %*% diag(expected) %*% Bgrid
-##       -- Prec: BWB + tau*Pd
-##       -- Fisher: solve(Prec)
-##  - Grid/bin info:
-##       -- ugrid: bin midpoints
-##       -- bins: bin limits
-##       -- du: bin width
-##  - Hazard/cumulative_hazard/density at grid midpoints:
-##       -- h.grid: hazard at grid midpoints <ugrid>
-##       -- H.grid: cumulative hazard at <ugrid>
-##       -- dens.grid: density at <ugrid>
-##  - Hazard/cumulative_hazard/density at grid points:
-##       -- h.bins: hazard at grid midpoints <bins>
-##       -- H.bins: cumulative hazard at <bins>
-##       -- dens.bins: density at <bins>
-##  - Mean and variance of the fitted density:
-##       -- mean.dist
-##       -- var.dist
-##  - expected: expected number of events within a small bin
-##  - Estimated Hazard/cumulative_hazard/density functions:
-##       -- ddist(x): Estimated density as a function
-##       -- Hdist(x): Estimated cumulative hazard function
-##       -- hdist(x): Estimated hazard function
-##       -- pdist(x): Estimated cdf
-##  - method: method used for selection of penalty ("evidence" or "Schall")
-##  - ed: effective number of spline parameters
-##  - iterations: number of iterations
-##  - elapsed.time: computation time
-##
 ## Author: Philippe LAMBERT (ULg, UCL, Belgium), Nov 2018
 ###################################################################################
-#' Constrained density estimation from potentially right- or interval-censored data, with given mean or variance.
-#'
+#' Constrained density estimation from censored data with given mean and variance.
+#' @description P-spline estimation of the hazard, cumulative hazard, density
+#' and cdf from interval- or right-censored data under possible marginal
+#' mean and/or variance constraints. The penalty parameter tuning the smoothness of
+#' the log-hazard can be selected by maximizing its approximate marginal posterior
+#' (also named the 'evidence') or using Schall's method.
+#' @usage densityGivenMeanVariance(obj.data,
+#'        is.density=TRUE, Mean0=NULL, Var0=NULL,
+#'        fixed.penalty=FALSE, method=c("evidence","Schall"),
+#'        fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
+#'        verbose=FALSE)
 #' @param obj.data a list created from potentially right- or interval-censored data using \code{\link{Dens1d}}. It includes summary statistics, assumed density support, knots for the B-spline basis, etc.
 #' @param is.density (optional) logical indicating whether the estimated density should integrate to 1.0 over the range of the knots in obj.data$knots (default: TRUE)
 #' @param Mean0 (optional) constrained value for the mean of the fitted density (defaut: NULL)
 #' @param Var0 (optional) constrained value for the variance of the fitted density (defaut: NULL)
 #' @param fixed.penalty (optional) logical indicating whether the penalty parameter should be selected from the data (\code{fixed.penalty}=FALSE) or fixed (\code{fixed.penalty}=TRUE) at its initial value \code{tau0}
-#' @param method method used for penaly selection: "evidence" or "Schall"
+#' @param method method used for penaly selection: "evidence" (by maximizing the marginal posterior for <tau>) or "Schall" (Schall's method)
 #' @param fixed.phi (optional) logical indicating whether the spline parameters are fixed (\code{fixed.phi}=TRUE) or estimated from the data (default: \code{fixed.phi}=FALSE)
 #' @param phi.ref (optional) reference value for the spline parameters with respect to which deviations are penalized (default: zero vector)
 #' @param phi0 starting value for the spline parameters (default: spline parameters corresponding to a Student density with 5 DF)
-#' @param tau0 (optional) initial value for the penalty parameter (default: exp(5))
-#' @param tau.min (optional) minimal value for the penalty parameter (default: .1)
+#' @param tau0 (optional) initial value for the penalty parameter <tau> (default: exp(5))
+#' @param tau.min (optional) minimal value for the penalty parameter <tau> (default: .1)
 #' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE)
 #'
 #' @return a \code{\link{densityGivenMeanVariance.object}} containing the density estimation results
 #' @export
+
+#' @author Philippe Lambert \email{p.lambert@uliege.be}
+#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+#' in nonparametric double additive location-scale models with right- and
+#' interval-censored data.
+#' \emph{Computational Statistics and Data Analysis}, 161: 107250.
+#' \url{https://doi.org/10.1016/j.csda.2021.107250}
 #'
 #' @examples
+#' library(DALSM)
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' head(resp,n=20)
+#' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
+#' obj = densityGivenMeanVariance(temp) ## Density estimation for IC & RC data
+#' print(obj) ## Summary information on the estimated density
+#' plot(obj) ## Visualize the estimated density
+#'
 densityGivenMeanVariance = function(obj.data,
                                     is.density=TRUE,Mean0=NULL, Var0=NULL,
                                     fixed.penalty=FALSE,method=c("evidence","Schall"),
                                     fixed.phi=FALSE,phi.ref=NULL,
                                     phi0=NULL,tau0=exp(5),tau.min=.1,
-                                    verbose=TRUE){
+                                    verbose=FALSE){
   method = match.arg(method)
   if (fixed.penalty) method = NULL
   if (is.null(obj.data)){

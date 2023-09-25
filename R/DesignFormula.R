@@ -1,37 +1,41 @@
-## GOAL
-##   Produce a list with the objects required to describe and fit the desired additive model
-##    from a list of fixed effect and additive effect covariates
-##   --> for use with <LocationScaleFit>
-## INPUT:
-##   formula: a formula describing the fixed effects and the additive terms in the desired model
-##   data: a dataframe containing the data
-##   K: number of B-splines to describe an additive term
-##   pen.order: desired penalty order for additive terms
-##   n: number of units (by default: obtained from the design matrix constructed from the formula and the data frame)
-##
-## OUTPUT:
-##   list with
-##     Z: (n x nfixed) design matrix with fixed effects (including a first column of 1)
-##     X: (n x J) design matrix with covariates on (0,1) having additive effects
-##     nfixed: number of fixed effect regression parameters
-##     J: number of additive terms
-##     K: number of B-splines in a basis used to estimate an additive term
-##     Bx: list with J objects (one per additive term) including (B,Dd,Pd,K,cm)
-##     Pd.x, Dd.x: penalty and difference penalty matrices applied on spline parameters of an additive term
-##     knots.x: list of length J with the knots associated to each of the J additive terms
-##     Bcal: column-stacked matrix with the J centered B-spline bases
-##     Xcal: Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels)
-##     pen.order: reminded
-##     lambda.lab: labels for the penalty parameters
-##
 ## -----------------------------------
-## Philippe LAMBERT (ULiege, Oct 2018
+## Philippe LAMBERT (ULiege, Oct 2018)
 ## Email:  p.lambert@uliege.be
 ## Web: http://www.statsoc.ulg.ac.be
 ## -----------------------------------
 #' Internal function extracting design matrices from formulas in the DALSM function and computing penalty related matrices.
+#'
+#' @param formula a formula describing the fixed effects and the additive terms in a regression model
+#' @param data a dataframe containing the data
+#' @param K number of B-splines to describe an additive term
+#' @param pen.order desired penalty order for the spline parameters in the additive terms
+#' @param n number of units (Default: number of rows in the design matrix constructed from the formula and the data frame)
+#'
+#' @return a list with
+#' \itemize{
+#' \item{\code{Z} : \verb{ }}{(n x nfixed) design matrix with fixed effects (including a first column of 1)}
+#' \item{\code{X} : \verb{ }}{(n x J) design matrix with covariates on (0,1) having additive effects}
+#' \item{\code{nfixed} : \verb{ }}{number of fixed effect regression parameters}
+#' \item{\code{J} : \verb{ }}{number of additive terms}
+#' \item{\code{K} : \verb{ }}{number of B-splines in a basis used to estimate an additive term}
+#' \item{\code{Bx} : \verb{ }}{list with J objects (one per additive term) including (B,Dd,Pd,K,cm)}
+#' \item{\code{Pd.x, Dd.x} : \verb{ }}{penalty and difference penalty matrices applied on spline parameters of an additive term}
+#' \item{\code{knots.x} : \verb{ }}{list of length J with the knots associated to each of the J additive terms}
+#' \item{\code{Bcal} : \verb{ }}{column-stacked matrix with the J centered B-spline bases}
+#' \item{\code{Xcal} : \verb{ }}{Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels)}
+#' \item{\code{pen.order} : \verb{ }}{penalty order for the spline parameters in the additive terms}
+#' \item{\code{additive.lab} : \verb{ }}{labels for the columns in <Bcal> associated to the additive terms}
+#' \item{\code{lambda.lab} : \verb{ }}{labels for the penalty parameters}
+#' }
+#' @author Philippe Lambert \email{p.lambert@uliege.be}
+#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+#' in nonparametric double additive location-scale models with right- and
+#' interval-censored data.
+#' \emph{Computational Statistics and Data Analysis}, 161: 107250.
+#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#'
 #' @keywords internal
-
+#'
 DesignFormula = function(formula, data, K=10, pen.order=2, n=NULL){
   if (!inherits(formula, "formula"))
     stop("Incorrect model formula")

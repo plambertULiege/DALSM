@@ -1,13 +1,46 @@
-predict.DALSM = function(object, data, newdata, probs, ...){
-    if (missing(data)){
-        message("The data frame <data> used to fit the DALSM model should be provided !")
-        return(NA)
+#' Prediction based on a DALSM model
+#' @description Estimated conditional mean and standard deviation of the response based on a DALSM object
+#'  for given covariate values in a data frame 'newdata'. Conditional quantiles can also
+#'  be computed.
+#'
+#' @usage
+#' \method{predict}{DALSM}(object, newdata, probs, ...)
+#'
+#' @param object a \code{\link{DALSM.object}}
+#' @param newdata an optional data frame in which to look for variables with which to predict. If omitted, the covariate values in the original data frame used to fit the DALSM model are considered.
+#' @param probs probability levels of the requested conditional quantiles
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @return Returns a list containing:
+#' \itemize{
+#' \item{\code{mu} : \verb{ }}{estimated conditional mean}
+#' \item{\code{sd} : \verb{ }}{estimated conditional standard deviation}
+#' \item{\code{quant} : \verb{ }}{estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model}
+#' \item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model}
+#' \item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles}
+#' }
+#' @export
+#'
+#' @examples
+#' require(DALSM)
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' fit = DALSM(y=resp,
+#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
+#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
+#'             data = DALSM_IncomeData)
+#' data2 = data.frame(age=c(40,60),eduyrs=c(18,12))
+#' predict(fit, data = DALSM_IncomeData, newdata=data2, probs=c(.2,.5,.8))
+predict.DALSM = function(object, newdata=NULL, probs, ...){
+    data = object$data ## Data frame used when calling the DALSM function
+    if (is.null(newdata)){
+        ## message("The data frame <newdata> for which 'predictions' are desired is missing !")
+        ## return(NA)
+      newdata = NULL
+      npred = nrow(data) ## Just provide fitted values to original data
+    } else {
+      npred = nrow(newdata) ## Give predictions for new covariate values
     }
-    if (missing(newdata)){
-        message("The data frame <newdata> for which 'predictions' are desired is missing !")
-        return(NA)
-    }
-    npred = nrow(newdata)
     ##
     ## Values for <mu> for the <newdata>
     temp = DesignFormula(object$formula1, plyr::rbind.fill(data,newdata))
@@ -32,19 +65,19 @@ predict.DALSM = function(object, data, newdata, probs, ...){
             return(NA)
         }
         nquant = length(probs)
-        qval = numeric(nquant) ; names(qval) = probs
+        qerr = numeric(nquant) ; names(qerr) = probs
         quant.pred = matrix(nrow=npred,ncol=nquant)
         colnames(quant.pred) = probs
         low = min(object$derr$knots) ; up = max(object$derr$knots) ; mid = .5*(low+up)
         for (k in 1:nquant){
-            qval[k] = optim(mid, fn = function(y) abs(object$derr$pdist(y)-probs[k]),
+            qerr[k] = optim(mid, fn = function(y) abs(object$derr$pdist(y)-probs[k]),
                             lower=low, upper=up,
                             method="L-BFGS-B")$par
-            quant.pred[,k] = mu.pred + qval[k]*sd.pred
+            quant.pred[,k] = mu.pred + qerr[k]*sd.pred
         }
     }
     ans = list(mu=c(mu.pred), sd=c(sd.pred))
-    if (!missing(probs)) ans = c(ans, list(quant=quant.pred, qval=qval, probs=probs))
+    if (!missing(probs)) ans = c(ans, list(quant=quant.pred, qerr=qerr, probs=probs))
     return(ans)
 }
 

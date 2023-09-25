@@ -1,108 +1,7 @@
-## GOAL:
-##   Fit a location-scale model with a flexible error distribution and
-##    potentially additive terms in location (=mean) and dispersion (= log(sd))
-##    when the response can be right-censored
-##
-##   resp: n-vector of responses or (nx2)-matrix if Interval censoring
-##   event: event indicators (1: non right-censored ; 0: right censoring)
-##   formula1: model formula for location (generated using <DesignFormula>)
-##   formula2: model formula for dispersion (generated using <DesignFormula>)
-##   K1, K2: number of B-splines to describe additive terms in the location and dispersion parts
-##   pen.order1, pen.order2: penalty orders for the additive terms in location and dispersion
-##   phi.0: initial values for the spline parameters in the log of error hazard
-##   psi1.0: initial values for the location submodel parameters
-##   psi2.0: initial values for the dispersion submodel parameters
-##   lambda1.0: initial value for the J1 penalty parameters of the additive terms in location
-##   lambda2.0: initial value for the J2 penalty parameters of the additive terms in dispersion
-##   REML: logical indicating if REML correction is desired to estimate the dispersion parameters
-##   diag.only: logical indicating that only the diagonal of the Hessian needs to be corrected during REML
-##   Normality: logical indicating that Normality is assumed for the error term
-##   sandwich: logical indicating if sandwich variance estimators are needed for the regression parameters
-##       for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE
-##   K.error: number of B-splines to approximate the log of the error hazard
-##   rmin, rmax: minimum and maximum value for a standardized residual
-##   b.tau: prior on penalty parameter tau is Gamma(1,1e-4) (for additive terms)
-##   alpha: (1-alpha) is the confidence level of the reported confidence intervals
-##   lambda1.min: minimal value for penalty parameters in the additive model for locationa
-##   lambda2.min: minimal value for penalty parameters in the additive model for log-dispersion
-##   iterlim: maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic)
-##   verbose: logical indicating whether estimation step details required
-##
-##
-## OUTPUT:
-##   converged: logical convergence indicator
-##   is.IC: n-vector with interval censoring indicators
-##   event: event indicator
-##   derr: fitted error density object
-##   phi: estimated B-spline coefs for the error density
-##   rmin, rmax: reminded
-##   K.error: number of B-splines to approximate the log of the error hazard
-##   knots.error: knots used to specify the B-spline basis for the log of the error hazard
-##   xgrid: grid on (0,1)
-##   alpha: reminded (1-alpha), i.e. the confidence level of the reported confidence intervals
-##   fixed.loc: matrix with estimated fixed effects (est,se,ci.low,ci.up) for location
-##   fixed.disp: matrix with estimated fixed effects (est,se,ci.low,ci.up) for dispersion
-##   alpha: significance level used when reporting
-##   sandwich: logical indicating if varcov and se's computed using sandwich estimator in the NP case
-##   psi1: estimated regression parameters for location (fixed effects, B-spline coefs for the J1 additive terms)
-##          where J1=design.loc$J
-##   bread.psi1, Sand.psi1, Cov.psi1: estimated Variance-Covariance matrix for psi1
-##   U.psi1: gradient for psi1
-##   psi2: estimated regression parameters for dispersion (fixed effects, B-spline coefs for the J2 additive terms)
-##          where J2=design.disp$J
-##   bread.psi2, Sand.psi2, Cov.psi2: estimated Variance-Covariance matrix for psi2
-##   U.psi2: gradient for psi2
-##   U.psi: gradient for (psi1,psi2)
-##   Cov.psi: returned varcov for (psi1,psi2)
-##   --- IF additive term in location part: ---
-##     K1: number of B-splines used to describe an additive term in the location part
-##     xi1: matrix with selected log(lambda1) for the J1 penalty parameters for location
-##         (point estimate,se,ci.low,ci.up)
-##     U.xi1: gradient for xi1=log(lambda.loc)
-##     U.lambda1: gradient for lambda.loc
-##     Cov.xi1: estimated Variance-Covariance matrix for xi1
-##     lambda1.min: minimal value for lambda.loc
-##     lambda2.min: minimal value for lambda.disp
-##     lambda1: matrix with selected penalty parameter exp(xi1) (point estimate,ci.low,ci.up)
-##     ED1: matrix with effective dimensions for each of the J1 additive terms for location
-##         (point estimate,ci.low,ci.up)
-##   --- IF additive term in dispersion part: ---
-##     K2: number of B-splines used to describe an additive term in the dispersion part
-##     xi2: selected log(lambda2) for the J2 penalty parameters for dispersion (point estimate,se,ci.low,ci.up)
-##     U.xi2: gradient for xi1=log(lambda.disp)
-##     U.lambda2: gradient for lambda.disp
-##     Cov.xi2: estimated Variance-Covariance matrix for xi2
-##     lambda2: matrix with selected penalty parameter exp(xi2)
-##         (point estimate,ci.low,ci.up)
-##     ED2: matrix with effective dimensions for each of the J2 additive terms for dispersion
-##         (point estimate,ci.low,ci.up)
-##   n: sample size
-##   is.IC: logical indicating if interval-censored response data are present
-##   event: event indicators (1: non right-censored ; 0: right censoring)
-##   regr1: object generated by DesignFormula for the specified submodel for location
-##   regr2: object generated by DesignFormula for the specified submodel for dispersion
-##   n.uncensored: number of non-censored response data
-##   n.IC: number of interval-censored response data
-##   n.RC: number of right-censored response data
-##   perc.obs: percentage of exactly observed response data
-##   perc.IC: percentage of interval-censored response data
-##   perc.RC: percentage of right-censored response data
-##   res: standardized residuals for the fitted model (: possibily a nx2 matrix if IC data present)
-##   mu: fitted conditional mean
-##   sd: fitted conditional standard deviation
-##   expctd.res: observed standardized residual for a non RC unit, or their expected value if right-censored
-##   REML: logical indicating whether REML estimation was performed
-##   diag.only: logical indicating if the correction to the Hessian under REML only concerns diagonal elements
-##   iter: number of iterations
-##   elapsed.time: time required by the model fitting procedure
-##
-## --------------------------------------------------------
-## Philippe LAMBERT (ULiege, Oct 2018 ; IC data: Nov 2018 ; Formulas: Dec 2020)
-## Email:  p.lambert@uliege.be
-## Web: http://www.statsoc.ulg.ac.be
-## --------------------------------------------------------
-
 #' Fit a double additive location-scale model (DALSM) with a flexible error distribution
+#' @description Fit a location-scale model with a flexible error distribution and
+#' potentially additive terms in location (=mean) and dispersion (= log(sd))
+#' when the response can be right-censored
 #' @usage DALSM(y, formula1,formula2, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
 #'        b.tau=1e-4, lambda1.min=1, lambda2.min=1,
@@ -112,8 +11,8 @@
 #'        ci.level=.95, iterlim=50,verbose=FALSE)
 #'
 #' @param y n-vector of responses or (nx2)-matrix/data.frame if interval-censoring or right-censoring (when 2nd column equal to Inf)
-#' @param formula1 model formula for location
-#' @param formula2 model formula for dispersion
+#' @param formula1 model formula for location (i.e. for the conditional mean)
+#' @param formula2 model formula for dispersion (i.e. for the log of the conditional standard deviation)
 #' @param data data frame containing the model covariates
 #' @param K1 (optional) number of B-splines to describe a given additive term in the location submodel (default: 10)
 #' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10)
@@ -143,7 +42,11 @@
 #' or plotted using \code{\link{plot.DALSM}}.
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
-#'
+#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+#' in nonparametric double additive location-scale models with right- and
+#' interval-censored data.
+#' \emph{Computational Statistics and Data Analysis}, 161: 107250.
+#' \url{https://doi.org/10.1016/j.csda.2021.107250}
 #'
 #' @examples
 #' require(DALSM)
@@ -155,12 +58,6 @@
 #'             data = DALSM_IncomeData)
 #' print(fit)
 #' plot(fit)
-#'
-#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
-#' in nonparametric double additive location-scale models with right- and
-#' interval-censored data.
-#' \emph{Computational Statistics and Data Analysis}.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
 #'
 #' @export
 
@@ -477,7 +374,9 @@ DALSM = function(y, formula1,formula2, data,
     ## Output
     ## ------
     if (any(is.na(U.psi))) return(stopthis())
-    ans = list(psi1=psi1,psi2=psi2, lambda1=lambda1,lambda2=lambda2,
+    ans = list(y=y, data=data,
+               formula1=formula1, formula2=formula2,
+               psi1=psi1,psi2=psi2, lambda1=lambda1,lambda2=lambda2,
                psi=c(psi1,psi2),
                res=res, mu=mu.cur, sd=sd.cur,
                lpost=lpost.cur, llik=llik.cur,
@@ -868,7 +767,8 @@ DALSM = function(y, formula1,formula2, data,
     xi1.low = xi1.cur - z.alpha*xi1.se ; xi1.up = xi1.cur + z.alpha*xi1.se
     lambda1.low = lambda1.min + exp(xi1.low) ; lambda1.up = lambda1.min + exp(xi1.up)
     ## Elements for testing absence of effect (horizontality) or linear effect for additive terms
-    D1=diff(diag(K1+1),dif=1)[,-(K1+1)] ; D2=diff(diag(K1+1),dif=2)[,-(K1+1)] ## Diff matrices of order 1 & 2 for centered B-spline matrices without their last basis component for identification purposes in additive models
+    D1=diff(diag(K1),dif=1) ; D2=diff(diag(K1),dif=2) ## Diff matrices of order 1 & 2
+    ## D1=diff(diag(K1+1),dif=1)[,-(K1+1)] ; D2=diff(diag(K1+1),dif=2)[,-(K1+1)] ## Diff matrices of order 1 & 2 for centered B-spline matrices without their last basis component for identification purposes in additive models
     psi = psi1.cur ## Concerned spline coefs
     Cov = Cov.psi1 ## solve(-Hes.psi1) ## Var-Cov matrix of location regr coef  ## HERE HERE
     Chi2.horiz1 = Chi2.linear1 = Pval.horiz1 = Pval.linear1 = 0*ED1.cur ## Test for Horizontality and Linearity of additive terms
@@ -903,7 +803,8 @@ DALSM = function(y, formula1,formula2, data,
     xi2.low = xi2.cur - z.alpha*xi2.se ; xi2.up = xi2.cur + z.alpha*xi2.se
     lambda2.low = lambda2.min + exp(xi2.low) ; lambda2.up = lambda2.min + exp(xi2.up)
     ## Elements for testing absence of effect (horizontality) or linear effect for additive terms
-    D1=diff(diag(K2+1),dif=1)[,-(K2+1)] ; D2=diff(diag(K2+1),dif=2)[,-(K2+1)] ## Diff matrices of order 1 & 2 for centered B-spline matrices without their last basis component for identification purposes in additve models
+    D1=diff(diag(K2),dif=1) ; D2=diff(diag(K2),dif=2) ## Diff matrices of order 1 & 2 for centered B-spline matrices without their last basis component for identification purposes in additve models
+    ## D1=diff(diag(K2+1),dif=1)[,-(K2+1)] ; D2=diff(diag(K2+1),dif=2)[,-(K2+1)] ## Diff matrices of order 1 & 2 for centered B-spline matrices without their last basis component for identification purposes in additve models
     psi = psi2.cur ## Concerned spline coefs
     Cov = Cov.psi2 ## solve(-Hes.psi2) ## Var-Cov matrix of dispersion regr coef
     Chi2.horiz2 = Chi2.linear2 = Pval.horiz2 = Pval.linear2 = 0*ED2.cur ## Test for Horizontality and Linearity of additive terms
@@ -946,9 +847,8 @@ DALSM = function(y, formula1,formula2, data,
   perc.RC = round(100*n.RC/n,1) ## Percentage Right Censored
   ##
   ## Output
-  xgrid = seq(0,1,by=.01)
   ans = list(converged=converged,
-             y=y,
+             y=y, data=data,
              formula1=formula1, formula2=formula2,
              n=n,resp=resp,is.IC=is.IC,
              n.uncensored=n.uncensored, n.IC=n.IC, n.RC=n.RC,
@@ -957,7 +857,6 @@ DALSM = function(y, formula1,formula2, data,
              is.IC=is.IC,event=event, ## IC and event indicators
              Normality=Normality, ## Indicates whether normality requested
              derr=fit1d, phi=phi.cur, rmin=min(fit1d$knots),rmax=max(fit1d$knots), K.error=K.error, knots.error=fit1d$knots, ## Error density
-             xgrid=xgrid, ## Grid on (0,1)
              fixed.loc=mat.beta, fixed.disp=mat.delta, ## Summary on the estimation of the 'fixed' effects <beta> and <delta>
              ci.level=ci.level, ## Level for credible intervals
              alpha=alpha, ## Significance level
@@ -971,7 +870,6 @@ DALSM = function(y, formula1,formula2, data,
              U.psi=obj.cur$U.psi,   ## Gradient for <psi1,psi2>
              Cov.psi=obj.cur$Cov.psi)
   if (J1 > 0){
-    # Bgrid.loc = centeredBasis.gen(xgrid,knots.1,cm=Bx1[[1]]$cm,pen.order=pen.order.1)$B
     ED1 = cbind(ED.hat=obj.cur$ED1,Chi2.H0=Chi2.horiz1,Pval.H0=Pval.horiz1,Chi2.lin=Chi2.linear1,Pval.lin=Pval.linear1)
     if (is.null(addloc.lab)) rownames(ED1) = paste("f.mu.",1:J1,sep="")
     else rownames(ED1) = addloc.lab
@@ -986,7 +884,6 @@ DALSM = function(y, formula1,formula2, data,
                  ED1=cbind(ED1,low=ED1.low,up=ED1.up)))
   }
   if (J2 > 0){
-    # Bgrid.disp = centeredBasis.gen(xgrid,knots.2[[j]],cm=Bx2[[1]]$cm,pen.order=pen.order.2)$B
     ED2 = cbind(ED2.hat=obj.cur$ED2,Chi2.H0=Chi2.horiz2,Pval.H0=Pval.horiz2,Chi2.lin=Chi2.linear2,Pval.lin=Pval.linear2)
     if (is.null(adddisp.lab)) rownames(ED2) = paste("f.sig.",1:J2,sep="")
     else rownames(ED2) = adddisp.lab

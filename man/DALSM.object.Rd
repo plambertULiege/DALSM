@@ -9,7 +9,7 @@ A \code{DALSM} object has the following elements:
 Essential part:
 \itemize{
 \item{\code{converged} : \verb{ }}{logical convergence indicator}
-\item{\code{derr} : \verb{ }}{estimated standardized error distribution}
+\item{\code{derr} : \verb{ }}{estimated standardized error distribution returned as a \link{densityGivenMeanVariance.object}}
 \item{\code{psi1} : \verb{ }}{estimated regression parameters for location (fixed effects, B-spline coefs for the J1 additive terms)}
 \item{\code{psi2} : \verb{ }}{estimated regression parameters for dispersion (fixed effects, B-spline coefs for the J2 additive terms)}
 \item{\code{fixed.loc} : \verb{ }}{matrix with estimated fixed effects (est,se,ci.low,ci.up) in the location sub-model}
@@ -19,6 +19,7 @@ Essential part:
 }
 Additional elements:
 \itemize{
+\item{\code{data} : \verb{ }}{the original data frame used when calling the \code{\link{DALSM}} function}
 \item{\code{phi} : \verb{ }}{estimated B-spline coefs for the log-hazard of the error distribution}
 \item{\code{K.error} : \verb{ }}{number of B-splines used to approximate the log of the error hazard}
 \item{\code{rmin, rmax} : \verb{ }}{minimum and maximum values for the support of the standardized error distribution}
@@ -78,8 +79,15 @@ If there are additive terms in the dispersion submodel:
 An object returned by the \code{\link{DALSM}} function: this is a list
 with various components related to the fit of a double additive location-scale model.
 }
+\references{
+Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+in nonparametric double additive location-scale models with right- and
+interval-censored data.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
+\url{https://doi.org/10.1016/j.csda.2021.107250}
+}
 \seealso{
-\code{\link{DALSM}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}
+\code{\link{DALSM}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}, \code{\link{densityGivenMeanVariance}}, \code{\link{densityGivenMeanVariance.object}}
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

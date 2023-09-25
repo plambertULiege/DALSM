@@ -1,17 +1,34 @@
 ###################################################################################
-## GOAL
-##  print, plot fitted density objects obtained for right censored data
-##
-## INPUT:
-##  - list with class name "densHazardFit" correponding to output of densHazardFit
-##
-## OUTPUT:
-##  - print: summary of data input and output content
-##  - plot: histogram with fitted density
-##
-## Author: Philippe LAMBERT (ULg, UCL, Belgium), Oct 2018
+## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Oct 2018
 ###################################################################################
-print.densHazardConstrainedFit = function(x,...){
+#' Print summary information on the error density of a fitted DALSM regression model
+#' @description Print summary information on the error density of a fitted DALSM regression model
+#' @param x a <densityGivenMeanVariance.object> (typically the $derr element of a DALSM.object list)
+#' @param ... Optional additional print parameters
+#'
+#' @return No returned value (just printed summary)
+#'
+#' @author Philippe Lambert \email{p.lambert@uliege.be}
+#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+#' in nonparametric double additive location-scale models with right- and
+#' interval-censored data.
+#' \emph{Computational Statistics and Data Analysis}, 161: 107250.
+#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#'
+#' @export
+#'
+#' @examples
+#' require(DALSM)
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' fit = DALSM(y=resp,
+#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
+#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
+#'             data = DALSM_IncomeData)
+#' plot(fit$derr)  ## Plot the estimated error density
+#' print(fit$derr) ## ... and provide some descriptive elements on it
+#'
+print.densityGivenMeanVariance = function(x,...){
   fit = x
   cat("** Constrained Density/Hazard estimation from right- and Interval-censored data **\n")
   cat("INPUT:\n")
@@ -37,7 +54,7 @@ print.densHazardConstrainedFit = function(x,...){
   message(sprintf("  Selected penalty parameter <tau>: %.1f",fit$tau))
   message(sprintf("  Effective number of parameters: %.1f",fit$ed))
   cat("  Parameter estimates:  phi, tau\n")
-  cat("  Estimated Hazard, cumulative hazard and density at grid midpoints <ugrid>\n")
   cat("  Returned functions:  ddist, pdist, hdist, Hdist(x)\n")
   message(sprintf("\n** %s iterations (%.1f seconds) **",fit$iter,fit$elapsed.time))
 }
+

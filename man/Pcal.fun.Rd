@@ -2,7 +2,7 @@
 % Please edit documentation in R/Pcal_fun.R
 \name{Pcal.fun}
 \alias{Pcal.fun}
-\title{Compute the penalty matrix associated to a vector containing fixed (non-penalized) parameters and equal-size sub-vectors of penalized spline parameters}
+\title{Generation of the penalty matrix for an additive model based on P-splines}
 \usage{
 Pcal.fun(nfixed, lambda, Pd.x)
 }
@@ -17,5 +17,21 @@ Pcal.fun(nfixed, lambda, Pd.x)
 A block diagonal penalty matrix of size \code{(nfixed+pJ)} given by Blockdiag(diag(0,\code{nfixed}), diag(\code{lambda}).kron.\code{Pd.x})
 }
 \description{
-Compute the penalty matrix associated to a vector containing fixed (non-penalized) parameters and equal-size sub-vectors of penalized spline parameters
+Compute the penalty matrix associated to a vector containing fixed (non-penalized) parameters and equal-size sub-vectors of penalized B-spline parameters
+}
+\examples{
+D = diff(diag(5),diff=2) ## Difference penalty matrix of order 2 for 5 P-spline parameters
+P = t(D) \%*\% D ## Penalty matrix for the 5 P-spline parameters
+lambda = 100 ## Penalty parameter
+Pcal.fun(2,lambda,P) ## Global penalty matrix with 2 additional non-penalized parameters
+}
+\references{
+Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+in nonparametric double additive location-scale models with right- and
+interval-censored data.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
+\url{https://doi.org/10.1016/j.csda.2021.107250}
+}
+\author{
+Philippe Lambert \email{p.lambert@uliege.be}
 }

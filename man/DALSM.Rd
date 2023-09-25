@@ -15,9 +15,9 @@ DALSM(y, formula1,formula2, data,
 \arguments{
 \item{y}{n-vector of responses or (nx2)-matrix/data.frame if interval-censoring or right-censoring (when 2nd column equal to Inf)}
 
-\item{formula1}{model formula for location}
+\item{formula1}{model formula for location (i.e. for the conditional mean)}
 
-\item{formula2}{model formula for dispersion}
+\item{formula2}{model formula for dispersion (i.e. for the log of the conditional standard deviation)}
 
 \item{data}{data frame containing the model covariates}
 
@@ -71,7 +71,9 @@ see \code{\link{DALSM.object}} for details. A summary can be printed using \code
 or plotted using \code{\link{plot.DALSM}}.
 }
 \description{
-Fit a double additive location-scale model (DALSM) with a flexible error distribution
+Fit a location-scale model with a flexible error distribution and
+potentially additive terms in location (=mean) and dispersion (= log(sd))
+when the response can be right-censored
 }
 \examples{
 require(DALSM)
@@ -89,7 +91,7 @@ plot(fit)
 Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
-\emph{Computational Statistics and Data Analysis}.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
 \url{https://doi.org/10.1016/j.csda.2021.107250}
 }
 \author{
