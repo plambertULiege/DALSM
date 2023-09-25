@@ -34,7 +34,39 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' \url{https://doi.org/10.1016/j.csda.2021.107250}
 #'
+#' @seealso \code{\link{densityGivenMeanVariance.object}}, \code{\link{print.densityGivenMeanVariance}}, \code{\link{plot.densityGivenMeanVariance}}, \code{\link{Dens1d.object}}, \code{\link{Dens1d}}.
+#'
 #' @examples
+#' library(DALSM)
+#'
+#' ## Example 1: density estimation from IC data
+#' n = 500 ## Sample size
+#' x = 3 + rgamma(n,10,2) ## Exact data generation
+#' width = runif(n,1,3) ## Width of the IC data (mean width = 2)
+#' w = runif(n) ## Positioning of the exact data within the interval
+#' xmat = cbind(x-w*width,x+(1-w)*width) ## Generated IC data
+#' head(xmat)
+#' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
+#' ## Density estimation with fixed mean and variance
+#' obj = densityGivenMeanVariance(obj.data,Mean0=3+10/2,Var0=10/4)
+#' plot(obj) ## Histogram of the pseudo-data with the density estimate
+#' curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
+#'       add=TRUE,col="red",lwd=2,lty=2)
+#' legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
+#'        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
+#' print(obj) ## ... with summary statistics
+#'
+#' ## Example 2: estimation of the error density in a DALSM model
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' fit = DALSM(y=resp,
+#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
+#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
+#'             data = DALSM_IncomeData)
+#' plot(fit$derr)  ## Plot the estimated error density
+#' print(fit$derr) ## ... and provide summary statistics for it
+#'
+#'
 #' library(DALSM)
 #' data(DALSM_IncomeData)
 #' resp = DALSM_IncomeData[,1:2]
@@ -43,6 +75,8 @@
 #' obj = densityGivenMeanVariance(temp) ## Density estimation for IC & RC data
 #' print(obj) ## Summary information on the estimated density
 #' plot(obj) ## Visualize the estimated density
+#' legend("topright",col=c("black","grey"),lwd=c(2,20),
+#'        legend=c("Fitted density","Pseudo-data"),bty="n")
 #'
 densityGivenMeanVariance = function(obj.data,
                                     is.density=TRUE,Mean0=NULL, Var0=NULL,

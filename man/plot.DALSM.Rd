@@ -18,7 +18,7 @@
 
 \item{nx}{(optional) number of points to make the plots for the fitted additive terms (default: 101)}
 
-\item{equal.ylims}{logical indicating if the y-limits must be used when plotting the fitted additive terms (default: TRUE)}
+\item{equal.ylims}{logical indicating if the same y-limits must be used when plotting the fitted additive terms (default: TRUE)}
 
 \item{true.loc}{(optional) list of functions to be superposed to the corresponding estimated additive terms in the location submodel (default: NULL)}
 

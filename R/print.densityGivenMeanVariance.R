@@ -3,6 +3,7 @@
 ###################################################################################
 #' Print summary information on the error density of a fitted DALSM regression model
 #' @description Print summary information on the error density of a fitted DALSM regression model
+#' @usage \method{print}{densityGivenMeanVariance}(x,...)
 #' @param x a <densityGivenMeanVariance.object> (typically the $derr element of a DALSM.object list)
 #' @param ... Optional additional print parameters
 #'

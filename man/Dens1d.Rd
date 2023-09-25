@@ -47,6 +47,9 @@ interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
 \url{https://doi.org/10.1016/j.csda.2021.107250}
 }
+\seealso{
+\code{\link{Dens1d.object}}, \code{\link{densityGivenMeanVariance}}.
+}
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}
 }

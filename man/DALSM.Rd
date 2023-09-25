@@ -94,6 +94,9 @@ interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
 \url{https://doi.org/10.1016/j.csda.2021.107250}
 }
+\seealso{
+\code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.
+}
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}
 }

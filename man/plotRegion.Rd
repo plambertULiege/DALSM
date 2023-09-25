@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotRegion.R
 \name{plotRegion}
 \alias{plotRegion}
-\title{Plot a credible region (in grey) for a curve together with its point estimate (lwd=2)}
+\title{Plot a credible region (in grey) for a curve together with its point estimate}
 \usage{
 plotRegion(
   x,
@@ -42,7 +42,7 @@ plotRegion(
 No returned value (just a plot)
 }
 \description{
-Plot a credible region (in grey) for a curve together with its point estimate (lwd=2)
+Plot a credible region (in grey) for a curve together with its point estimate
 }
 \examples{
 require(DALSM)
@@ -53,7 +53,7 @@ fit = DALSM(y=resp,
             formula2 = ~twoincomes+s(age)+s(eduyrs),
             data = DALSM_IncomeData)
 obj = DALSM_additive(fit)
-## par(mfrow=c(1,2),mar=c(3,4,1,1))
+## par(mfrow=c(1,2),mar=c(4,5,1,1))
 with(obj$f.loc.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~mu}*(age))))
 with(obj$f.disp.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~sigma}*(age))))
 }
@@ -63,6 +63,10 @@ in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
 \url{https://doi.org/10.1016/j.csda.2021.107250}
+}
+\seealso{
+\code{\link{DALSM}}, \code{\link{DALSM.object}}.
+
 #'
 }
 \author{

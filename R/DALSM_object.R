@@ -1,4 +1,4 @@
-#' Object resulting from the fit of double additive location-scale model (DALSM).
+#' Object resulting from the fit of a double additive location-scale model (DALSM).
 #'
 #' An object returned by the \code{\link{DALSM}} function: this is a list
 #' with various components related to the fit of a double additive location-scale model.

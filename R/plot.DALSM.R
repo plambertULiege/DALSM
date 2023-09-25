@@ -138,6 +138,7 @@ plot.DALSM = function(x,
       ## se.loc[,j] = fj.se = sqrt(pmax(0,rowSums((BB.1%*%S11)*BB.1)))
       ## fj.min = fj.hat-z.alpha*fj.se ; fj.max = fj.hat+z.alpha*fj.se
       f.mat = obj.add$f.loc.grid[[j]]$y.mat
+      fj.min = f.mat[,2] ; fj.max = f.mat[,3]
       ##
       # ## Global credible region (essai)
       ## omega = sqrt(pmax(0,rowSums(BB.1*(BB.1%*%S11)))) / sqrt(qchisq(1-alpha,K1))
@@ -197,6 +198,7 @@ plot.DALSM = function(x,
       ## se.disp[,j] = fj.se = sqrt(pmax(0,rowSums((BB.2%*%S11)*BB.2)))
       ## fj.min = fj.hat-z.alpha*fj.se ; fj.max = fj.hat+z.alpha*fj.se
       f.mat = obj.add$f.disp.grid[[j]]$y.mat
+      fj.min = f.mat[,2] ; fj.max = f.mat[,3]
       ## Global credible region (essai)
       # omega = sqrt(pmax(0,rowSums(BB.2*(BB.2%*%S11)))) / sqrt(qchisq(1-alpha,K1))
       # Theta.up = psi2.cur[idx] + S11 %*% t((1/omega)*(BB.2))  ## K2 x length(xx) matrix

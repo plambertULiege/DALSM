@@ -2,7 +2,7 @@
 % Please edit documentation in R/DALSM_object.R
 \name{DALSM.object}
 \alias{DALSM.object}
-\title{Object resulting from the fit of double additive location-scale model (DALSM).}
+\title{Object resulting from the fit of a double additive location-scale model (DALSM).}
 \value{
 A \code{DALSM} object has the following elements:
 

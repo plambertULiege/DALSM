@@ -19,6 +19,16 @@
 #' \item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model}
 #' \item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles}
 #' }
+#'
+#' @author Philippe Lambert \email{p.lambert@uliege.be}
+#' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+#' in nonparametric double additive location-scale models with right- and
+#' interval-censored data.
+#' \emph{Computational Statistics and Data Analysis}, 161: 107250.
+#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#'
+#' @seealso \code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.
+#'
 #' @export
 #'
 #' @examples

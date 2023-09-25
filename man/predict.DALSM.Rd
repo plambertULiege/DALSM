@@ -41,3 +41,16 @@ fit = DALSM(y=resp,
 data2 = data.frame(age=c(40,60),eduyrs=c(18,12))
 predict(fit, data = DALSM_IncomeData, newdata=data2, probs=c(.2,.5,.8))
 }
+\references{
+Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
+in nonparametric double additive location-scale models with right- and
+interval-censored data.
+\emph{Computational Statistics and Data Analysis}, 161: 107250.
+\url{https://doi.org/10.1016/j.csda.2021.107250}
+}
+\seealso{
+\code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.
+}
+\author{
+Philippe Lambert \email{p.lambert@uliege.be}
+}

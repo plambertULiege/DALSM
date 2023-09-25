@@ -3,7 +3,7 @@
 ## Email:  p.lambert@uliege.be
 ## Web: http://www.statsoc.ulg.ac.be
 ## -----------------------------------
-#' Plot a credible region (in grey) for a curve together with its point estimate (lwd=2)
+#' Plot a credible region (in grey) for a curve together with its point estimate
 #'
 #' @param x vector of values where the curve is evaluated
 #' @param mat cbind(f.hat,f.low,f.up) is a matrix containing the point estimates <f.hat> and the liming values <f.low> and <f.up> for the credible region
@@ -24,6 +24,9 @@
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#'
+#' @seealso \code{\link{DALSM}}, \code{\link{DALSM.object}}.
+#'
 #' #'
 #' @export
 #'
@@ -36,7 +39,7 @@
 #'             formula2 = ~twoincomes+s(age)+s(eduyrs),
 #'             data = DALSM_IncomeData)
 #' obj = DALSM_additive(fit)
-#' ## par(mfrow=c(1,2),mar=c(3,4,1,1))
+#' ## par(mfrow=c(1,2),mar=c(4,5,1,1))
 #' with(obj$f.loc.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~mu}*(age))))
 #' with(obj$f.disp.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~sigma}*(age))))
 plotRegion = function(x,mat,add=FALSE,xlim=range(x),ylim=range(mat),
