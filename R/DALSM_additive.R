@@ -14,27 +14,27 @@
 #'                       true.loc=NULL, true.disp=NULL, ci.level=NULL,
 #'                       verbose=FALSE)
 #'
-#' @param obj.DALSM an object of class \code{\link{DALSM.object}}
-#' @param ngrid (optional) grid size of covariate values where the additive terms are calculated (default: 101)
-#' @param true.loc (optional) list of functions containing the 'true' additive terms for location
-#' @param true.disp (optional) list of functions containing the 'true' additive terms for dispersion
-#' @param ci.level (optional) level of credible intervals
-#' @param verbose logical indicating whether the computed corverages should be printed out (default: TRUE)
+#' @param obj.DALSM a \code{\link{DALSM.object}}
+#' @param ngrid (optional) grid size of covariate values where the additive terms are calculated (default: 101).
+#' @param true.loc (optional) list of functions containing the 'true' additive terms in the location sub-model.
+#' @param true.disp (optional) list of functions containing the 'true' additive terms in the dispersion sub-model.
+#' @param ci.level (optional) level of credible intervals.
+#' @param verbose logical indicating whether the computed corverages should be printed out (default: TRUE).
 #'
 #' @return It returns an invisible list containing:
 #' \itemize{
-#' \item{\code{J1} : \verb{ }}{number of additive terms in the location sub-model}
-#' \item{\code{labels.loc} : \verb{ }}{labels of the additive terms in the location sub-model}
-#' \item{\code{f.loc.grid} : \verb{ }}{list of length \code{J1} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid}
+#' \item{\code{J1} : \verb{ }}{number of additive terms in the location sub-model.}
+#' \item{\code{labels.loc} : \verb{ }}{labels of the additive terms in the location sub-model.}
+#' \item{\code{f.loc.grid} : \verb{ }}{list of length \code{J1} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid.}
 #' \item{\code{f.loc} : \verb{ }}{a list of length \code{J1} with, for each additive term <x>, a list with f.loc$x: a function computing the additive term f.loc(x) for a given covariate value 'x' ; attributes(f.loc$x): support, label, range.}
-#' \item{\code{se.loc} : \verb{ }}{a list of length \code{J1} with, for each additive term <x>, a list with se.loc$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.loc$x): support, label, range}
-#' \item{\code{coverage.loc} : \verb{ }}{if \code{true.loc} is provided: a vector of length \code{J1} giving the average effective coverage of pointwise credible intervals for each of the additive terms for location}
-#' \item{\code{J2} : \verb{ }}{number of additive terms in the dispersion sub-model}
-#' \item{\code{labels.disp} : \verb{ }}{labels of the additive terms in the dispersion sub-model}
-#' \item{\code{f.disp.grid} : \verb{ }}{list of length \code{J2} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid}
+#' \item{\code{se.loc} : \verb{ }}{a list of length \code{J1} with, for each additive term <x>, a list with se.loc$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.loc$x): support, label, range.}
+#' \item{\code{coverage.loc} : \verb{ }}{if \code{true.loc} is provided: a vector of length \code{J1} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the location sub-model.}
+#' \item{\code{J2} : \verb{ }}{number of additive terms in the dispersion sub-model.}
+#' \item{\code{labels.disp} : \verb{ }}{labels of the additive terms in the dispersion sub-model.}
+#' \item{\code{f.disp.grid} : \verb{ }}{list of length \code{J2} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid.}
 #' \item{\code{f.disp} : \verb{ }}{a list of length \code{J2} with, for each additive term <x>, a list with f.disp$x: a function computing the additive term f.disp(x) for a given covariate value 'x' ; attributes(f.disp$x): support, label, range.}
-#' \item{\code{se.disp} : \verb{ }}{a list of length \code{J2} with, for each additive term <x>, a list with se.disp$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.disp$x): support, label, range}
-#' \item{\code{coverage.disp} : \verb{ }}{if <true.disp> is provided: a vector of length \code{J2} giving the average effective coverage of pointwise credible intervals for each of the additive terms for dispersion}
+#' \item{\code{se.disp} : \verb{ }}{a list of length \code{J2} with, for each additive term <x>, a list with se.disp$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.disp$x): support, label, range.}
+#' \item{\code{coverage.disp} : \verb{ }}{if <true.disp> is provided: a vector of length \code{J2} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the dispersion sub-model.}
 #' }
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -42,7 +42,7 @@
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
 #' @seealso \code{\link{DALSM.object}}, \code{\link{DALSM}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.
 #'
@@ -57,6 +57,7 @@
 #'             data = DALSM_IncomeData)
 #' obj = DALSM_additive(fit)
 #' str(obj)
+#'
 #' ## Visualize the estimated additive terms for Age
 #' ## ... in the location submodel
 #' with(obj$f.loc.grid$age, matplot(x,y.mat,

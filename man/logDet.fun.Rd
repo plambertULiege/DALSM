@@ -7,10 +7,10 @@
 logDet.fun(x)
 }
 \arguments{
-\item{x}{positive definite matrix}
+\item{x}{positive definite matrix.}
 }
 \value{
-log of det(x)
+log of det(x).
 }
 \description{
 Log-determinant of a positive-definite matrix
@@ -25,7 +25,7 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

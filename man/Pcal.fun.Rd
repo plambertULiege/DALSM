@@ -7,30 +7,30 @@
 Pcal.fun(nfixed, lambda, Pd.x)
 }
 \arguments{
-\item{nfixed}{the number of fixed (i.e. non-penalized) parameters}
+\item{nfixed}{the number of fixed (i.e. non-penalized) parameters.}
 
-\item{lambda}{a vector of \code{p} penalty parameters where each component is associated to a sub-vector of spline parameters of length \code{J}}
+\item{lambda}{a vector of \code{p} penalty parameters where each component is associated to a sub-vector of spline parameters of length \code{J}.}
 
-\item{Pd.x}{a penalty matrix of size \code{J} associated to a given sub-vector of spline parameters}
+\item{Pd.x}{a penalty matrix of size \code{J} associated to a given sub-vector of spline parameters.}
 }
 \value{
-A block diagonal penalty matrix of size \code{(nfixed+pJ)} given by Blockdiag(diag(0,\code{nfixed}), diag(\code{lambda}).kron.\code{Pd.x})
+A block diagonal penalty matrix of size \code{(nfixed+pJ)} given by Blockdiag(diag(0,\code{nfixed}), diag(\code{lambda}).kron.\code{Pd.x}).
 }
 \description{
-Compute the penalty matrix associated to a vector containing fixed (non-penalized) parameters and equal-size sub-vectors of penalized B-spline parameters
+Compute the penalty matrix associated to a vector containing fixed (non-penalized) parameters and equal-size sub-vectors of penalized B-spline parameters.
 }
 \examples{
 D = diff(diag(5),diff=2) ## Difference penalty matrix of order 2 for 5 P-spline parameters
-P = t(D) \%*\% D ## Penalty matrix for the 5 P-spline parameters
-lambda = 100 ## Penalty parameter
-Pcal.fun(2,lambda,P) ## Global penalty matrix with 2 additional non-penalized parameters
+P = t(D) \%*\% D ## Penalty matrix of order 2 for 5 B-spline parameters
+lambda = c(100,10) ## Penalty parameters for 2 additive terms with 5 B-spline parameters each
+Pcal.fun(3,lambda,P) ## Global penalty matrix for 3 additional non-penalized parameters
 }
 \references{
 Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

@@ -13,57 +13,57 @@ DALSM(y, formula1,formula2, data,
        ci.level=.95, iterlim=50,verbose=FALSE)
 }
 \arguments{
-\item{y}{n-vector of responses or (nx2)-matrix/data.frame if interval-censoring or right-censoring (when 2nd column equal to Inf)}
+\item{y}{n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals Inf).}
 
-\item{formula1}{model formula for location (i.e. for the conditional mean)}
+\item{formula1}{model formula for location (i.e. for the conditional mean).}
 
-\item{formula2}{model formula for dispersion (i.e. for the log of the conditional standard deviation)}
+\item{formula2}{model formula for dispersion (i.e. for the log of the conditional standard deviation).}
 
-\item{data}{data frame containing the model covariates}
+\item{data}{data frame containing the model covariates.}
 
-\item{K1}{(optional) number of B-splines to describe a given additive term in the location submodel (default: 10)}
+\item{K1}{(optional) number of B-splines to describe a given additive term in the location submodel (default: 10).}
 
-\item{K2}{(optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10)}
+\item{K2}{(optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10).}
 
-\item{pen.order1}{(optional) penalty order for the additive terms in the location submodel (default: 2)}
+\item{pen.order1}{(optional) penalty order for the additive terms in the location submodel (default: 2).}
 
-\item{pen.order2}{(optional) penalty order for the additive terms in the dispersion submodel (default: 2)}
+\item{pen.order2}{(optional) penalty order for the additive terms in the dispersion submodel (default: 2).}
 
-\item{b.tau}{(optional) prior on penalty parameter tau is Gamma(1,b.tau=1e-4) (for additive terms) (default: 1e-4)}
+\item{b.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(1,b.tau=1e-4) (for additive terms) (default: 1e-4).}
 
-\item{lambda1.min}{(optional) minimal value for the penalty parameters in the additive model for location (default: 1.0)}
+\item{lambda1.min}{(optional) minimal value for the penalty parameters in the additive model for location (default: 1.0).}
 
-\item{lambda2.min}{(optional) minimal value for penalty parameters in the additive model for log-dispersion (default: 1.0)}
+\item{lambda2.min}{(optional) minimal value for penalty parameters in the additive model for log-dispersion (default: 1.0).}
 
-\item{phi.0}{(optional) initial values for the spline parameters in the log-hazard of the standardized error distribution}
+\item{phi.0}{(optional) initial values for the spline parameters in the log-hazard of the standardized error distribution.}
 
-\item{psi1.0}{(optional) initial values for the location submodel parameters}
+\item{psi1.0}{(optional) initial values for the location submodel parameters.}
 
-\item{psi2.0}{(optional) initial values for the dispersion submodel parameters}
+\item{psi2.0}{(optional) initial values for the dispersion submodel parameters.}
 
-\item{lambda1.0}{(optional) initial value for the J1 penalty parameters of the additive terms in the location submodel}
+\item{lambda1.0}{(optional) initial value for the J1 penalty parameters of the additive terms in the location submodel.}
 
-\item{lambda2.0}{(optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel}
+\item{lambda2.0}{(optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel.}
 
-\item{REML}{(optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE)}
+\item{REML}{(optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE).}
 
-\item{diag.only}{(optional) logical indicating if only the diagonal of the Hessian needs to be corrected during REML (default: TRUE)}
+\item{diag.only}{(optional) logical indicating if only the diagonal of the Hessian needs to be corrected during REML (default: TRUE).}
 
-\item{Normality}{(optional) logical indicating if Normality is assumed for the error term (default: FALSE)}
+\item{Normality}{(optional) logical indicating if Normality is assumed for the error term (default: FALSE).}
 
-\item{sandwich}{(optional) logical indicating if sandwich variance estimators are needed for the regression parameters for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE}
+\item{sandwich}{(optional) logical indicating if sandwich variance estimators are needed for the regression parameters for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE.}
 
-\item{K.error}{(optional) number of B-splines to approximate the log of the error hazard on (rmin,rmax) (default: 20)}
+\item{K.error}{(optional) number of B-splines to approximate the log of the error hazard on (rmin,rmax) (default: 20).}
 
-\item{rmin}{(optional) minimum value for the support of the standardized error distribution (default: min(y)-sd(y))}
+\item{rmin}{(optional) minimum value for the support of the standardized error distribution (default: min(y)-sd(y)).}
 
-\item{rmax}{(optional) maximum value for the support of the standardized error distribution (default: max(y)+sd(y))}
+\item{rmax}{(optional) maximum value for the support of the standardized error distribution (default: max(y)+sd(y)).}
 
-\item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95)}
+\item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95).}
 
-\item{iterlim}{(optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50)}
+\item{iterlim}{(optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).}
 
-\item{verbose}{(optional) logical indicating whether estimation step details should be displayed (default: FALSE)}
+\item{verbose}{(optional) logical indicating whether estimation step details should be displayed (default: FALSE).}
 }
 \value{
 An object of class \code{DASLM} containing several components from the fit,
@@ -73,7 +73,7 @@ or plotted using \code{\link{plot.DALSM}}.
 \description{
 Fit a location-scale model with a flexible error distribution and
 potentially additive terms in location (=mean) and dispersion (= log(sd))
-when the response can be right-censored
+when the response can be right-censored.
 }
 \examples{
 require(DALSM)
@@ -92,7 +92,7 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
 \code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.

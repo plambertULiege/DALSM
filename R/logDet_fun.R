@@ -1,15 +1,15 @@
 #' Log-determinant of a positive-definite matrix
 #'
-#' @param x positive definite matrix
+#' @param x positive definite matrix.
 #'
-#' @return log of det(x)
+#' @return log of det(x).
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
 #' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
 #' @export
 #'

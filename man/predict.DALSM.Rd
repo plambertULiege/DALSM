@@ -7,22 +7,22 @@
 \method{predict}{DALSM}(object, newdata, probs, ...)
 }
 \arguments{
-\item{object}{a \code{\link{DALSM.object}}}
+\item{object}{a \code{\link{DALSM.object}}.}
 
 \item{newdata}{an optional data frame in which to look for variables with which to predict. If omitted, the covariate values in the original data frame used to fit the DALSM model are considered.}
 
-\item{probs}{probability levels of the requested conditional quantiles}
+\item{probs}{probability levels of the requested conditional quantiles.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
 Returns a list containing:
 \itemize{
-\item{\code{mu} : \verb{ }}{estimated conditional mean}
-\item{\code{sd} : \verb{ }}{estimated conditional standard deviation}
-\item{\code{quant} : \verb{ }}{estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model}
-\item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model}
-\item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles}
+\item{\code{mu} : \verb{ }}{estimated conditional mean.}
+\item{\code{sd} : \verb{ }}{estimated conditional standard deviation.}
+\item{\code{quant} : \verb{ }}{estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model.}
+\item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model.}
+\item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles.}
 }
 }
 \description{
@@ -46,7 +46,7 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
 \code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.

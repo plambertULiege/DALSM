@@ -1,20 +1,22 @@
 ###################################################################################
 ## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Oct 2018
 ###################################################################################
-#' Print summary information on the error density of a fitted DALSM regression model
-#' @description Print summary information on the error density of a fitted DALSM regression model
-#' @usage \method{print}{densityGivenMeanVariance}(x,...)
-#' @param x a <densityGivenMeanVariance.object> (typically the $derr element of a DALSM.object list)
-#' @param ... Optional additional print parameters
+#' Print a summary of the information in a \code{densIC.object}
+#' @description Print summary information on the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
+#' @usage \method{print}{densIC}(x,...)
+#' @param x a code{densIC.object}.
+#' @param ... Optional additional print parameters.
 #'
-#' @return No returned value (just printed summary)
+#' @return No returned value (just printed summary).
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
 #' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
+#'
+#' @seealso \code{\link{densIC.object}}, \code{\link{plot.densIC}}, \code{\link{densityIC}}.
 #'
 #' @export
 #'
@@ -29,7 +31,7 @@
 #' plot(fit$derr)  ## Plot the estimated error density
 #' print(fit$derr) ## ... and provide some descriptive elements on it
 #'
-print.densityGivenMeanVariance = function(x,...){
+print.densIC = function(x,...){
   fit = x
   cat("** Constrained Density/Hazard estimation from right- and Interval-censored data **\n")
   cat("INPUT:\n")

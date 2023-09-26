@@ -1,34 +1,35 @@
-#' Plot the density estimate in a \code{densityGivenMeanVariance.object}
-#' @description Plot the density estimate obtained by \code{densityGivenMeanVariance} from censored data with given mean and variance.
+#' Plot the density estimate in a \code{densIC.object}
+#' @description Plot the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
 #'
-#' @usage \method{plot}{densityGivenMeanVariance}(x,
+#' @usage \method{plot}{densIC}(x,
 #'        xlim=range(fit$bins),breaks=NULL,histRC=FALSE,
 #'        xlab="",ylab="Density",main="",...)
 #'
-#' @param x a <densityGivenMeanVariance.object> (typically the $derr element of a DALSM.object list)
-#' @param xlim interval of values where the density should be plotted
-#' @param breaks (Optional) breaks for the histogram of the observed residuals
-#' @param histRC Logical (Default: FALSE) indicating whether the histogram of the right-censored residuals should be highlighted
-#' @param xlab Optional label for the x-axis
-#' @param ylab Optional label for the y-axis
-#' @param main Plot main title
-#' @param ... Optional additional plot parameters
+#' @param x a \code{\link{densIC.object}}.
+#' @param xlim interval of values where the density should be plotted.
+#' @param breaks (Optional) breaks for the histogram of the observed residuals.
+#' @param histRC Logical (Default: FALSE) indicating whether the histogram of the right-censored residuals should be highlighted.
+#' @param xlab Optional label for the x-axis (Defaut: empty).
+#' @param ylab Optional label for the y-axis (Default: "Density").
+#' @param main Plot main title (Default: "").
+#' @param ... Optional additional plot parameters.
 #'
-#' @return No returned value (just plots)
+#' @return No returned value (just plots).
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
 #' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{densityGivenMeanVariance.object}}, \code{\link{print.densityGivenMeanVariance}}, \code{\link{plot.densityGivenMeanVariance}}, \code{\link{Dens1d.object}}, \code{\link{Dens1d}}.
+#' @seealso \code{\link{densIC.object}}, \code{\link{print.densIC}}, \code{\link{densityIC}}.
 #'
 #' @export
 #'
 #' @examples
 #' require(DALSM)
+#'
 #' ## Example 1: density estimation from IC data
 #' n = 500 ## Sample size
 #' x = 3 + rgamma(n,10,2) ## Exact generated data
@@ -38,7 +39,7 @@
 #' head(xmat)
 #' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 #' ## Density estimation with fixed mean and variance
-#' obj = densityGivenMeanVariance(obj.data,Mean0=3+10/2,Var0=10/4)
+#' obj = densityIC(obj.data,Mean0=3+10/2,Var0=10/4)
 #' plot(obj) ## Histogram of thepseudo-data with the density estimate
 #' curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
 #'       add=TRUE,col="red",lwd=2,lty=2)
@@ -58,7 +59,7 @@
 #'        legend=c("Estimated error density","Pseudo-residuals"),bty="n")
 #' print(fit$derr) ## ... and provide summary statistics for it
 
-plot.densityGivenMeanVariance = function(x,xlim=range(fit$bins),breaks=NULL,histRC=FALSE,xlab="",ylab="Density",main="",...){
+plot.densIC = function(x,xlim=range(fit$bins),breaks=NULL,histRC=FALSE,xlab="",ylab="Density",main="",...){
   fit = x
   dens.grid = fit$ddist(fit$ugrid) ## Fitted density at bin midpoints
   ##
@@ -66,7 +67,7 @@ plot.densityGivenMeanVariance = function(x,xlim=range(fit$bins),breaks=NULL,hist
   temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,plot=FALSE))
   temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,freq=FALSE,
                         xlim=xlim,ylim=1.05*c(0,max(dens.grid,temp$density)),
-                        xlab=xlab,main=main,col="grey"))
+                        xlab=xlab,col="grey",main=main,...))
   n.RC = sum(fit$event==0)
   if (histRC & n.RC>0) temp = with(fit, hist(rep(ugrid,apply((C[event==0,]/apply(C[event==0,],1,sum)),2,sum)),breaks=breaks,freq=FALSE,col="gray87",add=T))
   with(fit, curve(ddist,lwd=2,add=T,n=501))

@@ -6,6 +6,12 @@
 \usage{
 s(x)
 }
+\arguments{
+\item{x}{Name of the variable for which an additive term is requested}
+}
+\value{
+The submitted variable for which an additive term is required
+}
 \description{
 Specification of smooth terms in formulas in the DALSM function.
 }

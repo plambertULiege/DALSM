@@ -2,47 +2,38 @@
 % Please edit documentation in R/plotRegion.R
 \name{plotRegion}
 \alias{plotRegion}
-\title{Plot a credible region (in grey) for a curve together with its point estimate}
+\title{Plot a credible region for a curve together with its point estimates}
 \usage{
-plotRegion(
-  x,
-  mat,
-  add = FALSE,
-  xlim = range(x),
-  ylim = range(mat),
-  lwd = 2,
-  xlab = "",
-  ylab = "",
-  main = "",
-  ...
-)
+plotRegion(x,mat,
+       add=FALSE, xlim=range(x), ylim=range(mat),
+       lwd=2, xlab="", ylab="", main="", ...)
 }
 \arguments{
-\item{x}{vector of values where the curve is evaluated}
+\item{x}{vector of values where the curve is evaluated.}
 
-\item{mat}{cbind(f.hat,f.low,f.up) is a matrix containing the point estimates <f.hat> and the liming values <f.low> and <f.up> for the credible region}
+\item{mat}{cbind(f.hat,f.low,f.up) is a matrix containing the point estimates <f.hat> and the liming values <f.low> and <f.up> for the credible region.}
 
-\item{add}{Logical indicating if the plot must be added to active plot (Default: FALSE)}
+\item{add}{Logical indicating if the plot must be added to the active plot (Default: FALSE).}
 
-\item{xlim}{range of <x> values for which the plot should be provided}
+\item{xlim}{range of <x> values for which the plot should be provided.}
 
-\item{ylim}{range of curve values that should be considered for the plot}
+\item{ylim}{range of curve values that should be considered for the plot.}
 
-\item{lwd}{line width for the plot (Default: 2)}
+\item{lwd}{line width for the plot (Default: 2).}
 
-\item{xlab}{x-label}
+\item{xlab}{x-label.}
 
-\item{ylab}{y-label}
+\item{ylab}{y-label.}
 
-\item{main}{main title}
+\item{main}{main title.}
 
-\item{...}{optional plotting parameters}
+\item{...}{optional plotting parameters.}
 }
 \value{
 No returned value (just a plot)
 }
 \description{
-Plot a credible region (in grey) for a curve together with its point estimate
+Plot a credible region (in grey) for a curve together with its point estimates.
 }
 \examples{
 require(DALSM)
@@ -62,12 +53,10 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
 \code{\link{DALSM}}, \code{\link{DALSM.object}}.
-
-#'
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

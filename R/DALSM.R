@@ -1,7 +1,7 @@
 #' Fit a double additive location-scale model (DALSM) with a flexible error distribution
 #' @description Fit a location-scale model with a flexible error distribution and
 #' potentially additive terms in location (=mean) and dispersion (= log(sd))
-#' when the response can be right-censored
+#' when the response can be right-censored.
 #' @usage DALSM(y, formula1,formula2, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
 #'        b.tau=1e-4, lambda1.min=1, lambda2.min=1,
@@ -10,32 +10,32 @@
 #'        K.error=20, rmin=NULL,rmax=NULL,
 #'        ci.level=.95, iterlim=50,verbose=FALSE)
 #'
-#' @param y n-vector of responses or (nx2)-matrix/data.frame if interval-censoring or right-censoring (when 2nd column equal to Inf)
-#' @param formula1 model formula for location (i.e. for the conditional mean)
-#' @param formula2 model formula for dispersion (i.e. for the log of the conditional standard deviation)
-#' @param data data frame containing the model covariates
-#' @param K1 (optional) number of B-splines to describe a given additive term in the location submodel (default: 10)
-#' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10)
-#' @param pen.order1 (optional) penalty order for the additive terms in the location submodel (default: 2)
-#' @param pen.order2 (optional) penalty order for the additive terms in the dispersion submodel (default: 2)
-#' @param b.tau (optional) prior on penalty parameter tau is Gamma(1,b.tau=1e-4) (for additive terms) (default: 1e-4)
-#' @param lambda1.min (optional) minimal value for the penalty parameters in the additive model for location (default: 1.0)
-#' @param lambda2.min (optional) minimal value for penalty parameters in the additive model for log-dispersion (default: 1.0)
-#' @param phi.0 (optional) initial values for the spline parameters in the log-hazard of the standardized error distribution
-#' @param psi1.0 (optional) initial values for the location submodel parameters
-#' @param psi2.0 (optional) initial values for the dispersion submodel parameters
-#' @param lambda1.0 (optional) initial value for the J1 penalty parameters of the additive terms in the location submodel
-#' @param lambda2.0 (optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel
-#' @param REML (optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE)
-#' @param diag.only (optional) logical indicating if only the diagonal of the Hessian needs to be corrected during REML (default: TRUE)
-#' @param Normality (optional) logical indicating if Normality is assumed for the error term (default: FALSE)
-#' @param sandwich (optional) logical indicating if sandwich variance estimators are needed for the regression parameters for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE
-#' @param K.error (optional) number of B-splines to approximate the log of the error hazard on (rmin,rmax) (default: 20)
-#' @param rmin (optional) minimum value for the support of the standardized error distribution (default: min(y)-sd(y))
-#' @param rmax (optional) maximum value for the support of the standardized error distribution (default: max(y)+sd(y))
-#' @param ci.level (optional) nominal level for the reported credible intervals (default: .95)
-#' @param iterlim (optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50)
-#' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE)
+#' @param y n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals Inf).
+#' @param formula1 model formula for location (i.e. for the conditional mean).
+#' @param formula2 model formula for dispersion (i.e. for the log of the conditional standard deviation).
+#' @param data data frame containing the model covariates.
+#' @param K1 (optional) number of B-splines to describe a given additive term in the location submodel (default: 10).
+#' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10).
+#' @param pen.order1 (optional) penalty order for the additive terms in the location submodel (default: 2).
+#' @param pen.order2 (optional) penalty order for the additive terms in the dispersion submodel (default: 2).
+#' @param b.tau (optional) prior on penalty parameter \eqn{\tau} is Gamma(1,b.tau=1e-4) (for additive terms) (default: 1e-4).
+#' @param lambda1.min (optional) minimal value for the penalty parameters in the additive model for location (default: 1.0).
+#' @param lambda2.min (optional) minimal value for penalty parameters in the additive model for log-dispersion (default: 1.0).
+#' @param phi.0 (optional) initial values for the spline parameters in the log-hazard of the standardized error distribution.
+#' @param psi1.0 (optional) initial values for the location submodel parameters.
+#' @param psi2.0 (optional) initial values for the dispersion submodel parameters.
+#' @param lambda1.0 (optional) initial value for the J1 penalty parameters of the additive terms in the location submodel.
+#' @param lambda2.0 (optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel.
+#' @param REML (optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE).
+#' @param diag.only (optional) logical indicating if only the diagonal of the Hessian needs to be corrected during REML (default: TRUE).
+#' @param Normality (optional) logical indicating if Normality is assumed for the error term (default: FALSE).
+#' @param sandwich (optional) logical indicating if sandwich variance estimators are needed for the regression parameters for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE.
+#' @param K.error (optional) number of B-splines to approximate the log of the error hazard on (rmin,rmax) (default: 20).
+#' @param rmin (optional) minimum value for the support of the standardized error distribution (default: min(y)-sd(y)).
+#' @param rmax (optional) maximum value for the support of the standardized error distribution (default: max(y)+sd(y)).
+#' @param ci.level (optional) nominal level for the reported credible intervals (default: .95).
+#' @param iterlim (optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).
+#' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE).
 #'
 #' @return An object of class \code{DASLM} containing several components from the fit,
 #' see \code{\link{DALSM.object}} for details. A summary can be printed using \code{\link{print.DALSM}}
@@ -46,7 +46,7 @@
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
 #' @seealso \code{\link{DALSM.object}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}.
 #'
@@ -446,16 +446,16 @@ DALSM = function(y, formula1,formula2, data,
         phi.cur = phi.ref = phi.Norm(obj1d$knots)
       }
       ##
-      fit1d.0 = densityGivenMeanVariance(obj1d,
-                                         phi0=phi.cur,
-                                         fixed.phi=fixed.phi,phi.ref=phi.ref,
-                                         is.density=TRUE,Mean0=NULL,Var0=NULL,
-                                         method="evidence",verbose=FALSE)
-      fit1d = densityGivenMeanVariance(obj1d,
-                                       phi0=fit1d.0$phi,
-                                       fixed.phi=fixed.phi, phi.ref=phi.ref,
-                                       is.density=TRUE,Mean0=0,Var0=1,
-                                       method="evidence",verbose=FALSE)
+      fit1d.0 = densityIC(obj1d,
+                       phi0=phi.cur,
+                       fixed.phi=fixed.phi,phi.ref=phi.ref,
+                       is.density=TRUE,Mean0=NULL,Var0=NULL,
+                       method="evidence",verbose=FALSE)
+      fit1d = densityIC(obj1d,
+                     phi0=fit1d.0$phi,
+                     fixed.phi=fixed.phi, phi.ref=phi.ref,
+                     is.density=TRUE,Mean0=0,Var0=1,
+                     method="evidence",verbose=FALSE)
       fit1d$n=n ; fit1d$n.uncensored=n.uncensored ; fit1d$n.IC=n.IC ; fit1d$n.RC=n.RC
       phi.cur = fit1d$phi ## Current spline parameter estimates in error density estimation
     }

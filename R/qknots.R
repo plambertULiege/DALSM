@@ -1,4 +1,4 @@
-#' Selection of knots in a cubic P-spline model
+#' Specification of knots in a cubic P-spline model
 #' @description
 #' Specification of knots for a cubic B-spline basis with \code{K} elements in
 #' a P-spline model. The knots should support the data contained in vector \code{x}
@@ -6,21 +6,21 @@
 #' on the data quantiles. The penalty matrix of the selected penalty order
 #' (3 by default) is also returned.
 #'
-#' @param x data that should be supported by the knots
-#' @param xmin desired minimum value for the knots
-#' @param xmax desired maximum value for the knots
+#' @param x data that the knots should upport.
+#' @param xmin desired minimum value for the knots.
+#' @param xmax desired maximum value for the knots.
 #' @param equid.knots logical indicating if equidistant knots are desired (Default: TRUE). If FALSE, the quantile of \code{x} are used to select the knots.
-#' @param pen.order penalty order if \code{equid.knots} is \code{TRUE}
-#' @param K number of B-splines in the basis
+#' @param pen.order penalty order if \code{equid.knots} is \code{TRUE}.
+#' @param K number of B-splines in the basis.
 #'
 #' @return A list containing:
 #' \itemize{
-#' \item{\code{xmin} : \verb{ }}{specified minimum value for the knots, except if \eqn{\min(x) < xmin}, in which case the default value \eqn{\min(x)-sd(x)} is returned}
-#' \item{\code{xmin} : \verb{ }}{specified maximum value for the knots, except if \eqn{xmax < \max(x)}, in which case the default value \eqn{\max(x)+sd(x)} is returned}
-#' \item{\code{K} : \verb{ }}{number of B-splines}
-#' \item{\code{knots} : \verb{ }}{equidistant knots on (xmin,xmax) if \code{equidistant.knots} is TRUE, based on quantiles of \code{x} otherwise}
-#' \item{\code{Pd} : \verb{ }}{\eqn{K\times K} penalty matrix of order \code{pen.order}}
-#' \item{\code{pen.order} : \verb{ }}{a reminder of the requested penalty order (Default: 3)}
+#' \item{\code{xmin} : \verb{ }}{specified minimum value for the knots, except if \eqn{\min(x) < xmin}, in which case the default value \eqn{\min(x)-sd(x)} is returned.}
+#' \item{\code{xmin} : \verb{ }}{specified maximum value for the knots, except if \eqn{xmax < \max(x)}, in which case the default value \eqn{\max(x)+sd(x)} is returned.}
+#' \item{\code{K} : \verb{ }}{number of B-splines.}
+#' \item{\code{knots} : \verb{ }}{equidistant knots on (xmin,xmax) if \code{equidistant.knots} is TRUE, based on quantiles of \code{x} otherwise.}
+#' \item{\code{Pd} : \verb{ }}{\eqn{K\times K} penalty matrix of order \code{pen.order}.}
+#' \item{\code{pen.order} : \verb{ }}{a reminder of the requested penalty order (Default: 3).}
 #' }
 #' @export
 #'

@@ -2,33 +2,33 @@
 % Please edit documentation in R/Dens1d.R
 \name{Dens1d}
 \alias{Dens1d}
-\title{Creates an object to perform density estimation from right- or interval-censored data}
+\title{Object creation for density estimation from right- or interval-censored data}
 \usage{
 Dens1d(y, event=NULL, ymin=NULL, ymax=NULL,
        K=25, equid.knots=TRUE, pen.order=2, nbins=501)
 }
 \arguments{
-\item{y}{a n-vector (if no interval-censored data) or a nx2 matrix (left and right limits of the interval-censored variable ; right limit set to Inf if right-censored)}
+\item{y}{a n-vector (if no interval-censored data) or a nx2 matrix (left and right limits of the interval for IC data ; right limit set to Inf for right-censored data).}
 
-\item{event}{a n-vector of observation indicators (0: right-censored ; 1: exactly observed or interval-censored)}
+\item{event}{a n-vector of observation indicators (0: right-censored ; 1: exactly observed or interval-censored).}
 
-\item{ymin}{left limit of the variable support}
+\item{ymin}{left limit of the variable support.}
 
-\item{ymax}{right limit of the variable support}
+\item{ymax}{right limit of the variable support.}
 
-\item{K}{number of B-splines in the basis to approximate the log-hazard}
+\item{K}{number of B-splines in the basis to approximate the log-hazard.}
 
-\item{equid.knots}{logical indicating if equidistants knots are desired}
+\item{equid.knots}{logical indicating if equidistants knots are desired.}
 
-\item{pen.order}{penalty order when equidistant knots (otherwise: penalty matrix computed to penalize the second derivative)}
+\item{pen.order}{penalty order when equidistant knots (otherwise: penalty matrix computed to penalize the second derivative).}
 
-\item{nbins}{number of small bins used for quadrature and approximations}
+\item{nbins}{number of small bins used for quadrature and approximations.}
 }
 \value{
-A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityGivenMeanVariance}}
+A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityIC}}.
 }
 \description{
-Object creation for density estimation from right- or interval-censored data using function \link{densityGivenMeanVariance}
+Object creation for density estimation from right- or interval-censored data using function \link{densityIC}.
 }
 \examples{
 library(DALSM)
@@ -36,7 +36,7 @@ data(DALSM_IncomeData)
 resp = DALSM_IncomeData[,1:2]
 head(resp,n=20)
 temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-obj = densityGivenMeanVariance(temp) ## Density estimation from IC & RC data
+obj = densityIC(temp) ## Density estimation from IC & RC data
 plot(obj) ## Visualize the estimated density
 
 }
@@ -45,10 +45,10 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
-\code{\link{Dens1d.object}}, \code{\link{densityGivenMeanVariance}}.
+\code{\link{Dens1d.object}}, \code{\link{densityIC}}.
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

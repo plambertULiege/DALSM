@@ -1,20 +1,20 @@
 ## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Sept 2017
 ###################################################################################
-#' Creates an object to perform density estimation from right- or interval-censored data
-#' @description Object creation for density estimation from right- or interval-censored data using function \link{densityGivenMeanVariance}
+#' Object creation for density estimation from right- or interval-censored data
+#' @description Object creation for density estimation from right- or interval-censored data using function \link{densityIC}.
 #'
 #' @usage Dens1d(y, event=NULL, ymin=NULL, ymax=NULL,
 #'        K=25, equid.knots=TRUE, pen.order=2, nbins=501)
-#' @param y a n-vector (if no interval-censored data) or a nx2 matrix (left and right limits of the interval-censored variable ; right limit set to Inf if right-censored)
-#' @param event a n-vector of observation indicators (0: right-censored ; 1: exactly observed or interval-censored)
-#' @param ymin left limit of the variable support
-#' @param ymax right limit of the variable support
-#' @param K number of B-splines in the basis to approximate the log-hazard
-#' @param equid.knots logical indicating if equidistants knots are desired
-#' @param pen.order penalty order when equidistant knots (otherwise: penalty matrix computed to penalize the second derivative)
-#' @param nbins number of small bins used for quadrature and approximations
+#' @param y a n-vector (if no interval-censored data) or a nx2 matrix (left and right limits of the interval for IC data ; right limit set to Inf for right-censored data).
+#' @param event a n-vector of observation indicators (0: right-censored ; 1: exactly observed or interval-censored).
+#' @param ymin left limit of the variable support.
+#' @param ymax right limit of the variable support.
+#' @param K number of B-splines in the basis to approximate the log-hazard.
+#' @param equid.knots logical indicating if equidistants knots are desired.
+#' @param pen.order penalty order when equidistant knots (otherwise: penalty matrix computed to penalize the second derivative).
+#' @param nbins number of small bins used for quadrature and approximations.
 #'
-#' @return A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityGivenMeanVariance}}
+#' @return A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityIC}}.
 #' @export
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -22,9 +22,9 @@
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{Dens1d.object}}, \code{\link{densityGivenMeanVariance}}.
+#' @seealso \code{\link{Dens1d.object}}, \code{\link{densityIC}}.
 #'
 #' @examples
 #' library(DALSM)
@@ -32,7 +32,7 @@
 #' resp = DALSM_IncomeData[,1:2]
 #' head(resp,n=20)
 #' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-#' obj = densityGivenMeanVariance(temp) ## Density estimation from IC & RC data
+#' obj = densityIC(temp) ## Density estimation from IC & RC data
 #' plot(obj) ## Visualize the estimated density
 #'
 Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,

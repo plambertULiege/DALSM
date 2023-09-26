@@ -2,23 +2,23 @@
 % Please edit documentation in R/centeredBasis_gen.R
 \name{centeredBasis.gen}
 \alias{centeredBasis.gen}
-\title{Generation of a recentered B-spline basis matrix in additive models}
+\title{Generation of a recentered cubic B-spline basis matrix in additive models}
 \usage{
 centeredBasis.gen(x, knots, cm = NULL, pen.order = 2)
 }
 \arguments{
-\item{x}{vector of values where to compute the "recentered" B-spline basis}
+\item{x}{vector of values where to compute the "recentered" B-spline basis.}
 
-\item{knots}{vector of knots (that should cover the values in <x>)}
+\item{knots}{vector of knots (that should cover the values in <x>).}
 
-\item{cm}{(Optional) values subtracted from each column of the original B-spline matrix}
+\item{cm}{(Optional) values subtracted from each column of the original B-spline matrix.}
 
-\item{pen.order}{penalty order for the B-spline parameters (Default: 2)}
+\item{pen.order}{penalty order for the B-spline parameters (Default: 2).}
 }
 \value{
 List containing
 \itemize{
-\item{\code{B} : \verb{ }}{centered B-spline matrix (with columns recentered to have mean 0 over equi-spaced x values on range of the knots).}
+\item{\code{B} : \verb{ }}{centered cubic B-spline matrix (with columns recentered to have mean 0 over equi-spaced x values on the range of the knots).}
 \item{\code{Dd} : \verb{ }}{difference matrix (of order <pen.order>) for the associated centered B-spline matrix.}
 \item{\code{Pd} : \verb{ }}{penalty matrix (of order <pen.order>) for the associated centered B-spline matrix.}
 \item{\code{K} : \verb{ }}{number of centered B-splines in the basis.}
@@ -26,7 +26,7 @@ List containing
 }
 }
 \description{
-Generation of a B-spline basis matrix with recentered columns
+Generation of a cubic B-spline basis matrix with recentered columns
  to handle the identifiability constraint in additive models. See Wood (CRC Press 2017, pp. 175-176) for more details.
 }
 \examples{
@@ -41,7 +41,7 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

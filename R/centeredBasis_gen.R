@@ -1,14 +1,14 @@
-#' Generation of a recentered B-spline basis matrix in additive models
-#' @description Generation of a B-spline basis matrix with recentered columns
+#' Generation of a recentered cubic B-spline basis matrix in additive models
+#' @description Generation of a cubic B-spline basis matrix with recentered columns
 #'  to handle the identifiability constraint in additive models. See Wood (CRC Press 2017, pp. 175-176) for more details.
-#' @param x vector of values where to compute the "recentered" B-spline basis
-#' @param knots vector of knots (that should cover the values in <x>)
-#' @param cm (Optional) values subtracted from each column of the original B-spline matrix
-#' @param pen.order penalty order for the B-spline parameters (Default: 2)
+#' @param x vector of values where to compute the "recentered" B-spline basis.
+#' @param knots vector of knots (that should cover the values in <x>).
+#' @param cm (Optional) values subtracted from each column of the original B-spline matrix.
+#' @param pen.order penalty order for the B-spline parameters (Default: 2).
 #'
 #' @return List containing
 #' \itemize{
-#' \item{\code{B} : \verb{ }}{centered B-spline matrix (with columns recentered to have mean 0 over equi-spaced x values on range of the knots).}
+#' \item{\code{B} : \verb{ }}{centered cubic B-spline matrix (with columns recentered to have mean 0 over equi-spaced x values on the range of the knots).}
 #' \item{\code{Dd} : \verb{ }}{difference matrix (of order <pen.order>) for the associated centered B-spline matrix.}
 #' \item{\code{Pd} : \verb{ }}{penalty matrix (of order <pen.order>) for the associated centered B-spline matrix.}
 #' \item{\code{K} : \verb{ }}{number of centered B-splines in the basis.}
@@ -19,7 +19,7 @@
 #' in nonparametric double additive location-scale models with right- and
 #' interval-censored data.
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
-#' \url{https://doi.org/10.1016/j.csda.2021.107250}
+#' <doi:10.1016/j.csda.2021.107250>
 #'
 #' @export
 #'

@@ -2,32 +2,32 @@
 % Please edit documentation in R/qknots.R
 \name{qknots}
 \alias{qknots}
-\title{Selection of knots in a cubic P-spline model}
+\title{Specification of knots in a cubic P-spline model}
 \usage{
 qknots(x, xmin = NULL, xmax = NULL, equid.knots = TRUE, pen.order = 3, K = 25)
 }
 \arguments{
-\item{x}{data that should be supported by the knots}
+\item{x}{data that the knots should upport.}
 
-\item{xmin}{desired minimum value for the knots}
+\item{xmin}{desired minimum value for the knots.}
 
-\item{xmax}{desired maximum value for the knots}
+\item{xmax}{desired maximum value for the knots.}
 
 \item{equid.knots}{logical indicating if equidistant knots are desired (Default: TRUE). If FALSE, the quantile of \code{x} are used to select the knots.}
 
-\item{pen.order}{penalty order if \code{equid.knots} is \code{TRUE}}
+\item{pen.order}{penalty order if \code{equid.knots} is \code{TRUE}.}
 
-\item{K}{number of B-splines in the basis}
+\item{K}{number of B-splines in the basis.}
 }
 \value{
 A list containing:
 \itemize{
-\item{\code{xmin} : \verb{ }}{specified minimum value for the knots, except if \eqn{\min(x) < xmin}, in which case the default value \eqn{\min(x)-sd(x)} is returned}
-\item{\code{xmin} : \verb{ }}{specified maximum value for the knots, except if \eqn{xmax < \max(x)}, in which case the default value \eqn{\max(x)+sd(x)} is returned}
-\item{\code{K} : \verb{ }}{number of B-splines}
-\item{\code{knots} : \verb{ }}{equidistant knots on (xmin,xmax) if \code{equidistant.knots} is TRUE, based on quantiles of \code{x} otherwise}
-\item{\code{Pd} : \verb{ }}{\eqn{K\times K} penalty matrix of order \code{pen.order}}
-\item{\code{pen.order} : \verb{ }}{a reminder of the requested penalty order (Default: 3)}
+\item{\code{xmin} : \verb{ }}{specified minimum value for the knots, except if \eqn{\min(x) < xmin}, in which case the default value \eqn{\min(x)-sd(x)} is returned.}
+\item{\code{xmin} : \verb{ }}{specified maximum value for the knots, except if \eqn{xmax < \max(x)}, in which case the default value \eqn{\max(x)+sd(x)} is returned.}
+\item{\code{K} : \verb{ }}{number of B-splines.}
+\item{\code{knots} : \verb{ }}{equidistant knots on (xmin,xmax) if \code{equidistant.knots} is TRUE, based on quantiles of \code{x} otherwise.}
+\item{\code{Pd} : \verb{ }}{\eqn{K\times K} penalty matrix of order \code{pen.order}.}
+\item{\code{pen.order} : \verb{ }}{a reminder of the requested penalty order (Default: 3).}
 }
 }
 \description{

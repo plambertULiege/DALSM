@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.DALSM.R
 \name{plot.DALSM}
 \alias{plot.DALSM}
-\title{Plot a Double Additive Location-Scale Model (DALSM) object}
+\title{Plot visual information on a \code{DALSM.object}}
 \usage{
 \method{plot}{DALSM}(x,
        mfrow.loc=NULL, mfrow.disp=NULL,
@@ -10,48 +10,48 @@
        error.lim = NULL, add.residuals=FALSE, true.derr=NULL, ...)
 }
 \arguments{
-\item{x}{a \code{\link{DALSM.object}}}
+\item{x}{a \code{\link{DALSM.object}}.}
 
-\item{mfrow.loc}{(optional) window layout to plot the additive terms for location}
+\item{mfrow.loc}{(optional) window layout to plot the additive terms for location.}
 
-\item{mfrow.disp}{(optional) window layout to plot the additive terms for dispersion}
+\item{mfrow.disp}{(optional) window layout to plot the additive terms for dispersion.}
 
-\item{nx}{(optional) number of points to make the plots for the fitted additive terms (default: 101)}
+\item{nx}{(optional) number of points to make the plots for the fitted additive terms (default: 101).}
 
-\item{equal.ylims}{logical indicating if the same y-limits must be used when plotting the fitted additive terms (default: TRUE)}
+\item{equal.ylims}{logical indicating if the same y-limits must be used when plotting the fitted additive terms (default: TRUE).}
 
-\item{true.loc}{(optional) list of functions to be superposed to the corresponding estimated additive terms in the location submodel (default: NULL)}
+\item{true.loc}{(optional) list of functions to be superposed to the corresponding estimated additive terms in the location submodel (default: NULL).}
 
-\item{true.disp}{(optional) list of functions to be superposed to the corresponding estimated additive terms in the dispersion submodel (default: NULL)}
+\item{true.disp}{(optional) list of functions to be superposed to the corresponding estimated additive terms in the dispersion submodel (default: NULL).}
 
-\item{ci.level}{(optional) nominal level for the plotted pointwise or global credible intervals (default: x$ci.level)}
+\item{ci.level}{(optional) nominal level for the plotted pointwise credible intervals (default: x$ci.level).}
 
-\item{error.lim}{(optional) plotting interval for the estimated standardized error density in the DALSM model (default: support of the fitted standardized error density)}
+\item{error.lim}{(optional) plotting interval for the estimated standardized error density in the DALSM model (default: support of the fitted standardized error density).}
 
-\item{add.residuals}{logical requesting to add the (possibly censored) standardized residuals to the plot of the fitted standardized error density (default: FALSE)}
+\item{add.residuals}{logical requesting to add the (possibly censored) standardized residuals to the plot of the fitted standardized error density (default: FALSE).}
 
-\item{true.derr}{(optional) density function to superpose to the estimated standardized error density when plotting (default: NULL)}
+\item{true.derr}{(optional) density function to superpose to the estimated standardized error density when plotting (default: NULL).}
 
-\item{...}{additional generic plotting arguments}
+\item{...}{additional generic plotting arguments.}
 }
 \value{
 In addition to the plots, an invisible list containing the following is returned:
 \itemize{
-\item{\code{J1} : \verb{ }}{number of additive terms in the location sub-model}
-\item{\code{x.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing a regular grid of \code{nx} covariate values where the corresponding additive term in location is evaluated}
-\item{\code{f.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing the \code{J1} fitted location additive terms evaluated at \code{x.loc}}
-\item{\code{se.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing the the pointwise standard errors of the fitted location additive terms evaluated at \code{x.loc}}
-\item{\code{J2} : \verb{ }}{number of additive terms in the dispersion sub-model}
-\item{\code{x.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing a regular grid of \code{nx} covariate values where the corresponding additive term in dispersion is evaluated}
-\item{\code{f.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing the \code{J2} fitted dispersion additive terms evaluated at \code{x.disp}}
-\item{\code{se.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing the pointwise standard errors of the fitted dispersion additive terms evaluated at \code{x.disp}}
+\item{\code{J1} : \verb{ }}{number of additive terms in the location sub-model.}
+\item{\code{x.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing a regular grid of \code{nx} covariate values where the corresponding additive term in location is evaluated.}
+\item{\code{f.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing the \code{J1} fitted location additive terms evaluated at \code{x.loc}.}
+\item{\code{se.loc} : \verb{ }}{a \code{nx} by \code{J1} matrix containing the the pointwise standard errors of the fitted location additive terms evaluated at \code{x.loc}.}
+\item{\code{J2} : \verb{ }}{number of additive terms in the dispersion sub-model.}
+\item{\code{x.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing a regular grid of \code{nx} covariate values where the corresponding additive term in dispersion is evaluated.}
+\item{\code{f.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing the \code{J2} fitted dispersion additive terms evaluated at \code{x.disp}.}
+\item{\code{se.disp} : \verb{ }}{a \code{nx} by \code{J2} matrix containing the pointwise standard errors of the fitted dispersion additive terms evaluated at \code{x.disp}.}
 }
 }
 \description{
-Visualize the fitted additive terms corresponding to a Double Additive Location-Scale Model (DALSM) object
+Visualize the estimated additive terms and error density corresponding to a Double Additive Location-Scale Model (DALSM) object.
 }
 \details{
-Plot the fitted additive terms and the estimated standardized error density contained in the \code{\link{DALSM.object}} \code{x}
+Plot the fitted additive terms and the estimated standardized error density contained in the \code{\link{DALSM.object}} \code{x}.
 }
 \examples{
 require(DALSM)
@@ -69,7 +69,7 @@ Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
 in nonparametric double additive location-scale models with right- and
 interval-censored data.
 \emph{Computational Statistics and Data Analysis}, 161: 107250.
-\url{https://doi.org/10.1016/j.csda.2021.107250}
+<doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
 \code{\link{DALSM}}, \code{\link{DALSM.object}}, \code{\link{print.DALSM}}
