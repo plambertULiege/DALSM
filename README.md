@@ -30,11 +30,11 @@ $\varepsilon$ an error term independent of $\mathbf{z}$ and $\mathbf{x}$
 with fixed first and second order moments, $\mathrm{E}(\varepsilon)=0$
 and $\mathrm{V}(\varepsilon)=1$.
 
-Assume that independent copies <!-- $(y_i,\mathbf{z}_i,\mathbf{x}_i)$
-($i=1,\ldots,n$) --> are observed on $n$ units with the possibility of
-right or interval-censoring on $y_i$ as described above. Additive models
-for the conditional location and dispersion of the response are
-specified, $$\mu(\mathbf{z}_{i}, \mathbf{x}_i)
+Assume that independent copies $(y_i,\mathbf{z}_i,\mathbf{x}_i)$
+($i=1,\ldots,n$) are observed on $n$ units with the possibility of right
+or interval-censoring on $y_i$ as described above. Additive models for
+the conditional location and dispersion of the response are specified,
+$$\mu(\mathbf{z}_{i}, \mathbf{x}_i)
 = \beta_{0}+\sum_{k=1}^p\beta_k z_{ik}
 +\sum_{j=1}^{J} {f_{j}^{\mu}}(x_{ij})
 =\left(\mathbf{Z} \pmb{\beta}
