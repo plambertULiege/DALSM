@@ -32,7 +32,7 @@ and $\mathrm{V}(\varepsilon)=1$.
 
 Assume that independent copies $(y_i,z_i,x_i)~(i=1,\ldots,n)$
 
-$(y_i,\mathbf{z}_i,\mathbf{x}_i)~(i=1,\ldots,n)$ are observed on $n$
+$(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$ are observed on $n$
 units with the possibility of right or interval-censoring on $y_i$ as
 described above. Additive models for the conditional location and
 dispersion of the response are specified,
