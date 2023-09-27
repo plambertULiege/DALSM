@@ -38,7 +38,7 @@ dispersion of the response are specified,
 $$\mu(z_i, x_i)= \beta_0+ \Sigma_ {k=1}^p \beta_k z_{ik}+\Sigma_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$$
 $$\log\sigma(z_i,x_i)= \delta_0+\Sigma_ {k=1}^p \delta_k z_ {ik}+\Sigma_ {j=1}^{J} {{f_{j}^{\sigma}}}(x_ {ij})$$
 where $f_{j}^{\mu}(\cdot)$ and $f_{j}^{\sigma}(\cdot)$ denote smooth
-additive terms quantifying the effect of the $j$th quantitative
+additive terms quantifying the effect of the $j {th}$ quantitative
 covariate on the conditional mean and dispersion
 
 The additive terms in the conditional location and dispersion models can
