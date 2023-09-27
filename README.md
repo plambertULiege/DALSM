@@ -1,9 +1,10 @@
 The *DALSM* R-package
 ================
 
-``` r
-knitr::opts_chunk$set(echo = TRUE)
+<!-- ```{r setup, include=TRUE}
+%knitr::opts_chunk$set(echo = TRUE)
 ```
+-->
 
 The *DALSM* R-package enables to fit a **nonparametric double
 location-scale model to** right- and interval-**censored data**.
