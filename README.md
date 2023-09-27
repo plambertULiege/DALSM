@@ -36,7 +36,7 @@ units with the possibility of right or interval-censoring on $y_i$ as
 described above. Additive models for the conditional location and
 dispersion of the response are specified, $$
 \mu(\mathbf{z}_ i, \mathbf{x}_ i)
-= \beta_0+\sum_ {k=1}^p \beta_k z_ {ik}
+= \beta_ 0 +\sum_ {k=1}^p \beta_ k z_ {ik}
 $$ $$
 +\sum_ {j=1}^{J} {f_j^ {\mu}}(x_ {ij})
 $$ $$
