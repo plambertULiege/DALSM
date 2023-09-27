@@ -34,17 +34,14 @@ Assume that independent copies
 $(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$ are observed on $n$
 units with the possibility of right or interval-censoring on $y_i$ as
 described above. Additive models for the conditional location and
-dispersion of the response are specified,
-$$\mu(\mathbf{z}_ i, \mathbf{x}_ i)
+dispersion of the response are specified, $$
+\mu(\mathbf{z}_ i, \mathbf{x}_ i)
 = \beta_{0}+\sum_ {k=1}^p\beta_k z_ {ik}
-+\sum_ {j=1}^{J} {f_j^{\mu}}(x_ {ij})$$ $$=\left(\mathbf{Z} \pmb{\beta}
-+\sum_ {j=1}^{J}\mathbf{f}^ \mu_ j\right)_i
++\sum_ {j=1}^{J} {f_j^{\mu}}(x_ {ij})
 $$ $$
-\log{\sigma(\mathbf{z}_{i}, \mathbf{x}_i)}
-= \delta_{0}+\sum_{k=1}^p \delta_k z_{ik}
-+\sum_{j=1}^{J} {{f_{j}^{\sigma}}}(x_{ij})
-= \left(\mathbf{Z} \pmb{\delta}
-+\sum_{j=1}^{J}\mathbf{f}^\sigma_j\right)_i
+\log{\sigma(\mathbf{z}_i, \mathbf{x}_i)}
+= \delta_{0}+\sum_{k=1}^p \delta_k z_ {ik}
++\sum_ {j=1}^{J} {{f_{j}^{\sigma}}}(x_ {ij})
 $$ where $f_{j}^{\mu}(\cdot)$ and $f_{j}^{\sigma}(\cdot)$ denote smooth
 additive terms quantifying the effect of the $j$th quantitative
 covariate on the conditional mean and dispersion
