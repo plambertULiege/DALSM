@@ -23,6 +23,16 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
+#' @examples
+#' require(DALSM)
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' fit = DALSM(y=resp,
+#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
+#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
+#'             data = DALSM_IncomeData)
+#' print(fit)
+#'
 #' @seealso \code{\link{plot.DALSM}}, \code{\link{DALSM.object}}, \code{\link{DALSM}}.
 #'
 #' @export
@@ -39,27 +49,33 @@ print.DALSM = function(x,...){
   print(round(obj.fit$fixed.loc,3))
   J1 = obj.fit$regr1$J
   if (J1 > 0){
-    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
-    print(round(obj.fit$ED1,3))
+    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
+##    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
+    print(round(obj.fit$ED1[,c(1,4,5,2,3)],3))
   }
   cat("\nFixed effects for Dispersion:\n")
   print(round(obj.fit$fixed.disp,3))
   J2 = obj.fit$regr2$J
   if (J2 > 0){
-    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
-    print(round(obj.fit$ED2,3))
+    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
+##    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
+    print(round(obj.fit$ED2[,c(1,4,5,2,3)],3))
   }
   ##
   cat("\n")
   if (J1 > 0) cat(obj.fit$K1,"  B-splines per additive component in location\n",sep="")
   if (J2 > 0) cat(obj.fit$K2,"  B-splines per additive component in dispersion\n",sep="")
   if (obj.fit$Normality) cat("Normality assumed for the error density\n")
-  else cat(obj.fit$K.error," B-splines for the error density on (",round(obj.fit$rmin,2),",",round(obj.fit$rmax,2),")\n",sep="")
-  message(sprintf("\nTotal sample size: %s ; Credible level for CI: %s",obj.fit$n,1-obj.fit$alpha))
-  message(sprintf("Uncensored data: %s (%s percents)",obj.fit$n.uncensored,round(100*obj.fit$n.uncensored/obj.fit$n,2)))
-  message(sprintf("Interval Censored data: %s (%s percents)",obj.fit$n.IC,round(100*sum(obj.fit$n.IC)/obj.fit$n,2)))
-  message(sprintf("Right censored data: %s (%s percents)",obj.fit$n.RC,round(100*obj.fit$n.RC/obj.fit$n,2)))
-  cat("\n-----------------------------------------------------------------------\n")
+  else cat(obj.fit$K.error,"  B-splines for the error density on (",round(obj.fit$rmin,2),",",round(obj.fit$rmax,2),")\n",sep="")
+  cat("\nTotal sample size:", obj.fit$n,"; Credible level for CI:",1-obj.fit$alpha,"\n")
+  cat("Uncensored data: ", obj.fit$n.uncensored, " (", round(100*obj.fit$n.uncensored/obj.fit$n,2)," percents)\n",sep="")
+  cat("Interval Censored data: ",obj.fit$n.IC, " (",round(100*sum(obj.fit$n.IC)/obj.fit$n,2), " percents)\n",sep="")
+  cat("Right censored data: ",obj.fit$n.RC, " (",round(100*obj.fit$n.RC/obj.fit$n,2)," percents)\n",sep="")
+  ## message(sprintf("\nTotal sample size: %s ; Credible level for CI: %s",obj.fit$n,1-obj.fit$alpha))
+  ## message(sprintf("Uncensored data: %s (%s percents)",obj.fit$n.uncensored,round(100*obj.fit$n.uncensored/obj.fit$n,2)))
+  ## message(sprintf("Interval Censored data: %s (%s percents)",obj.fit$n.IC,round(100*sum(obj.fit$n.IC)/obj.fit$n,2)))
+  ## message(sprintf("Right censored data: %s (%s percents)",obj.fit$n.RC,round(100*obj.fit$n.RC/obj.fit$n,2)))
+  cat("-----------------------------------------------------------------------\n")
   cat("Convergence status:",obj.fit$converged,"\n")
   cat("Elapsed time: ",round(obj.fit$elapsed.time,1)," seconds  (",obj.fit$iter," iterations)\n",sep="")
   cat("-----------------------------------------------------------------------\n")

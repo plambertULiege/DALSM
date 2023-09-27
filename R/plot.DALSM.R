@@ -9,7 +9,7 @@
 #' @usage \method{plot}{DALSM}(x,
 #'        mfrow.loc=NULL, mfrow.disp=NULL,
 #'        nx=101, equal.ylims=TRUE, true.loc=NULL,true.disp=NULL, ci.level=NULL,
-#'        error.lim = NULL, add.residuals=FALSE, true.derr=NULL, ...)
+#'        error.lim = NULL, add.residuals=FALSE, true.derr=NULL, new.dev=TRUE, ...)
 #'
 #' @param x a \code{\link{DALSM.object}}.
 #' @param mfrow.loc (optional) window layout to plot the additive terms for location.
@@ -22,6 +22,7 @@
 #' @param error.lim (optional) plotting interval for the estimated standardized error density in the DALSM model (default: support of the fitted standardized error density).
 #' @param add.residuals logical requesting to add the (possibly censored) standardized residuals to the plot of the fitted standardized error density (default: FALSE).
 #' @param true.derr (optional) density function to superpose to the estimated standardized error density when plotting (default: NULL).
+#' @param new.dev (optional) logical indicating whether a new plotting device must be opened for each graph (default: TRUE).
 #' @param ... additional generic plotting arguments.
 #'
 #' @details Plot the fitted additive terms and the estimated standardized error density contained in the \code{\link{DALSM.object}} \code{x}.
@@ -62,7 +63,8 @@
 plot.DALSM = function(x,
                       mfrow.loc=NULL, mfrow.disp=NULL,
                       nx = 101, equal.ylims=TRUE, true.loc=NULL,true.disp=NULL, ci.level=NULL,
-                      error.lim = NULL, add.residuals=FALSE, true.derr=NULL, ...){
+                      error.lim = NULL, add.residuals=FALSE, true.derr=NULL,
+                      new.dev=TRUE, ...){
   obj.fit = x
   if (is.null(ci.level)) ci.level = x$ci.level
   alpha = 1-ci.level
@@ -70,7 +72,7 @@ plot.DALSM = function(x,
   ## Make sure to restore graphical user's options after function call
   oldpar <- par(no.readonly = TRUE) ; on.exit(par(oldpar))
   ## Plot fitted density
-  dev.new()
+  if (new.dev) dev.new()
   par(mfrow=c(1,1))
   ##
   npar.tot = with(obj.fit,length(psi1)+length(psi2))
@@ -98,6 +100,7 @@ plot.DALSM = function(x,
                              xlab="Error",ylab="Error density",col="blue")
     )
     curve(dnorm,add=T,lwd=2,lty="dotted")
+    legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated error density","N(0,1)"),bty='n')
     if (!is.null(true.derr)) with(obj.fit, curve(true.derr,rmin,rmax,lwd=2,col="red",add=T))
   }
   ## Plot fitted additive terms
@@ -117,7 +120,7 @@ plot.DALSM = function(x,
       if (J1==1) mfrow.loc = c(1,1)
       else mfrow.loc = c(ceiling(J1/2),2)
     }
-    dev.new()
+    if (new.dev) dev.new()
     par(mfrow=mfrow.loc,mar=c(4,5,1,1))
     Cst1 = coverage.loc = rep(0,J1)
     ## temp = matrix(nrow=nx,ncol=J1) ; rownames(temp) = 1:nx
@@ -177,7 +180,7 @@ plot.DALSM = function(x,
       if (J2==1) mfrow.disp = c(1,1)
       else mfrow.disp = c(ceiling(J2/2),2)
     }
-    dev.new()
+    if (new.dev) dev.new()
     par(mfrow=mfrow.disp,mar=c(4,5,1,1))
     Cst2 = coverage.disp = rep(0,J2)
     ## temp = matrix(nrow=nx,ncol=J2) ; rownames(temp) = 1:nx
@@ -231,20 +234,5 @@ plot.DALSM = function(x,
   }
   ## Return observed coverages if the true additive terms are known
   ans = obj.add
-##   ans = list(J1=J1, ## Number of additive terms in the location sub-model
-##              x.loc=x.loc, ## Values at which the additive terms in location are evaluated
-##              f.loc=f.loc, se.loc=se.loc, ## Location: J1 fitted additive terms and their s.e. at <x.loc>
-##              J2=J2, ## Number of additive terms in the dispersion sub-model
-##              x.disp=x.disp, ## Values at which the additive terms in dispersion are evaluated
-##              f.disp=f.disp, se.disp=se.disp) ## Dispersion: J2 fitted additive terms and their s.e. at <x.disp>
-## #             Bx1=Bx1, Bx2=Bx2) ## B-spline basis for additive terms in loc and disp at <x.loc> & <x.disp>
-
-##   ans$coverage.loc = ans$coverage.disp = NULL
-##   if (!is.null(true.loc)&(J1>0)) ans$coverage.loc = coverage.loc
-##   if (!is.null(true.disp)&(J2>0)) ans$coverage.disp = coverage.disp
-##   if (!is.null(ans$coverage.loc) | !is.null(ans$coverage.disp)){
-##     cat("Observed coverages for additive terms (with nominal coverage ",1-alpha,")\n",sep="")
-##     print(lapply(ans[c("coverage.loc","coverage.disp")], function(x) round(x,3)))
-##   }
   return(invisible(ans))
 }

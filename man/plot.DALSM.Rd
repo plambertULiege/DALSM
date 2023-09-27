@@ -7,7 +7,7 @@
 \method{plot}{DALSM}(x,
        mfrow.loc=NULL, mfrow.disp=NULL,
        nx=101, equal.ylims=TRUE, true.loc=NULL,true.disp=NULL, ci.level=NULL,
-       error.lim = NULL, add.residuals=FALSE, true.derr=NULL, ...)
+       error.lim = NULL, add.residuals=FALSE, true.derr=NULL, new.dev=TRUE, ...)
 }
 \arguments{
 \item{x}{a \code{\link{DALSM.object}}.}
@@ -31,6 +31,8 @@
 \item{add.residuals}{logical requesting to add the (possibly censored) standardized residuals to the plot of the fitted standardized error density (default: FALSE).}
 
 \item{true.derr}{(optional) density function to superpose to the estimated standardized error density when plotting (default: NULL).}
+
+\item{new.dev}{(optional) logical indicating whether a new plotting device must be opened for each graph (default: TRUE).}
 
 \item{...}{additional generic plotting arguments.}
 }
