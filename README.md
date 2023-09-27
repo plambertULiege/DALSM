@@ -35,7 +35,8 @@ $(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$ are observed on $n$
 units with the possibility of right or interval-censoring on $y_i$ as
 described above. Additive models for the conditional location and
 dispersion of the response are specified,
-$\mu(z_i, x_i)= \beta_0+\sum_ {k=1}^p \beta_k z_{ik}+\sum_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$
+$\mu(z_i, x_i)= \beta_0+ \sum_ {k=1}^p \beta_k z_{ik}+\sum_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$
+$\mu(z_i, x_i)= \beta_0+ \sum_k ^p \beta_k z_{ik}+\sum_j ^{J} {f_j ^{\mu}}(x_ {ij})$
 $\mu(\mathbf{z}_i, \mathbf{x}_i)= \beta_0+\sum_{k=1}^p \beta_k z_{ik}+\sum_{j=1}^{J}{f_j^{\mu}}(x_{ij})$
 $$\log{\sigma(\mathbf{z}_i, \mathbf{x}_i)}= \delta_{0}+\sum_{k=1}^p \delta_k z_ {ik}+\sum_{j=1}^{J} {{f_{j}^{\sigma}}}(x_ {ij})$$
 where $f_{j}^{\mu}(\cdot)$ and $f_{j}^{\sigma}(\cdot)$ denote smooth
