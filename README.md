@@ -7,11 +7,13 @@ The *DALSM* R-package
 -->
 
 The *DALSM* R-package enables to fit a **nonparametric double
-location-scale model to** right- and interval-**censored data**.
+location-scale model to** right- and interval-**censored data**, see
+[Lambert (2021)](http://doi.org/10.1016/j.csda.2021.107250) for
+methodological details.
 
 Consider a vector $(Y,\mathbf{z},\mathbf{x})$ where $Y$ is a univariate
-continuous response, $\mathbf{z}$ a $p-$vector of categorical
-covariates, and $\mathbf{x}$ a $J-$vector of quantitative covariates.
+continuous response, $\mathbf{z}$ a *p*-vector of categorical
+covariates, and $\mathbf{x}$ a *J*-vector of quantitative covariates.
 The response could be subject to right-censoring, in which case one only
 observes $(T,\Delta)$, where $T=\min\{Y,C\}$, $\Delta=I(Y\leq C)$ and
 $C$ denotes the right-censoring value that we shall assume independent
@@ -75,7 +77,7 @@ computational aspects to handle right- and interval-censored data.
 Marginal posterior distributions of the penalty parameters in the error
 density and in the location and dispersion submodels are approximated by
 starting from the following identity,
-$$p(\pmb{\lambda}|{\cal D}) = {p(\pmb{\psi},\pmb{\lambda}|{\cal D}) \over p(\pmb{\psi}|\pmb{\lambda},{\cal D})}$$
+$$p(\pmb{\lambda} | {\cal D}) = {p(\pmb{\psi},\pmb{\lambda}|{\cal D}) \over p(\pmb{\psi}|\pmb{\lambda},{\cal D})}$$
 where $\lambda$ and $\pmb{\psi}$ generically denote the penalty and the
 penalized parameters. Thanks to the GMRF prior for
 $(\pmb{\psi}|\lambda)$, a Laplace approximation to the conditional
@@ -83,7 +85,7 @@ posterior in the numerator is relevant. When that expression is
 evaluated at the conditional posterior mode $\hat{\pmb{\psi}}_ \lambda$,
 one obtains the following approximation to the marginal posterior of the
 penalty parameters
-$$ \tilde{p}(\pmb{\lambda} | {\cal D}) \propto p(\hat{\pmb{\psi}}_ \lambda, \pmb{\lambda} | {\cal D})$$
+$$ \tilde{p} (\pmb{\lambda} | {\cal D}) \propto p(\hat{\pmb{\psi}}_ \lambda, \pmb{\lambda} | {\cal D})$$
 $${\begin{vmatrix} \Sigma_ \lambda \end{vmatrix}}^ {1/2}$$
 
 where $\Sigma_\lambda$ denotes the conditional variance-covariance
@@ -193,7 +195,6 @@ fit = DALSM(y=resp,
 print(fit)
 ```
 
-    ## 
     ## -----------------------------------------------------------------------
     ##                 Double Additive Location-SCALE Model 
     ## -----------------------------------------------------------------------
@@ -213,9 +214,9 @@ print(fit)
     ## twoincomes  -0.042 0.070 -0.179  0.094 -0.610 0.542
     ## 
     ## 2 additive term(s) in Dispersion: Eff.dim / Test No effect
-    ##        ED2.hat   low    up   Chi2  Pval
-    ## age      3.318 1.456 4.409 15.249 0.002
-    ## eduyrs   3.311 1.508 4.329 41.345 0.000
+    ##        ED.hat   low    up   Chi2  Pval
+    ## age     3.318 1.456 4.409 15.249 0.002
+    ## eduyrs  3.311 1.508 4.329 41.345 0.000
     ## 
     ## 10  B-splines per additive component in location
     ## 10  B-splines per additive component in dispersion

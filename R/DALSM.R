@@ -887,7 +887,7 @@ DALSM = function(y, formula1,formula2, data,
                  ED1=cbind(ED1,low=ED1.low,up=ED1.up)))
   }
   if (J2 > 0){
-    ED2 = cbind(ED2.hat=obj.cur$ED2,Chi2=Chi2.horiz2,Pval=Pval.horiz2)
+    ED2 = cbind(ED.hat=obj.cur$ED2,Chi2=Chi2.horiz2,Pval=Pval.horiz2)
 ##    ED2 = cbind(ED2.hat=obj.cur$ED2,Chi2.H0=Chi2.horiz2,Pval.H0=Pval.horiz2,Chi2.lin=Chi2.linear2,Pval.lin=Pval.linear2)
     if (is.null(adddisp.lab)) rownames(ED2) = paste("f.sig.",1:J2,sep="")
     else rownames(ED2) = adddisp.lab
