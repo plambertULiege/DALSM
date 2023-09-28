@@ -104,6 +104,8 @@ penalty parameters (see Algorithm 2) and the update of the error density
 
 ## The *DALSM* package in action
 
+### Application to survey data
+
 The data of interest come from the European Social Survey (ESS 2016)
 with a focus on the money available per person in Belgian households for
 respondents aged 25-55 when the main source of income comes from wages
@@ -260,6 +262,90 @@ the largest heterogeneity. The estimated density for the error term can
 also be seen, with a right-skewed shape clearly distinguishable from the
 Gaussian one often implicitly assumed when fitting location-scale
 regression models.
+
+### Estimation of a density from censored data
+
+Besides fitting Nonparametric Double Additive Location-Scale Model to
+censored data, the DALSM package contains an independent function
+*densityIC* for density estimation from right- or interval-censored data
+with possible constraints on the mean and variance.
+
+``` r
+## Generation of interval-censored data
+n = 500 ## Sample size
+x = rgamma(n,10,2) ## Exact (unobserved) data
+width = runif(n,1,3) ## Width of the IC data (mean width = 2)
+w = runif(n) ## Positioning of the exact data within the interval
+xmat = cbind(x-w*width,x+(1-w)*width) ## Generated IC data
+head(xmat)
+```
+
+    ##          [,1]     [,2]
+    ## [1,] 6.812131 7.896267
+    ## [2,] 4.028559 6.469288
+    ## [3,] 5.511896 8.179376
+    ## [4,] 4.107709 5.987294
+    ## [5,] 5.188393 7.184243
+    ## [6,] 2.740525 3.900238
+
+``` r
+## Density estimation from IC data 
+obj.data = Dens1d(xmat,ymin=0) ## Prepare the IC data for estimation
+obj = densityIC(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
+plot(obj) ## Histogram of the pseudo-data with the density estimate
+curve(dgamma(x,10,2), ## ... compared to the true density (in red)
+      add=TRUE,col="red",lwd=2,lty=2)
+legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
+        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
+```
+
+![](README_files/figure-gfm/DALSM3-1.png)<!-- -->
+
+``` r
+print(obj) ## ... with summary statistics
+```
+
+    ## ** Constrained Density/Hazard estimation from right- and Interval-censored data **
+    ## INPUT:
+
+    ##   Total sample size: 500
+
+    ##   Uncensored data: 0 (0 percents)
+
+    ##   Interval Censored data: 500 (100 percents)
+
+    ##   Right censored data: 0 (0 percents)
+
+    ##   ---
+
+    ##   Range of the Interval Censored data: (-2.9e-02,1.3e+01)
+
+    ##   ---
+
+    ##   Assumed support: (-2.0e+00,1.5e+01)
+
+    ##   Number of small bins on the support: 501
+
+    ##   Number of B-splines: 25 ; Penalty order: 2
+
+    ## 
+    ## OUTPUT:
+
+    ##   Value of the estimated cdf at +infty: 1.0e+00
+
+    ##   Constraint on the Mean: 5 ; Fitted Mean: 5.0e+00
+
+    ##   Constraint on the Variance: 2.5 ; Fitted Variance: 2.5e+00
+
+    ##   Selected penalty parameter <tau>: 7.1
+
+    ##   Effective number of parameters: 6.6
+
+    ##   Parameter estimates:  phi, tau
+    ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
+
+    ## 
+    ## ** 8 iterations (0.1 seconds) **
 
 ## License
 

@@ -96,7 +96,8 @@ plot.DALSM = function(x,
     ylim = 1.05*range(c(obj.fit$derr$ddist(rseq),dnorm(rseq))) ## Make sure that dnorm() will be fully pictured
     with(obj.fit$derr, curve(ddist,rmin,rmax,lwd=2,type="l",
                              ylim=ylim,
-                             main=paste("n = ",obj.fit$n," (Unc: ",perc.obs,"% ; IC: ",perc.IC,"% ; RC: ",perc.RC,"%)",sep=""),
+                             main="",
+                             ## main=paste("n = ",obj.fit$n," (Unc: ",perc.obs,"% ; IC: ",perc.IC,"% ; RC: ",perc.RC,"%)",sep=""),
                              xlab="Error",ylab="Error density",col="blue")
     )
     curve(dnorm,add=T,lwd=2,lty="dotted")

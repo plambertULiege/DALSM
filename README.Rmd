@@ -73,6 +73,8 @@ where $\Sigma_\lambda$ denotes the conditional variance-covariance matrix. The m
 Model fitting alternates the estimation of the regression and spline parameters in the location-scale model (see Algorithm 1 in [Lambert 2021](http://doi.org/10.1016/j.csda.2021.107250)), the selection of the penalty parameters (see Algorithm 2) and the update of the error density (see Algorithm 3). The whole procedure is implemented in function **DALSM** of the package.
 
 ## The *DALSM* package in action
+
+### Application to survey data
 The data of interest come from the European Social Survey (ESS 2016) with a focus on the money available per person in
 Belgian households for respondents aged 25-55 when the main source of
 income comes from wages or salaries ($n=756$). Each person reports the
@@ -147,6 +149,29 @@ error term can also be seen,
 with a right-skewed shape clearly distinguishable from the Gaussian
 one often implicitly assumed when fitting
 location-scale regression models.
+
+### Estimation of a density from censored data
+Besides fitting Nonparametric Double Additive Location-Scale Model to censored data, the DALSM package contains an independent function *densityIC* for density estimation from right- or interval-censored data with possible constraints on the mean and variance.
+```{r DALSM3}
+## Generation of interval-censored data
+n = 500 ## Sample size
+x = rgamma(n,10,2) ## Exact (unobserved) data
+width = runif(n,1,3) ## Width of the IC data (mean width = 2)
+w = runif(n) ## Positioning of the exact data within the interval
+xmat = cbind(x-w*width,x+(1-w)*width) ## Generated IC data
+head(xmat)
+
+## Density estimation from IC data 
+obj.data = Dens1d(xmat,ymin=0) ## Prepare the IC data for estimation
+obj = densityIC(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
+plot(obj) ## Histogram of the pseudo-data with the density estimate
+curve(dgamma(x,10,2), ## ... compared to the true density (in red)
+      add=TRUE,col="red",lwd=2,lty=2)
+legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
+        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
+print(obj) ## ... with summary statistics
+```
+
 
 
 ## License
