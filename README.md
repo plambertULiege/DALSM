@@ -51,9 +51,9 @@ neighbour B-spline parameters are taken,
 $$p(\pmb{\theta}^ {\mu}_ {j}|\lambda_ j^\mu) \propto \exp\left( -{1\over 2}{\pmb{\theta}^ \mu_ j}^ \top (\lambda^ {\mu}_ j\mathbf{P}^ \mu) \pmb{\theta}^ \mu_ j \right)$$
 $$p(\pmb{\theta}^ {\sigma}_ {j}|\lambda_ j^\sigma) \propto \exp\left( -{1\over 2}{\pmb{\theta}^ \sigma_ j}^ \top (\lambda^ {\sigma}_ j\mathbf{P}^ \sigma) \pmb{\theta}^ \sigma_ j \right) $$
 
-where $\mathbf{P}^\mu, \mathbf{P}^\sigma$ are penalty matrices and
-$\lambda^{\mu}_{j},\lambda^{\sigma}_{j}$ positive penalty parameters for
-the location and dispersion submodels, respectively. For penalty
+where $\mathbf{P}^ \mu, \mathbf{P}^ \sigma$ are penalty matrices and
+$\lambda^ {\mu}_ {j},\lambda^ {\sigma}_ {j}$ positive penalty parameters
+for the location and dispersion submodels, respectively. For penalty
 matrices of order 2, increasingly large values for these parameters
 point to linear effects for the additive terms.
 
@@ -74,23 +74,16 @@ computational aspects to handle right- and interval-censored data.
 
 Marginal posterior distributions of the penalty parameters in the error
 density and in the location and dispersion submodels are approximated by
-starting from the following identity, $$
-p(\pmb{\lambda}|{\cal D}) =
-{p(\pmb{\psi},\pmb{\lambda}|{\cal D})
-\over
-p(\pmb{\psi}|\pmb{\lambda},{\cal D})
-}
-$$ where $\lambda$ and $\pmb{\psi}$ generically denote the penalty and
-the penalized parameters. Thanks to the GMRF prior for
+starting from the following identity,
+$$p(\pmb{\lambda}|{\cal D}) = {p(\pmb{\psi},\pmb{\lambda}|{\cal D}) \over p(\pmb{\psi}|\pmb{\lambda},{\cal D})}$$
+where $\lambda$ and $\pmb{\psi}$ generically denote the penalty and the
+penalized parameters. Thanks to the GMRF prior for
 $(\pmb{\psi}|\lambda)$, a Laplace approximation to the conditional
 posterior in the numerator is relevant. When that expression is
 evaluated at the conditional posterior mode $\hat{\pmb{\psi}}_\lambda$,
 one obtains the following approximation to the marginal posterior of the
-penalty parameters $$
-\tilde{p}(\pmb{\lambda}|{\cal D}) \propto
-p(\hat{\pmb{\psi}}_\lambda,\pmb{\lambda}|{\cal D})
-~{\begin{vmatrix}\Sigma_\lambda\end{vmatrix}}^{1/2}
-$$
+penalty parameters
+$$ \tilde{p}(\pmb{\lambda}|{\cal D}) \propto p(\hat{\pmb{\psi}}_\lambda,\pmb{\lambda}|{\cal D}) {\begin{vmatrix}\Sigma_ \lambda\end{vmatrix}}^ {1/2}$$
 
 where $\Sigma_\lambda$ denotes the conditional variance-covariance
 matrix. The mode of $\tilde{p}(\pmb{\lambda}|{\cal D})$ could be chosen
