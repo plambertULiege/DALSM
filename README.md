@@ -44,7 +44,7 @@ the conditional location and dispersion models can be approximated using
 linear combinations of (recentered) B-splines,
 $$f^ {\mu}_ j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^{\mu}\right)_ {i=1}^n$$
 
-$$f^ {\mu}_j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\mu\right)_ {i=1}^n=\mathbf{B}_ j\pmb{\theta}_j^\mu$$
+$$f^ {\mu}_ j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\mu\right)_ {i=1}^n=\mathbf{B}_ j\pmb{\theta}_ j^\mu$$
 $$
 f^ {\sigma}_j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\sigma\right)_ {i=1}^n = \mathbf{B}_j\pmb{\theta}_j^\sigma$$
 where $[\mathbf{B}_j]_{i\ell}={b_{j\ell}}(x_{ij})$.
