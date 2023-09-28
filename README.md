@@ -48,7 +48,7 @@ where $[\mathbf{B}_ j]_ {i\ell}={b_{ j\ell}}(x_ {ij})$.
 
 Gaussian Markov random field (GMRF) priors penalizing changes in
 neighbour B-spline parameters are taken,
-$$p(\pmb{\theta}^ {\mu}_ {j}|\lambda_ j^\mu) \propto \exp\left\{-{1\over 2}{\pmb{\theta}^ \mu_ j}^ \top (\lambda^ {\mu}_ j\mathbf{P}^ \mu) \pmb{\theta}^ \mu_ j \right\}$$
+$$p(\pmb{\theta}^ {\mu}_ {j}|\lambda_ j^\mu) \propto \exp\left( -{1\over 2}{\pmb{\theta}^ \mu_ j}^ \top (\lambda^ {\mu}_ j\mathbf{P}^ \mu) \pmb{\theta}^ \mu_ j \right)$$
 $$ p(\pmb{\theta}^\sigma_{j}|\lambda_j^{\sigma}) \propto
 \exp\left\{-{1\over 2}~{\pmb{\theta}^\sigma_{j}}^\top (\lambda^{\sigma}_{j}{\mathbf{P}^\sigma}) \pmb{\theta}^\sigma_{j} \right\}, $$
 
