@@ -42,7 +42,8 @@ additive terms quantifying the effect of the $j {th}$ quantitative
 covariate on the conditional mean and dispersion. The additive terms in
 the conditional location and dispersion models can be approximated using
 linear combinations of (recentered) B-splines,
-$$f^ {\mu}_j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\mu\right)_ {i=1}^n=\mathbf{B}_ j\pmb{\theta}_j^\mu~~;~~ 
+$$f^ {\mu}_j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\mu\right)_ {i=1}^n=\mathbf{B}_ j\pmb{\theta}_j^\mu$$
+$$
 f^ {\sigma}_j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\sigma\right)_ {i=1}^n = \mathbf{B}_j\pmb{\theta}_j^\sigma$$
 where $[\mathbf{B}_j]_{i\ell}={b_{j\ell}}(x_{ij})$.
 
@@ -117,12 +118,12 @@ The data of interest come from the European Social Survey (ESS 2016)
 with a focus on the money available per person in Belgian households for
 respondents aged 25-55 when the main source of income comes from wages
 or salaries ($n=756$). Each person reports the total net monthly income
-of the household in one of 10 decile-based intervals: $1: <1\,120$
-$(n_1=8)$, $2: [1\,120,1\,399]$ $(n_2=13)$, $3: [1\,400,1\,719]$
-$(n_3=47)$, $4: [1\,720,2\,099]$ $(n_4=53)$, $5: [2\,100,2\,519]$
-$(n_5=82)$, $6: [2\,520,3\,059]$ $(n_6=121)$, $7: [3\,060,$ $3\,739]$
-$(n_7=167)$, $8:[3\,740,4\,529]$ $(n_8=126)$, $9: [4\,530,5\,579]$
-$(n_9=74)$, $10: \geq 5\,580$ euros $(n_{10}=65)$.
+of the household in one of 10 decile-based intervals: $1: <1120$
+$(n_1=8)$, $2: [1120,1399]$ $(n_2=13)$, $3: [1400,1719]$ $(n_3=47)$,
+$4: [1720,2099]$ $(n_4=53)$, $5: [2100,2519]$ $(n_5=82)$,
+$6: [2520,3059]$ $(n_6=121)$, $7: [3060,$ $3739]$ $(n_7=167)$,
+$8:[3740,4529]$ $(n_8=126)$, $9: [4530,5579]$ $(n_9=74)$,
+$10: \geq 5580$ euros $(n_{10}=65)$.
 
 We model the relationship between disposable income per person ($91.4\%$
 interval-censored, $8.6\%$ right-censored) and the availability of (at
