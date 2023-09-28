@@ -244,8 +244,8 @@ plot(fit, new.dev=FALSE)
 ![](README_files/figure-gfm/DALSM2b-1.png)<!-- -->![](README_files/figure-gfm/DALSM2b-2.png)<!-- -->![](README_files/figure-gfm/DALSM2b-3.png)<!-- -->
 
 The amount of money available per person in the household tends to
-decrease with age (see $f_1^\mu(\text{age})$) between approximately 27
-and 37 (most likely due the arrival of children in the family) and to
+decrease with age (see $f_1^ \mu(\mathrm{age})$) between approximately
+27 and 37 (most likely due the arrival of children in the family) and to
 increase after 40 (probably thanks to wage increase with seniority and
 the departure of children). The log-dispersion significantly increases
 with *Age*, see $f_1^\sigma(\mathrm{age})$, with an acceleration over
