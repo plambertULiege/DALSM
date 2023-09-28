@@ -84,9 +84,9 @@ $(\pmb{\psi}|\lambda)$, a Laplace approximation to the conditional
 posterior in the numerator is relevant. When that expression is
 evaluated at the conditional posterior mode $\hat\psi_ \lambda$, one
 obtains the following approximation to the marginal posterior of the
-penalty parameters $$ \tilde{p} (\pmb{\lambda} | {\cal D})$$
+penalty parameters $$ \tilde p (\pmb{\lambda} | {\cal D})$$
 $$\propto p(\hat\psi_ \lambda, \pmb{\lambda} | {\cal D})$$
-$${\begin{vmatrix} \Sigma_ \lambda \end{vmatrix}}^ {1/2}$$
+$${|\Sigma_ \lambda|^ {1/2}$$
 
 where $\Sigma_\lambda$ denotes the conditional variance-covariance
 matrix. The mode of $\tilde{p}(\pmb{\lambda}|{\cal D})$ could be chosen
