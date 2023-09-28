@@ -244,22 +244,22 @@ plot(fit, new.dev=FALSE)
 ![](README_files/figure-gfm/DALSM2b-1.png)<!-- -->![](README_files/figure-gfm/DALSM2b-2.png)<!-- -->![](README_files/figure-gfm/DALSM2b-3.png)<!-- -->
 
 The amount of money available per person in the household tends to
-decrease with age (see $f_ 1^ \mu(\mathrm{age})$) between approximately
-27 and 37 (most likely due the arrival of children in the family) and to
-increase after 40 (probably thanks to wage increase with seniority and
-the departure of children). The log-dispersion significantly increases
-with *Age*, see $f_1^\sigma(\mathrm{age})$, with an acceleration over
-30. However, the dominant effect comes from the respondent’s level of
-education, with a difference of about 1,000 euros (in expected
-disposable income per person) between a less educated (6 years) and a
-highly educated (20 years) respondent, see $f_2^\mu(\mathrm{eduyrs})$.
-The effect on dispersion is also large, see
-$f_2^\sigma(\mathrm{eduyrs})$, with essentially an important contrast
-between less and highly educated respondents, the latter group showing
-the largest heterogeneity. The estimated density for the error term can
-also be seen, with a right-skewed shape clearly distinguishable from the
-Gaussian one often implicitly assumed when fitting location-scale
-regression models.
+decrease with age (see $f_1^\sigma(\mathrm{age})$
+$f_ 1^ \mu(\mathrm{age})$) between approximately 27 and 37 (most likely
+due the arrival of children in the family) and to increase after 40
+(probably thanks to wage increase with seniority and the departure of
+children). The log-dispersion significantly increases with *Age*, see
+$f_1^\sigma(\mathrm{age})$, with an acceleration over 30. However, the
+dominant effect comes from the respondent’s level of education, with a
+difference of about 1,000 euros (in expected disposable income per
+person) between a less educated (6 years) and a highly educated (20
+years) respondent, see $f_2^\mu(\mathrm{eduyrs})$. The effect on
+dispersion is also large, see $f_2^\sigma(\mathrm{eduyrs})$, with
+essentially an important contrast between less and highly educated
+respondents, the latter group showing the largest heterogeneity. The
+estimated density for the error term can also be seen, with a
+right-skewed shape clearly distinguishable from the Gaussian one often
+implicitly assumed when fitting location-scale regression models.
 
 ## License
 
