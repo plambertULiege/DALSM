@@ -165,7 +165,7 @@ w = runif(n) ## Positioning of the exact data within the interval
 xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
 t.cens = rexp(n,1/15) ## Right-censoring values
 idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units 
-xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data For RC units: (t.cens,Inf)
+xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data for RC units: (t.cens,Inf)
 head(xmat,15)
 ```
 The density can be estimated from the censored data using function *densityIC*. Optionally, the mean and variance of the estimated density can also be forced to some fixed values, here 5.0 and 2.5, respectively. We also choose to force the left end of the distribution support to be 0:

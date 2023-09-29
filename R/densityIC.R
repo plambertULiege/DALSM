@@ -39,7 +39,29 @@
 #' @examples
 #' library(DALSM)
 #'
-#' ## Example 1: density estimation from RC and IC data
+#' ## Example 1: estimation of the error density in a DALSM model
+#' require(DALSM)
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' fit = DALSM(y=resp,
+#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
+#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
+#'             data = DALSM_IncomeData)
+#' plot(fit$derr)  ## Plot the estimated error density
+#' print(fit$derr) ## ... and provide summary statistics for it
+#'
+#' ## Example 2: density estimation from censored income data
+#' data(DALSM_IncomeData)
+#' resp = DALSM_IncomeData[,1:2]
+#' head(resp,n=20)
+#' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
+#' obj = densityIC(temp) ## Density estimation from IC & RC data
+#' print(obj) ## Summary information on the estimated density
+#' plot(obj,hist=TRUE) ## Visualize the estimated density
+#' legend("topright",col=c("black","grey"),lwd=c(2,20),
+#'        legend=c("Fitted density","Pseudo-data"),bty="n")
+#'
+#' ## Example 3: density estimation from simulated RC and IC data
 #' ## Data generation
 #' set.seed(123)
 #' n = 500 ## Sample size
@@ -49,11 +71,11 @@
 #' xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
 #' t.cens = rexp(n,1/15) ## Right-censoring values
 #' idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units
-#' xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data For RC units: (t.cens,Inf)
+#' xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data for RC units: (t.cens,Inf)
 #' head(xmat,15)
 #' ## Density estimation
 #' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
-#' ## Density estimation with fixed mean and variance
+#' ## Density estimation with mean and variance constraints
 #' obj = densityIC(obj.data,Mean0=10/2,Var0=10/4)
 #' print(obj)
 #' plot(obj) ## Plot the estimated density
@@ -67,34 +89,12 @@
 #' legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
 #'        legend=c("Estimated cdf","True cdf"),bty="n")
 #'
-#' ## Example 2: estimation of the error density in a DALSM model
-#' data(DALSM_IncomeData)
-#' resp = DALSM_IncomeData[,1:2]
-#' fit = DALSM(y=resp,
-#'             formula1 = ~twoincomes+s(age)+s(eduyrs),
-#'             formula2 = ~twoincomes+s(age)+s(eduyrs),
-#'             data = DALSM_IncomeData)
-#' plot(fit$derr)  ## Plot the estimated error density
-#' print(fit$derr) ## ... and provide summary statistics for it
-#'
-#'
-#' library(DALSM)
-#' data(DALSM_IncomeData)
-#' resp = DALSM_IncomeData[,1:2]
-#' head(resp,n=20)
-#' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-#' obj = densityIC(temp) ## Density estimation for IC & RC data
-#' print(obj) ## Summary information on the estimated density
-#' plot(obj) ## Visualize the estimated density
-#' legend("topright",col=c("black","grey"),lwd=c(2,20),
-#'        legend=c("Fitted density","Pseudo-data"),bty="n")
-#'
 densityIC = function(obj.data,
-                                    is.density=TRUE,Mean0=NULL, Var0=NULL,
-                                    fixed.penalty=FALSE,method=c("evidence","Schall"),
-                                    fixed.phi=FALSE,phi.ref=NULL,
-                                    phi0=NULL,tau0=exp(5),tau.min=.1,
-                                    verbose=FALSE){
+                    is.density=TRUE,Mean0=NULL, Var0=NULL,
+                    fixed.penalty=FALSE,method=c("evidence","Schall"),
+                    fixed.phi=FALSE,phi.ref=NULL,
+                    phi0=NULL,tau0=exp(5),tau.min=.1,
+                    verbose=FALSE){
   method = match.arg(method)
   if (fixed.penalty) method = NULL
   if (is.null(obj.data)){
