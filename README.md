@@ -243,7 +243,7 @@ can be visualized on the plots below with the estimated additive terms.
 plot(fit, new.dev=FALSE)
 ```
 
-![](README_files/figure-gfm/DALSM2b-1.png)<!-- -->![](README_files/figure-gfm/DALSM2b-2.png)<!-- -->![](README_files/figure-gfm/DALSM2b-3.png)<!-- -->
+![](man/figures/DALSM2b-1.png)<!-- -->![](man/figures/DALSM2b-2.png)<!-- -->![](man/figures/DALSM2b-3.png)<!-- -->
 
 The amount of money available per person in the household tends to
 decrease with age, see $f_1^\mu(\mathrm{age})$, between approximately 27
@@ -287,7 +287,7 @@ w = runif(n) ## Positioning of the exact data within the interval
 xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
 t.cens = rexp(n,1/15) ## Right-censoring values
 idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units 
-xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data For RC units: (t.cens,Inf)
+xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data for RC units: (t.cens,Inf)
 head(xmat,15)
 ```
 
@@ -344,7 +344,7 @@ print(obj)
     ##   Parameter estimates:  phi, tau
     ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
     ## 
-    ## ** 6 iterations (0.102 seconds) **
+    ## ** 6 iterations (0.095 seconds) **
 
 The estimated density and cdf can also be visualized and compared to
 their ‘true’ Gamma(10,2) counterparts used to generate the data:
@@ -357,7 +357,7 @@ legend("topright",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
         legend=c("Estimated density","True density"),bty="n")
 ```
 
-![](README_files/figure-gfm/DALSM3d-1.png)<!-- -->
+![](man/figures/DALSM3d-1.png)<!-- -->
 
 ``` r
 ## Same story for the cdf
@@ -367,7 +367,7 @@ legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
         legend=c("Estimated cdf","True cdf"),bty="n")
 ```
 
-![](README_files/figure-gfm/DALSM3d-2.png)<!-- -->
+![](man/figures/DALSM3d-2.png)<!-- -->
 
 Estimated density (pdf), distribution (cdf), hazard and cumulative
 hazard functions are also directly available:
