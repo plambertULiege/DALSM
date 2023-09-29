@@ -71,9 +71,9 @@ see \code{\link{DALSM.object}} for details. A summary can be printed using \code
 or plotted using \code{\link{plot.DALSM}}.
 }
 \description{
-Fit a location-scale model with a flexible error distribution and
-potentially additive terms in location (=mean) and dispersion (= log(sd))
-when the response can be right-censored.
+Fit a location-scale regression model with a flexible error distribution and
+additive terms in location (=mean) and dispersion (= log(sd))
+from potentially right- and interval-censored response data.
 }
 \examples{
 require(DALSM)

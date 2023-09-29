@@ -5,8 +5,8 @@
 \title{Extraction of the estimated additive terms in a \code{\link{DALSM.object}}}
 \usage{
 DALSM_additive(obj.DALSM, ngrid=101,
-                      true.loc=NULL, true.disp=NULL, ci.level=NULL,
-                      verbose=FALSE)
+       true.loc=NULL, true.disp=NULL, ci.level=NULL,
+       verbose=FALSE)
 }
 \arguments{
 \item{obj.DALSM}{a \code{\link{DALSM.object}}}

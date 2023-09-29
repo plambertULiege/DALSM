@@ -43,8 +43,10 @@
 #'             data = DALSM_IncomeData)
 #' obj = DALSM_additive(fit)
 #' ## par(mfrow=c(1,2),mar=c(4,5,1,1))
-#' with(obj$f.loc.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~mu}*(age))))
-#' with(obj$f.disp.grid$age, plotRegion(x, y.mat, xlab="age", ylab=expression('f'[1]^{~sigma}*(age))))
+#' with(obj$f.loc.grid$age, plotRegion(x, y.mat,
+#'      xlab="age", ylab=expression('f'[1]^{~mu}*(age))))
+#' with(obj$f.disp.grid$age, plotRegion(x, y.mat,
+#'      xlab="age", ylab=expression('f'[1]^{~sigma}*(age))))
 plotRegion = function(x,mat,add=FALSE,xlim=range(x),ylim=range(mat),
                       lwd=2,xlab="",ylab="",main="",...){
   f = mat[,1] ; f.low = mat[,2] ; f.up = mat[,3]

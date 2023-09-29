@@ -7,7 +7,7 @@
 \method{print}{densIC}(x,...)
 }
 \arguments{
-\item{x}{a code{densIC.object}.}
+\item{x}{a \code{\link{densIC.object}}.}
 
 \item{...}{Optional additional print parameters.}
 }

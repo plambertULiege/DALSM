@@ -1,7 +1,7 @@
 #' Fit a double additive location-scale model (DALSM) with a flexible error distribution
-#' @description Fit a location-scale model with a flexible error distribution and
-#' potentially additive terms in location (=mean) and dispersion (= log(sd))
-#' when the response can be right-censored.
+#' @description Fit a location-scale regression model with a flexible error distribution and
+#' additive terms in location (=mean) and dispersion (= log(sd))
+#' from potentially right- and interval-censored response data.
 #' @usage DALSM(y, formula1,formula2, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
 #'        b.tau=1e-4, lambda1.min=1, lambda2.min=1,
@@ -450,12 +450,12 @@ DALSM = function(y, formula1,formula2, data,
                        phi0=phi.cur,
                        fixed.phi=fixed.phi,phi.ref=phi.ref,
                        is.density=TRUE,Mean0=NULL,Var0=NULL,
-                       method="evidence",verbose=FALSE)
+                       method="LPS",verbose=FALSE)
       fit1d = densityIC(obj1d,
                      phi0=fit1d.0$phi,
                      fixed.phi=fixed.phi, phi.ref=phi.ref,
                      is.density=TRUE,Mean0=0,Var0=1,
-                     method="evidence",verbose=FALSE)
+                     method="LPS",verbose=FALSE)
       fit1d$n=n ; fit1d$n.uncensored=n.uncensored ; fit1d$n.IC=n.IC ; fit1d$n.RC=n.RC
       phi.cur = fit1d$phi ## Current spline parameter estimates in error density estimation
     }

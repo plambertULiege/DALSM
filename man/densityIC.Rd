@@ -6,7 +6,7 @@
 \usage{
 densityIC(obj.data,
        is.density=TRUE, Mean0=NULL, Var0=NULL,
-       fixed.penalty=FALSE, method=c("evidence","Schall"),
+       fixed.penalty=FALSE, method=c("LPS","Schall"),
        fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
        verbose=FALSE)
 }
@@ -21,7 +21,7 @@ densityIC(obj.data,
 
 \item{fixed.penalty}{(optional) logical indicating whether the penalty parameter should be selected from the data (\code{fixed.penalty}=FALSE) or fixed (\code{fixed.penalty}=TRUE) at its initial value \eqn{\tau_0}.}
 
-\item{method}{method used for penaly selection: "evidence" (by maximizing the marginal posterior for <tau>) or "Schall" (Schall's method).}
+\item{method}{method used for the selection of the penalty parameter: "LPS" (by maximizing the marginal posterior for \eqn{\tau}, cf. "Laplace P-splines") or "Schall" (Schall's method).}
 
 \item{fixed.phi}{(optional) logical indicating whether the spline parameters are fixed (\code{fixed.phi}=TRUE) or estimated from the data (default: \code{fixed.phi}=FALSE).}
 
@@ -41,9 +41,9 @@ a \code{\link{densIC.object}} containing the density estimation results.
 \description{
 P-spline estimation of the density (pdf), cumulative distribution (cdf),
 hazard and cumulative hazard functions from interval- or right-censored data under possible marginal
-mean and/or variance constraints. The penalty parameter tuning the smoothness of
-the log-hazard can be selected by maximizing its approximate marginal posterior
-(also named the 'evidence') or using Schall's method.
+mean and/or variance constraints. The penalty parameter \eqn{\tau} tuning the smoothness of
+the log-hazard can be selected using the Laplace P-splines (LPS) method maximizing an approximation to the marginal posterior
+of \eqn{\tau} (also named the 'evidence')  or using Schall's method.
 }
 \examples{
 library(DALSM)

@@ -3,12 +3,12 @@
 #' Constrained density estimation from censored data with given mean and variance
 #' @description P-spline estimation of the density (pdf), cumulative distribution (cdf),
 #' hazard and cumulative hazard functions from interval- or right-censored data under possible marginal
-#' mean and/or variance constraints. The penalty parameter tuning the smoothness of
-#' the log-hazard can be selected by maximizing its approximate marginal posterior
-#' (also named the 'evidence') or using Schall's method.
+#' mean and/or variance constraints. The penalty parameter \eqn{\tau} tuning the smoothness of
+#' the log-hazard can be selected using the Laplace P-splines (LPS) method maximizing an approximation to the marginal posterior
+#' of \eqn{\tau} (also named the 'evidence')  or using Schall's method.
 #' @usage densityIC(obj.data,
 #'        is.density=TRUE, Mean0=NULL, Var0=NULL,
-#'        fixed.penalty=FALSE, method=c("evidence","Schall"),
+#'        fixed.penalty=FALSE, method=c("LPS","Schall"),
 #'        fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
 #'        verbose=FALSE)
 #' @param obj.data a list created from potentially right- or interval-censored data using \code{\link{Dens1d}}. It includes summary statistics, the assumed density support, the knots for the B-spline basis, etc.
@@ -16,7 +16,7 @@
 #' @param Mean0 (optional) constrained value for the mean of the fitted density (defaut: NULL).
 #' @param Var0 (optional) constrained value for the variance of the fitted density (defaut: NULL).
 #' @param fixed.penalty (optional) logical indicating whether the penalty parameter should be selected from the data (\code{fixed.penalty}=FALSE) or fixed (\code{fixed.penalty}=TRUE) at its initial value \eqn{\tau_0}.
-#' @param method method used for penaly selection: "evidence" (by maximizing the marginal posterior for <tau>) or "Schall" (Schall's method).
+#' @param method method used for the selection of the penalty parameter: "LPS" (by maximizing the marginal posterior for \eqn{\tau}, cf. "Laplace P-splines") or "Schall" (Schall's method).
 #' @param fixed.phi (optional) logical indicating whether the spline parameters are fixed (\code{fixed.phi}=TRUE) or estimated from the data (default: \code{fixed.phi}=FALSE).
 #' @param phi.ref (optional) reference value for the spline parameters with respect to which deviations are penalized (default: zero vector).
 #' @param phi0 starting value for the spline parameters (default: spline parameters corresponding to a Student density with 5 DF).
@@ -91,7 +91,7 @@
 #'
 densityIC = function(obj.data,
                     is.density=TRUE,Mean0=NULL, Var0=NULL,
-                    fixed.penalty=FALSE,method=c("evidence","Schall"),
+                    fixed.penalty=FALSE,method=c("LPS","Schall"),
                     fixed.phi=FALSE,phi.ref=NULL,
                     phi0=NULL,tau0=exp(5),tau.min=.1,
                     verbose=FALSE){
@@ -142,7 +142,7 @@ densityIC = function(obj.data,
   ##
   if (!fixed.penalty){
     if (verbose){
-      if (method=="evidence") cat("Selection of <tau>: Evidence-based method\n")
+      if (method=="LPS") cat("Selection of <tau>: Evidence-based method\n")
       if (method=="Schall") cat("Selection of <tau>: Schall's-based method\n")
     }
   }
@@ -386,7 +386,7 @@ densityIC = function(obj.data,
     while(!ok.tau){
       niter.tau = niter.tau + 1
       tau.old = tau
-      if (method=="evidence"){
+      if (method=="LPS"){
         ## Evidence-based method
         denom = sum(n*ev/(tau+n*ev))
         tau = max(tau.min,denom/quad)
@@ -510,8 +510,8 @@ densityIC = function(obj.data,
   if (!is.null(Var0)) ans$Var0 = Var0    ## Requested variance value
   ans$Finfty = Finfty.fun(phi.cur)  ## int f(x)dx
   ans$mean.dist = mean.dist ; ans$var.dist = var.dist ## Mean and variance of the fitted density
-  ans$method = method ## evidence or Schall
-  if (method=="evidence") ans$denom = denom
+  ans$method = method ## LPS or Schall
+  if (method=="LPS") ans$denom = denom
   if (method=="Schall") ans$ed = ed
   ans$ed = sum(diag(solve(BWB+tau*Pd)%*%BWB)) ## Effective number of parameters
   ans = c(ans,obj.data) ## Remind input object (including summary statistics, knots, density support, etc.)

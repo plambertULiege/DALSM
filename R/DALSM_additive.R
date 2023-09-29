@@ -11,8 +11,8 @@
 #' for the additive terms with respect to given (optional) reference functions (such as the ones for the 'true' additive terms used
 #' to generate data in a simulation study) can also be computed.
 #' @usage DALSM_additive(obj.DALSM, ngrid=101,
-#'                       true.loc=NULL, true.disp=NULL, ci.level=NULL,
-#'                       verbose=FALSE)
+#'        true.loc=NULL, true.disp=NULL, ci.level=NULL,
+#'        verbose=FALSE)
 #'
 #' @param obj.DALSM a \code{\link{DALSM.object}}
 #' @param ngrid (optional) grid size of covariate values where the additive terms are calculated (default: 101).

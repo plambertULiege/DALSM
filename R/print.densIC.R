@@ -4,7 +4,7 @@
 #' Print a summary of the information in a \code{densIC.object}
 #' @description Print summary information on the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
 #' @usage \method{print}{densIC}(x,...)
-#' @param x a code{densIC.object}.
+#' @param x a \code{\link{densIC.object}}.
 #' @param ... Optional additional print parameters.
 #'
 #' @return No returned value (just printed summary).
