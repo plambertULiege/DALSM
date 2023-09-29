@@ -39,8 +39,8 @@ densityIC(obj.data,
 a \code{\link{densIC.object}} containing the density estimation results.
 }
 \description{
-P-spline estimation of the hazard, cumulative hazard, density
-and cdf from interval- or right-censored data under possible marginal
+P-spline estimation of the density (pdf), cumulative distribution (cdf),
+hazard and cumulative hazard functions from interval- or right-censored data under possible marginal
 mean and/or variance constraints. The penalty parameter tuning the smoothness of
 the log-hazard can be selected by maximizing its approximate marginal posterior
 (also named the 'evidence') or using Schall's method.
@@ -48,22 +48,33 @@ the log-hazard can be selected by maximizing its approximate marginal posterior
 \examples{
 library(DALSM)
 
-## Example 1: density estimation from IC data
+## Example 1: density estimation from RC and IC data
+## Data generation
+set.seed(123)
 n = 500 ## Sample size
-x = 3 + rgamma(n,10,2) ## Exact data generation
+x = rgamma(n,10,2) ## Exact (unobserved) data
 width = runif(n,1,3) ## Width of the IC data (mean width = 2)
 w = runif(n) ## Positioning of the exact data within the interval
-xmat = cbind(x-w*width,x+(1-w)*width) ## Generated IC data
-head(xmat)
+xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
+t.cens = rexp(n,1/15) ## Right-censoring values
+idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units
+xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data For RC units: (t.cens,Inf)
+head(xmat,15)
+## Density estimation
 obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 ## Density estimation with fixed mean and variance
-obj = densityIC(obj.data,Mean0=3+10/2,Var0=10/4)
-plot(obj) ## Histogram of the pseudo-data with the density estimate
-curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
+obj = densityIC(obj.data,Mean0=10/2,Var0=10/4)
+print(obj)
+plot(obj) ## Plot the estimated density
+curve(dgamma(x,10,2), ## ... and compare it to the true density (in red)
       add=TRUE,col="red",lwd=2,lty=2)
-legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
-       legend=c("Fitted density","True density","Pseudo-data"),bty="n")
-print(obj) ## ... with summary statistics
+legend("topright",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+       legend=c("Estimated density","True density"),bty="n")
+## Same story for the cdf
+with(obj, curve(pdist(x),ymin,ymax,lwd=2,xlab="",ylab="F(x)"))
+curve(pgamma(x,10,2),add=TRUE,col="red",lwd=2,lty=2)
+legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+       legend=c("Estimated cdf","True cdf"),bty="n")
 
 ## Example 2: estimation of the error density in a DALSM model
 data(DALSM_IncomeData)

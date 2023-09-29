@@ -12,6 +12,7 @@ Essential part:
 \item{\code{Hdist} : \verb{ }}{fitted cumulative hazard function.}
 \item{\code{hdist} : \verb{ }}{fitted hazard function.}
 \item{\code{pdist} : \verb{ }}{fitted cumulative distribution function.}
+\item{\code{ymin, ymax} : \verb{ }}{assumed values for the support of the distribution.}
 \item{\code{phi} : \verb{ }}{estimated B-spline coefficients for the log-hazard of the error distribution.}
 \item{\code{U.phi} : \verb{ }}{score of the Lagrangian G(\eqn{\phi|\omega}).}
 \item{\code{tau}, \code{ltau} : \verb{ }}{selected penalty parameter and its logarithm.}

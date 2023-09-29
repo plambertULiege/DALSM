@@ -101,7 +101,7 @@ plot.DALSM = function(x,
                              xlab="Error",ylab="Error density",col="blue")
     )
     curve(dnorm,add=T,lwd=2,lty="dotted")
-    legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated error density","N(0,1)"),bty='n')
+    legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated density","N(0,1)"),bty='n')
     if (!is.null(true.derr)) with(obj.fit, curve(true.derr,rmin,rmax,lwd=2,col="red",add=T))
   }
   ## Plot fitted additive terms

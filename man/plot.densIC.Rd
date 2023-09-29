@@ -5,7 +5,7 @@
 \title{Plot the density estimate in a \code{densIC.object}}
 \usage{
 \method{plot}{densIC}(x,
-       xlim=range(fit$bins),breaks=NULL,histRC=FALSE,
+       xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,
        xlab="",ylab="Density",main="",...)
 }
 \arguments{
@@ -14,6 +14,8 @@
 \item{xlim}{interval of values where the density should be plotted.}
 
 \item{breaks}{(Optional) breaks for the histogram of the observed residuals.}
+
+\item{hist}{Logical (Default: FALSE) indicating whether the histogram of the (pseudo-) data should be plotted with the estimated density.}
 
 \item{histRC}{Logical (Default: FALSE) indicating whether the histogram of the right-censored residuals should be highlighted.}
 
@@ -44,10 +46,10 @@ head(xmat)
 obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 ## Density estimation with fixed mean and variance
 obj = densityIC(obj.data,Mean0=3+10/2,Var0=10/4)
-plot(obj) ## Histogram of thepseudo-data with the density estimate
+plot(obj, hist=TRUE) ## Histogram of the pseudo-data with the density estimate
 curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
       add=TRUE,col="red",lwd=2,lty=2)
-legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
+legend("topright",col=c("black","red","grey"),lwd=c(2,2,10),lty=c(1,2,1),
        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
 print(obj) ## ... with summary statistics
 
@@ -58,8 +60,8 @@ fit = DALSM(y=resp,
             formula1 = ~twoincomes+s(age)+s(eduyrs),
             formula2 = ~twoincomes+s(age)+s(eduyrs),
             data = DALSM_IncomeData)
-plot(fit$derr)  ## Plot the estimated error density
-legend("topright",col=c("black","grey"),lwd=c(2,20),lty=c(1,1),
+plot(fit$derr, hist=TRUE)  ## Plot the estimated error density
+legend("topright",col=c("black","grey"),lwd=c(2,10),lty=c(1,1),
        legend=c("Estimated error density","Pseudo-residuals"),bty="n")
 print(fit$derr) ## ... and provide summary statistics for it
 }

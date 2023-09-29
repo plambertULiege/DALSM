@@ -2,12 +2,13 @@
 #' @description Plot the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
 #'
 #' @usage \method{plot}{densIC}(x,
-#'        xlim=range(fit$bins),breaks=NULL,histRC=FALSE,
+#'        xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,
 #'        xlab="",ylab="Density",main="",...)
 #'
 #' @param x a \code{\link{densIC.object}}.
 #' @param xlim interval of values where the density should be plotted.
 #' @param breaks (Optional) breaks for the histogram of the observed residuals.
+#' @param hist Logical (Default: FALSE) indicating whether the histogram of the (pseudo-) data should be plotted with the estimated density.
 #' @param histRC Logical (Default: FALSE) indicating whether the histogram of the right-censored residuals should be highlighted.
 #' @param xlab Optional label for the x-axis (Defaut: empty).
 #' @param ylab Optional label for the y-axis (Default: "Density").
@@ -40,10 +41,10 @@
 #' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 #' ## Density estimation with fixed mean and variance
 #' obj = densityIC(obj.data,Mean0=3+10/2,Var0=10/4)
-#' plot(obj) ## Histogram of thepseudo-data with the density estimate
+#' plot(obj, hist=TRUE) ## Histogram of the pseudo-data with the density estimate
 #' curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
 #'       add=TRUE,col="red",lwd=2,lty=2)
-#' legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
+#' legend("topright",col=c("black","red","grey"),lwd=c(2,2,10),lty=c(1,2,1),
 #'        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
 #' print(obj) ## ... with summary statistics
 #'
@@ -54,21 +55,25 @@
 #'             formula1 = ~twoincomes+s(age)+s(eduyrs),
 #'             formula2 = ~twoincomes+s(age)+s(eduyrs),
 #'             data = DALSM_IncomeData)
-#' plot(fit$derr)  ## Plot the estimated error density
-#' legend("topright",col=c("black","grey"),lwd=c(2,20),lty=c(1,1),
+#' plot(fit$derr, hist=TRUE)  ## Plot the estimated error density
+#' legend("topright",col=c("black","grey"),lwd=c(2,10),lty=c(1,1),
 #'        legend=c("Estimated error density","Pseudo-residuals"),bty="n")
 #' print(fit$derr) ## ... and provide summary statistics for it
 
-plot.densIC = function(x,xlim=range(fit$bins),breaks=NULL,histRC=FALSE,xlab="",ylab="Density",main="",...){
+plot.densIC = function(x,xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,xlab="",ylab="Density",main="",...){
   fit = x
   dens.grid = fit$ddist(fit$ugrid) ## Fitted density at bin midpoints
   ##
-  if (is.null(breaks)) breaks="Sturges"
-  temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,plot=FALSE))
-  temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,freq=FALSE,
-                        xlim=xlim,ylim=1.05*c(0,max(dens.grid,temp$density)),
-                        xlab=xlab,col="grey",main=main,...))
-  n.RC = sum(fit$event==0)
-  if (histRC & n.RC>0) temp = with(fit, hist(rep(ugrid,apply((C[event==0,]/apply(C[event==0,],1,sum)),2,sum)),breaks=breaks,freq=FALSE,col="gray87",add=T))
-  with(fit, curve(ddist,lwd=2,add=T,n=501))
+  if (hist){
+    if (is.null(breaks)) breaks="Sturges"
+    temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,plot=FALSE))
+    temp = with(fit, hist(rep(ugrid,ncol(C)*apply((C/apply(C,1,sum)),2,sum)),breaks=breaks,freq=FALSE,
+                          xlim=xlim,ylim=1.05*c(0,max(dens.grid,temp$density)),
+                          xlab=xlab,col="grey",main=main,...))
+    n.RC = sum(fit$event==0)
+    if (histRC & n.RC>0) temp = with(fit, hist(rep(ugrid,apply((C[event==0,]/apply(C[event==0,],1,sum)),2,sum)),breaks=breaks,freq=FALSE,col="gray87",add=T))
+    with(fit, curve(ddist,lwd=2,add=T,n=501))
+  } else {
+    with(fit, curve(ddist(x),min(ymin),max(ymax),lwd=2,n=501,xlab=xlab,ylab="Density"))
+  }
 }

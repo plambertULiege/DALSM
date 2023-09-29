@@ -266,86 +266,124 @@ regression models.
 ### Estimation of a density from censored data
 
 Besides fitting Nonparametric Double Additive Location-Scale Model to
-censored data, the DALSM package contains an independent function
-*densityIC* for density estimation from right- or interval-censored data
-with possible constraints on the mean and variance.
+censored data, the DALSM package contains an independent and very fast
+function, *densityIC*, for density estimation from right- or
+interval-censored data with possible constraints on the mean and
+variance.
+
+Let us generate interval-censored (IC) data from a Gamma(10,2)
+distribution with mean 5.0 and variance 2.5. The mean width of the
+simulated IC intervals is 2.0. Part of the data are also right-censored
+(RC) with RC values generated from an exponential distribution with mean
+15.0.
 
 ``` r
-## Generation of interval-censored data
+## Generation of right- and interval-censored data
+set.seed(123)
 n = 500 ## Sample size
 x = rgamma(n,10,2) ## Exact (unobserved) data
 width = runif(n,1,3) ## Width of the IC data (mean width = 2)
 w = runif(n) ## Positioning of the exact data within the interval
-xmat = cbind(x-w*width,x+(1-w)*width) ## Generated IC data
-head(xmat)
+xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
+t.cens = rexp(n,1/15) ## Right-censoring values
+idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units 
+xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data For RC units: (t.cens,Inf)
+head(xmat,15)
 ```
 
-    ##          [,1]     [,2]
-    ## [1,] 6.812131 7.896267
-    ## [2,] 4.028559 6.469288
-    ## [3,] 5.511896 8.179376
-    ## [4,] 4.107709 5.987294
-    ## [5,] 5.188393 7.184243
-    ## [6,] 2.740525 3.900238
+    ##            [,1]     [,2]
+    ##  [1,] 0.8279792      Inf
+    ##  [2,] 6.6526685 8.204466
+    ##  [3,] 1.1579633      Inf
+    ##  [4,] 4.1784981 6.277058
+    ##  [5,] 6.6143492 8.306603
+    ##  [6,] 3.7696512 5.799582
+    ##  [7,] 2.4766237      Inf
+    ##  [8,] 2.3888812 4.441426
+    ##  [9,] 5.9867783 7.392858
+    ## [10,] 3.6321041      Inf
+    ## [11,] 4.7570358 6.498024
+    ## [12,] 4.3883940 5.995044
+    ## [13,] 2.0614651      Inf
+    ## [14,] 5.1459398      Inf
+    ## [15,] 3.3849118      Inf
+
+The density can be estimated from the censored data using function
+*densityIC*. Optionally, the mean and variance of the estimated density
+can also be forced to some fixed values, here 5.0 and 2.5, respectively.
+We also choose to force the left end of the distribution support to be
+0:
 
 ``` r
 ## Density estimation from IC data 
 obj.data = Dens1d(xmat,ymin=0) ## Prepare the IC data for estimation
 obj = densityIC(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
-plot(obj) ## Histogram of the pseudo-data with the density estimate
-curve(dgamma(x,10,2), ## ... compared to the true density (in red)
-      add=TRUE,col="red",lwd=2,lty=2)
-legend("topright",col=c("black","red","grey"),lwd=c(2,2,20),lty=c(1,2,1),
-        legend=c("Fitted density","True density","Pseudo-data"),bty="n")
-```
-
-![](README_files/figure-gfm/DALSM3-1.png)<!-- -->
-
-``` r
-print(obj) ## ... with summary statistics
+print(obj)
 ```
 
     ## ** Constrained Density/Hazard estimation from right- and Interval-censored data **
     ## INPUT:
-
-    ##   Total sample size: 500
-
+    ##   Total sample size:  500 
     ##   Uncensored data: 0 (0 percents)
-
-    ##   Interval Censored data: 500 (100 percents)
-
-    ##   Right censored data: 0 (0 percents)
-
+    ##   Interval-censored (IC) data: 367 (73.4 percents)
+    ##   Right-censored (RC) data: 133 (26.6 percents)
     ##   ---
-
-    ##   Range of the Interval Censored data: (-2.9e-02,1.3e+01)
-
+    ##   Range of the IC data: (0.1708629,12.56085)
+    ##   Range of the RC data: (0.009145886,7.785088)
     ##   ---
-
-    ##   Assumed support: (-2.0e+00,1.5e+01)
-
-    ##   Number of small bins on the support: 501
-
-    ##   Number of B-splines: 25 ; Penalty order: 2
-
+    ##   Assumed support: (0,14.69175)
+    ##   Number of small bins on the support: 501 
+    ##   Number of B-splines: 25 ; Penalty order: 2 
     ## 
     ## OUTPUT:
-
-    ##   Value of the estimated cdf at +infty: 1.0e+00
-
-    ##   Constraint on the Mean: 5 ; Fitted Mean: 5.0e+00
-
-    ##   Constraint on the Variance: 2.5 ; Fitted Variance: 2.5e+00
-
-    ##   Selected penalty parameter <tau>: 7.1
-
-    ##   Effective number of parameters: 6.6
-
+    ##   Value of the estimated cdf at +infty: 1 
+    ##   Constraint on the Mean: 5  ; Fitted mean: 5 
+    ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499669 
+    ##   Selected penalty parameter <tau>: 22.5 
+    ##   Effective number of parameters: 5.4 
     ##   Parameter estimates:  phi, tau
     ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
-
     ## 
-    ## ** 8 iterations (0.1 seconds) **
+    ## ** 6 iterations (0.093 seconds) **
+
+The estimated density and cdf can also be visualized and compared to
+their ‘true’ Gamma(10,2) counterparts used to generate the data:
+
+``` r
+plot(obj) ## Plot the estimated density
+curve(dgamma(x,10,2), ## ... and compare it to the true density (in red)
+      add=TRUE,col="red",lwd=2,lty=2)
+legend("topright",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+        legend=c("Estimated density","True density"),bty="n")
+```
+
+![](README_files/figure-gfm/DALSM3d-1.png)<!-- -->
+
+``` r
+## Same story for the cdf
+with(obj, curve(pdist(x),ymin,ymax,lwd=2,xlab="",ylab="F(x)"))
+curve(pgamma(x,10,2),add=TRUE,col="red",lwd=2,lty=2)
+legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+        legend=c("Estimated cdf","True cdf"),bty="n")
+```
+
+![](README_files/figure-gfm/DALSM3d-2.png)<!-- -->
+
+Estimated density (pdf), distribution (cdf), hazard and cumulative
+hazard functions are also directly available:
+
+``` r
+xvals = seq(2,10,by=2)
+with(obj, cbind(x=xvals, fx=ddist(xvals), Fx=pdist(xvals), 
+                hx=hdist(xvals), Hx=Hdist(xvals)))
+```
+
+    ##       x          fx         Fx         hx         Hx
+    ## [1,]  2 0.031622032 0.01849226 0.03221816 0.01866538
+    ## [2,]  4 0.234756524 0.26468056 0.31927749 0.30745026
+    ## [3,]  6 0.186674735 0.76413790 0.79144393 1.44450795
+    ## [4,]  8 0.037761707 0.95797288 0.89847167 3.16944027
+    ## [5,] 10 0.006598059 0.99509435 1.34498959 5.31736848
 
 ## License
 
