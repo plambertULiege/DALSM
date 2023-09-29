@@ -117,14 +117,14 @@ $6: [2520,3059]$ $(n_6=121)$, $7: [3060,$ $3739]$ $(n_7=167)$,
 $8:[3740,4529]$ $(n_8=126)$, $9: [4530,5579]$ $(n_9=74)$,
 $10: \geq 5580$ euros $(n_{10}=65)$.
 
-We model the relationship between disposable income per person ($91.4\%$
-interval-censored, $8.6\%$ right-censored) and the availability of (at
-least) two income ($64.2\%$) in the household, as well as the age
-($41.0\pm8.83$ years) and number of years of education completed
-($14.9\pm3.34$ years) by the respondent. This individualized income is
-obtained by dividing the household one by the OECD-modified equivalence
-(Hagenaars1994), as recommended by the Statistical Office of the
-European Union (EUROSTAT).
+We model the relationship between disposable income per person ($91.4$
+percents interval-censored, $8.6$ percents right-censored) and the
+availability of (at least) two income ($64.2$ percents) in the
+household, as well as the age ($41.0\pm8.83$ years) and number of years
+of education completed ($14.9\pm3.34$ years) by the respondent. This
+individualized income is obtained by dividing the household one by the
+OECD-modified equivalence (Hagenaars1994), as recommended by the
+Statistical Office of the European Union (EUROSTAT).
 
 Let us load the package and visualize typical response values:
 
@@ -344,7 +344,7 @@ print(obj)
     ##   Parameter estimates:  phi, tau
     ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
     ## 
-    ## ** 6 iterations (0.093 seconds) **
+    ## ** 6 iterations (0.102 seconds) **
 
 The estimated density and cdf can also be visualized and compared to
 their ‘true’ Gamma(10,2) counterparts used to generate the data:
