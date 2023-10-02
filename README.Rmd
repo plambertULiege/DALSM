@@ -1,0 +1,216 @@
+---
+title: "The *DALSM* R-package"
+output: github_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+````{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.path="man/figures/")
+````
+<!-- ```{r setup, include=TRUE}
+%knitr::opts_chunk$set(echo = TRUE)
+```
+-->
+
+The *DALSM* R-package enables to fit a **nonparametric double location-scale model to** right- and interval-**censored data**, see [Lambert (2021)](http://doi.org/10.1016/j.csda.2021.107250) for methodological details.
+
+Consider a vector $(Y,\mathbf{z},\mathbf{x})$ where $Y$ is a univariate
+continuous response, $\mathbf{z}$ a *p*-vector of categorical covariates,
+and $\mathbf{x}$ a *J*-vector of quantitative covariates.
+The response could be subject to right-censoring, in which case one
+only observes $(T,\Delta)$, where $T=\min\{Y,C\}$, $\Delta=I(Y\leq C)$
+and $C$ denotes the right-censoring value that we shall assume
+independent of $Y$ given the covariates. The response could also be
+interval-censored, meaning that it is only known to lie within an
+interval $(Y^L,Y^U)$.
+
+## Model specification
+A location-scale model is considered to describe the distribution of
+the response conditionally on the covariates,
+$$Y = \mu(\mathbf{z},\mathbf{x}) + \sigma(\mathbf{z},\mathbf{x})\varepsilon$$
+where $\mu(\mathbf{z},\mathbf{x})$ denotes the conditional
+location, $\sigma(\mathbf{z},\mathbf{x})$ the conditional dispersion,
+and $\varepsilon$ an error term independent of $\mathbf{z}$ and
+$\mathbf{x}$ with fixed first and second order moments, $\mathrm{E}(\varepsilon)=0$ and
+$\mathrm{V}(\varepsilon)=1$.
+
+Assume that independent copies 
+$(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$
+are observed on $n$ units with the possibility of
+right or interval-censoring on $y_i$  as described above.
+Additive models for the conditional location and
+dispersion of the response are specified,
+$$\mu(z_i, x_i)= \beta_0+ \Sigma_ {k=1}^p \beta_k z_{ik}+\Sigma_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$$
+$$\log\sigma(z_i,x_i)= \delta_0+\Sigma_ {k=1}^p \delta_k z_ {ik}+\Sigma_ {j=1}^{J} {{f_{j}^{\sigma}}}(x_ {ij})$$
+where $f_{j}^{\mu}(\cdot)$ and $f_{j}^{\sigma}(\cdot)$ denote smooth
+additive terms quantifying the effect of the $j {th}$ quantitative
+covariate on the conditional mean and dispersion.
+The additive terms in the conditional location and dispersion models can be approximated using linear combinations of (recentered)
+B-splines,
+$$f^ {\mu}_ j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\mu\right)_ {i=1}^n=\mathbf{B}_ j\pmb{\theta}_ j^\mu$$
+$$f^ {\sigma}_ j=\left(\Sigma_ {\ell=1}^L {b_ {j\ell}}(x_ {ij})\theta_ {\ell j}^\sigma\right)_ {i=1}^n = \mathbf{B}_ j\pmb{\theta}_ j^\sigma$$
+where $[\mathbf{B}_ j]_ {i\ell}={b_{ j\ell}}(x_ {ij})$.
+
+Gaussian Markov random field (GMRF) priors penalizing changes in neighbour B-spline parameters are taken,
+$$p(\pmb{\theta}^ {\mu}_ {j}|\lambda_ j^\mu) \propto \exp\left( -{1\over 2}{\pmb{\theta}^ \mu_ j}^ \top (\lambda^ {\mu}_ j\mathbf{P}^ \mu) \pmb{\theta}^ \mu_ j \right)$$
+$$p(\pmb{\theta}^ {\sigma}_ {j}|\lambda_ j^\sigma) \propto \exp\left( -{1\over 2}{\pmb{\theta}^ \sigma_ j}^ \top (\lambda^ {\sigma}_ j\mathbf{P}^ \sigma) \pmb{\theta}^ \sigma_ j \right) $$
+
+where $\mathbf{P}^ \mu, \mathbf{P}^ \sigma$ are penalty matrices and
+$\lambda^ {\mu}_ {j},\lambda^ {\sigma}_ {j}$ positive penalty parameters for the location and dispersion submodels, respectively.
+For penalty matrices of order 2, increasingly large values for these parameters point to linear effects for the additive terms.
+
+## Nonparametric error density
+The error term $\varepsilon$ is assumed to have fixed first and second order moments, $\mathrm{E}(\varepsilon)=0$ and
+$\mathrm{V}(\varepsilon)=1$. To get away from the constraining and sometimes unrealistic normality hypothesis, a flexible form based on P-splines is indirectly assumed for the error density through the log of the hazard function. Lagrange multipliers are used to force mean and variance constraints. We refer to Section 2.5 and Algorithm 3 in [Lambert (2021)](http://doi.org/10.1016/j.csda.2021.107250) for more details and to function **densityLPS** in the **DALSM** package for computational aspects to handle right- and interval-censored data.
+
+## Selection of penalty parameters
+Marginal posterior distributions of the penalty parameters in the error density and in the location and dispersion submodels are approximated by starting from the following identity,
+$$p(\pmb{\lambda} | {\cal D}) = {p(\pmb{\psi},\pmb{\lambda}|{\cal D}) \over p(\pmb{\psi}|\pmb{\lambda},{\cal D})}$$
+where $\lambda$ and $\pmb{\psi}$ generically denote the penalty and the penalized parameters. Thanks to the GMRF prior for $(\pmb{\psi}|\lambda)$, a Laplace approximation to the conditional posterior in the numerator is relevant. When that expression is evaluated at the conditional posterior mode $\hat\psi_ \lambda$, one obtains the following approximation to the marginal posterior of the penalty parameters
+$$\tilde p (\pmb{\lambda} | {\cal D}) \propto p(\hat\psi_ \lambda, \pmb{\lambda} | {\cal D}) |\Sigma_ \lambda|^ {1/2}$$
+
+where $\Sigma_\lambda$ denotes the conditional variance-covariance matrix. The mode of $\tilde{p}(\pmb{\lambda}|{\cal D})$ could be chosen if point values for the penalty parameters are desired. The combination of Bayesian P-splines with the preceding approximation to the marginal posterior of $\pmb{\lambda}$ is shortly named *Laplace P-splines*.
+
+## Model fitting
+Model fitting alternates the estimation of the regression and spline parameters in the location-scale model (see Algorithm 1 in [Lambert 2021](http://doi.org/10.1016/j.csda.2021.107250)), the selection of the penalty parameters (see Algorithm 2) and the update of the error density (see Algorithm 3). The whole procedure is implemented in function **DALSM** of the package.
+
+## The *DALSM* package in action
+
+### Application to survey data
+The data of interest come from the European Social Survey (ESS 2016) with a focus on the money available per person in
+Belgian households for respondents aged 25-55 when the main source of
+income comes from wages or salaries ($n=756$). Each person reports the
+total net monthly income of the household in one of 10 decile-based
+intervals: $1: <1120$ $(n_1=8)$, $2: [1120,1399]$ $(n_2=13)$,
+$3: [1400,1719]$ $(n_3=47)$, $4: [1720,2099]$ $(n_4=53)$,
+$5: [2100,2519]$ $(n_5=82)$, $6: [2520,3059]$ $(n_6=121)$,
+$7: [3060,$ $3739]$ $(n_7=167)$, $8:[3740,4529]$ $(n_8=126)$,
+$9: [4530,5579]$ $(n_9=74)$, $10: \geq 5580$ euros $(n_{10}=65)$.
+
+We model the relationship between disposable income per person ($91.4$ percents
+interval-censored, $8.6$ percents right-censored) and the availability of (at
+least) two income ($64.2$ percents) in the household, as well as the age
+($41.0\pm8.83$ years) and number of years of education
+completed ($14.9\pm3.34$ years) by the respondent.
+This individualized income is obtained by dividing the household one by the
+OECD-modified equivalence (Hagenaars1994), as recommended by the Statistical Office of
+the European Union (EUROSTAT).
+
+Let us load the package and visualize typical response values:
+```{r DALSM1}
+## Package installation from R-CRAN
+## install.packages("DALSM")
+## Alternatively, installation from GitHub:
+## install.packages("devtools")
+## devtools::install_github("plambertULiege/DALSM")
+
+## Package loading
+library(DALSM)
+
+## Data reading
+data(DALSM_IncomeData)
+resp = DALSM_IncomeData[,1:2]
+head(resp,20) ## Visualize first 20 censored income values
+summary(DALSM_IncomeData[,3:5]) ## Summary stats for covariates
+```
+Most reported income values (in thousand euros) are interval-censored (with finite values for the upper bound of the interval), 
+some are right-censored (with an *Inf* value for the upper bound of the interval) for respondents belonging to households whose net monthly income exceeds the last decile. 
+
+The nonparametric double location-scale model (with additive *age* and *eduyrs* terms and a fixed effect for the *twoincomes* indicator can be fitted using the *DALSM* function:
+```{r DALSM2}
+fit = DALSM(y=resp,
+           formula1 = ~twoincomes+s(age)+s(eduyrs),
+           formula2 = ~twoincomes+s(age)+s(eduyrs),
+           data = DALSM_IncomeData)
+print(fit)
+```
+It suggests an average increase of 252 euros (available per person in the household) 
+when the respondent and his/her partner are in paid work (conditionally on
+*Age* and *Educ*), while the effect on dispersion is not
+statistically significant.  
+The effects of *Age* and *Educ* on
+the conditional mean and dispersion can be visualized on the plots below with the
+estimated additive terms.  
+```{r DALSM2b}
+plot(fit, new.dev=FALSE)
+```
+
+The amount of money available
+per person in the household tends to decrease with age, see $f_1^\mu(\mathrm{age})$, between approximately 27 and 37 (most likely due the arrival of children in the family) and to increase after 40
+(probably thanks to wage increase with seniority and the departure of
+children). The log-dispersion significantly increases with
+*Age*, see $f_1^\sigma(\mathrm{age})$, with an acceleration over 30. However, the dominant effect
+comes from the respondent's level of education, with a difference of
+about 1\,000 euros (in expected disposable income per person) between
+a less educated (6 years) and a highly educated (20 years) respondent,
+see $f_2^\mu(\mathrm{eduyrs})$. The effect on dispersion is also large,
+see $f_2^\sigma(\mathrm{eduyrs})$, with essentially an important
+contrast between less and highly educated respondents, the latter
+group showing the largest heterogeneity. The estimated density for the
+error term can also be seen, 
+with a right-skewed shape clearly distinguishable from the Gaussian
+one often implicitly assumed when fitting
+location-scale regression models.
+
+### Estimation of a density from censored data
+Besides fitting Nonparametric Double Additive Location-Scale Model to censored data, the DALSM package contains an independent and very fast function, *densityLPS*, for density estimation from right- or interval-censored data with possible constraints on the mean and variance using Laplace P-splines.
+
+Let us generate interval-censored (IC) data from a Gamma(10,2) distribution with mean 5.0 and variance 2.5. The mean width of the simulated IC intervals is 2.0. 
+Part of the data are also right-censored (RC) with RC values generated from an exponential distribution with mean 15.0.
+```{r DALSM3}
+## Generation of right- and interval-censored data
+set.seed(123)
+n = 500 ## Sample size
+x = rgamma(n,10,2) ## Exact (unobserved) data
+width = runif(n,1,3) ## Width of the IC data (mean width = 2)
+w = runif(n) ## Positioning of the exact data within the interval
+xmat = cbind(pmax(0,x-w*width),x+(1-w)*width) ## Generated IC data
+t.cens = rexp(n,1/15) ## Right-censoring values
+idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units 
+xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data for RC units: (t.cens,Inf)
+head(xmat,15)
+```
+The density can be estimated from the censored data using function *densityLPS*. Optionally, the mean and variance of the estimated density can also be forced to some fixed values, here 5.0 and 2.5, respectively. We also choose to force the left end of the distribution support to be 0:
+```{r DALSM3c}
+## Density estimation from IC data 
+obj.data = Dens1d(xmat,ymin=0) ## Prepare the IC data for estimation
+obj = densityLPS(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
+print(obj)
+```
+The estimated density and cdf can also be visualized and compared to their 'true' Gamma(10,2) counterparts used to generate the data:
+```{r DALSM3d}
+plot(obj) ## Plot the estimated density
+curve(dgamma(x,10,2), ## ... and compare it to the true density (in red)
+      add=TRUE,col="red",lwd=2,lty=2)
+legend("topright",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+        legend=c("Estimated density","True density"),bty="n")
+## Same story for the cdf
+with(obj, curve(pdist(x),ymin,ymax,lwd=2,xlab="",ylab="F(x)"))
+curve(pgamma(x,10,2),add=TRUE,col="red",lwd=2,lty=2)
+legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
+        legend=c("Estimated cdf","True cdf"),bty="n")
+```
+
+Estimated density (pdf), distribution (cdf), hazard and cumulative hazard functions are also directly available:
+```{r DALSM3e}
+xvals = seq(2,10,by=2)
+with(obj, cbind(x=xvals, fx=ddist(xvals), Fx=pdist(xvals), 
+                hx=hdist(xvals), Hx=Hdist(xvals)))
+```
+
+
+
+## License
+**DALSM**: Nonparametric Double Additive Location-Scale Model (DALSM). Copyright (C) 2021-2023 Philippe Lambert
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
+## References
+[1] Lambert, P. (2021) Fast Bayesian inference using Laplace approximations in nonparametric double additive location-scale models with right- and interval-censored data. Computational Statistics and Data Analysis, 161: 107250. [doi:10.1016/j.csda.2021.107250](http://doi.org/10.1016/j.csda.2021.107250)
+
+[2] Lambert, P. (2021) R-package *DALSM* (Nonparametric **D**ouble **A**dditive **L**ocation-**S**cale **M**odel)- [R-cran](https://CRAN.R-project.org/package=DALSM) ; GitHub: [plambertULiege/DALSM](https://github.com/plambertULiege/DALSM)

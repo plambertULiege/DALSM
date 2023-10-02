@@ -229,7 +229,7 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## -----------------------------------------------------------------------
     ## Convergence status: TRUE 
-    ## Elapsed time: 0.6 seconds  (5 iterations)
+    ## Elapsed time: 0.7 seconds  (5 iterations)
     ## -----------------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
@@ -321,7 +321,9 @@ obj = densityLPS(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean 
 print(obj)
 ```
 
-    ## ** Constrained Density/Hazard estimation from right- and Interval-censored data **
+    ## -----------------------------------------------------------------------
+    ##    Constrained Density/Hazard estimation from censored data using LPS  
+    ## -----------------------------------------------------------------------
     ## INPUT:
     ##   Total sample size:  500 
     ##   Uncensored data: 0 (0 percents)
@@ -336,15 +338,16 @@ print(obj)
     ##   Number of B-splines: 25 ; Penalty order: 2 
     ## 
     ## OUTPUT:
+    ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
+    ##   Parameter estimates:  phi, tau
     ##   Value of the estimated cdf at +infty: 1 
     ##   Constraint on the Mean: 5  ; Fitted mean: 5 
     ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499669 
     ##   Selected penalty parameter <tau>: 22.5 
     ##   Effective number of parameters: 5.4 
-    ##   Parameter estimates:  phi, tau
-    ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
-    ## 
-    ## ** 6 iterations (0.095 seconds) **
+    ## -----------------------------------------------------------------------
+    ## Elapsed time: 0.1 seconds  (6 iterations)
+    ## -----------------------------------------------------------------------
 
 The estimated density and cdf can also be visualized and compared to
 their ‘true’ Gamma(10,2) counterparts used to generate the data:
