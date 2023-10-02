@@ -69,7 +69,7 @@ P-splines is indirectly assumed for the error density through the log of
 the hazard function. Lagrange multipliers are used to force mean and
 variance constraints. We refer to Section 2.5 and Algorithm 3 in
 [Lambert (2021)](http://doi.org/10.1016/j.csda.2021.107250) for more
-details and to function **densityIC** in the **DALSM** package for
+details and to function **densityLPS** in the **DALSM** package for
 computational aspects to handle right- and interval-censored data.
 
 ## Selection of penalty parameters
@@ -267,9 +267,9 @@ regression models.
 
 Besides fitting Nonparametric Double Additive Location-Scale Model to
 censored data, the DALSM package contains an independent and very fast
-function, *densityIC*, for density estimation from right- or
+function, *densityLPS*, for density estimation from right- or
 interval-censored data with possible constraints on the mean and
-variance.
+variance using Laplace P-splines.
 
 Let us generate interval-censored (IC) data from a Gamma(10,2)
 distribution with mean 5.0 and variance 2.5. The mean width of the
@@ -309,7 +309,7 @@ head(xmat,15)
     ## [15,] 3.3849118      Inf
 
 The density can be estimated from the censored data using function
-*densityIC*. Optionally, the mean and variance of the estimated density
+*densityLPS*. Optionally, the mean and variance of the estimated density
 can also be forced to some fixed values, here 5.0 and 2.5, respectively.
 We also choose to force the left end of the distribution support to be
 0:
@@ -317,7 +317,7 @@ We also choose to force the left end of the distribution support to be
 ``` r
 ## Density estimation from IC data 
 obj.data = Dens1d(xmat,ymin=0) ## Prepare the IC data for estimation
-obj = densityIC(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
+obj = densityLPS(obj.data, Mean0=10/2, Var0=10/4) ## Estimation with fixed mean and variance
 print(obj)
 ```
 

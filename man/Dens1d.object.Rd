@@ -2,7 +2,7 @@
 % Please edit documentation in R/Dens1d_object.R
 \name{Dens1d.object}
 \alias{Dens1d.object}
-\title{Object created by \code{Dens1d} to prepare for density estimation from censored data using \code{densityIC}}
+\title{Object created by \code{Dens1d} to prepare for density estimation from censored data using \code{densityLPS}}
 \value{
 A \code{Dens1d.object} is a list with the following elements:
 
@@ -37,7 +37,7 @@ A \code{Dens1d.object} is a list with the following elements:
 }
 }
 \description{
-An object returned by function \code{\link{Dens1d}} to prepare for density estimation with given mean and variance from censored data using function \code{\link{densityIC}}.
+An object returned by function \code{\link{Dens1d}} to prepare for density estimation with given mean and variance from censored data using function \code{\link{densityLPS}}.
 }
 \references{
 Lambert, P. (2021). Fast Bayesian inference using Laplace approximations
@@ -47,7 +47,7 @@ interval-censored data.
 <doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
-\code{\link{Dens1d}}, \code{\link{densityIC}}, \code{\link{densIC.object}}
+\code{\link{Dens1d}}, \code{\link{densityLPS}}, \code{\link{densLPS.object}}
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

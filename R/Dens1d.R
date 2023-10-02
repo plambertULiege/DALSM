@@ -1,7 +1,7 @@
 ## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Sept 2017
 ###################################################################################
 #' Object creation for density estimation from right- or interval-censored data
-#' @description Object creation for density estimation from right- or interval-censored data using function \link{densityIC}.
+#' @description Object creation for density estimation from right- or interval-censored data using function \link{densityLPS}.
 #'
 #' @usage Dens1d(y, event=NULL, ymin=NULL, ymax=NULL,
 #'        K=25, equid.knots=TRUE, pen.order=2, nbins=501)
@@ -14,7 +14,7 @@
 #' @param pen.order penalty order when equidistant knots (otherwise: penalty matrix computed to penalize the second derivative).
 #' @param nbins number of small bins used for quadrature and approximations.
 #'
-#' @return A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityIC}}.
+#' @return A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityLPS}}.
 #' @export
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -24,7 +24,7 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{Dens1d.object}}, \code{\link{densityIC}}.
+#' @seealso \code{\link{Dens1d.object}}, \code{\link{densityLPS}}.
 #'
 #' @examples
 #' library(DALSM)
@@ -32,7 +32,7 @@
 #' resp = DALSM_IncomeData[,1:2]
 #' head(resp,n=20)
 #' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-#' obj = densityIC(temp) ## Density estimation from IC & RC data
+#' obj = densityLPS(temp) ## Density estimation from IC & RC data
 #' plot(obj) ## Visualize the estimated density
 #'
 Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,

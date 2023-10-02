@@ -85,7 +85,7 @@ plot.DALSM = function(x,
   ##
   if (is.null(error.lim)) error.lim = c(obj.fit$rmin,obj.fit$rmax)
   if (add.residuals){
-    plot.densIC(obj.fit$derr,histRC=TRUE,breaks=25,xlim=error.lim,
+    plot.densLPS(obj.fit$derr,histRC=TRUE,breaks=25,xlim=error.lim,
                                   xlab="Std.residuals",
                                   main=paste("n = ",obj.fit$n," (Unc: ",perc.obs,"% ; IC: ",perc.IC,"% ; RC: ",perc.RC,"%)",sep=""))
     if (!is.null(true.derr)) curve(true.derr,lwd=2,col="red",add=T)

@@ -1,12 +1,12 @@
 ## Author: Philippe LAMBERT (ULg, UCL, Belgium), Nov 2018
 ###################################################################################
-#' Constrained density estimation from censored data with given mean and variance
+#' Constrained density estimation from censored data with given mean and variance using Laplace P-splines
 #' @description P-spline estimation of the density (pdf), cumulative distribution (cdf),
 #' hazard and cumulative hazard functions from interval- or right-censored data under possible marginal
 #' mean and/or variance constraints. The penalty parameter \eqn{\tau} tuning the smoothness of
 #' the log-hazard can be selected using the Laplace P-splines (LPS) method maximizing an approximation to the marginal posterior
 #' of \eqn{\tau} (also named the 'evidence')  or using Schall's method.
-#' @usage densityIC(obj.data,
+#' @usage densityLPS(obj.data,
 #'        is.density=TRUE, Mean0=NULL, Var0=NULL,
 #'        fixed.penalty=FALSE, method=c("LPS","Schall"),
 #'        fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
@@ -24,7 +24,7 @@
 #' @param tau.min (optional) minimal value for the penalty parameter \eqn{\tau} (default: .1).
 #' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE).
 #'
-#' @return a \code{\link{densIC.object}} containing the density estimation results.
+#' @return a \code{\link{densLPS.object}} containing the density estimation results.
 #' @export
 
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -34,7 +34,7 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{densIC.object}}, \code{\link{print.densIC}}, \code{\link{plot.densIC}}, \code{\link{Dens1d.object}}, \code{\link{Dens1d}}.
+#' @seealso \code{\link{densLPS.object}}, \code{\link{print.densLPS}}, \code{\link{plot.densLPS}}, \code{\link{Dens1d.object}}, \code{\link{Dens1d}}.
 #'
 #' @examples
 #' library(DALSM)
@@ -55,7 +55,7 @@
 #' resp = DALSM_IncomeData[,1:2]
 #' head(resp,n=20)
 #' temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-#' obj = densityIC(temp) ## Density estimation from IC & RC data
+#' obj = densityLPS(temp) ## Density estimation from IC & RC data
 #' print(obj) ## Summary information on the estimated density
 #' plot(obj,hist=TRUE) ## Visualize the estimated density
 #' legend("topright",col=c("black","grey"),lwd=c(2,20),
@@ -73,10 +73,9 @@
 #' idx.RC = (1:n)[t.cens<x] ## Id's of the right-censored units
 #' xmat[idx.RC,] = cbind(t.cens[idx.RC],Inf) ## Data for RC units: (t.cens,Inf)
 #' head(xmat,15)
-#' ## Density estimation
-#' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 #' ## Density estimation with mean and variance constraints
-#' obj = densityIC(obj.data,Mean0=10/2,Var0=10/4)
+#' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
+#' obj = densityLPS(obj.data,Mean0=10/2,Var0=10/4) ## Density estimation
 #' print(obj)
 #' plot(obj) ## Plot the estimated density
 #' curve(dgamma(x,10,2), ## ... and compare it to the true density (in red)
@@ -89,7 +88,7 @@
 #' legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
 #'        legend=c("Estimated cdf","True cdf"),bty="n")
 #'
-densityIC = function(obj.data,
+densityLPS = function(obj.data,
                     is.density=TRUE,Mean0=NULL, Var0=NULL,
                     fixed.penalty=FALSE,method=c("LPS","Schall"),
                     fixed.phi=FALSE,phi.ref=NULL,
@@ -518,5 +517,5 @@ densityIC = function(obj.data,
   ans$iterations = niter
   ans$elapsed.time = elapsed.time
   ##
-  return(structure(ans,class="densIC"))
+  return(structure(ans,class="densLPS"))
 }

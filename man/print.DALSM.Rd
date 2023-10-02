@@ -11,6 +11,9 @@
 
 \item{...}{additional generic printing arguments.}
 }
+\value{
+No returned value (just printed summary).
+}
 \description{
 Print summary information on a \code{DALSM.object}.
 }

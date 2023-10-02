@@ -1,14 +1,14 @@
 #' Object resulting from the fit of a double additive location-scale model (DALSM).
 #'
-#' An object returned by the \code{\link{DALSM}} function: this is a list
-#' with various components related to the fit of a double additive location-scale model.
+#' @description An object returned by the \code{\link{DALSM}} function: this is a list
+#' with various components related to the fit of a double additive location-scale model using Laplace P-splines.
 #'
 #' @return A \code{DALSM} object has the following elements:
 #'
 #' Essential part:
 #' \itemize{
 #' \item{\code{converged} : \verb{ }}{logical convergence indicator.}
-#' \item{\code{derr} : \verb{ }}{estimated standardized error distribution returned as a \link{densIC.object}.}
+#' \item{\code{derr} : \verb{ }}{estimated standardized error distribution returned as a \link{densLPS.object}.}
 #' \item{\code{psi1} : \verb{ }}{estimated regression parameters for location (fixed effects, B-spline coefs for the J1 additive terms).}
 #' \item{\code{psi2} : \verb{ }}{estimated regression parameters for dispersion (fixed effects, B-spline coefs for the J2 additive terms).}
 #' \item{\code{fixed.loc} : \verb{ }}{matrix with the estimated fixed effects (est,se,ci.low,ci.up) in the location sub-model.}
@@ -81,7 +81,7 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{DALSM}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}, \code{\link{densityIC}}, \code{\link{densIC.object}}
+#' @seealso \code{\link{DALSM}}, \code{\link{print.DALSM}}, \code{\link{plot.DALSM}}, \code{\link{densityLPS}}, \code{\link{densLPS.object}}
 #'
 #' @name DALSM.object
 NULL

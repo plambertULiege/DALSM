@@ -1,10 +1,10 @@
 ###################################################################################
 ## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Oct 2018
 ###################################################################################
-#' Print a summary of the information in a \code{densIC.object}
-#' @description Print summary information on the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
-#' @usage \method{print}{densIC}(x,...)
-#' @param x a \code{\link{densIC.object}}.
+#' Print a summary of the information in a \code{densLPS.object}
+#' @description Print summary information on the density estimate obtained by \code{densityLPS} from censored data with given mean and variance.
+#' @usage \method{print}{densLPS}(x,...)
+#' @param x a \code{\link{densLPS.object}}.
 #' @param ... Optional additional print parameters.
 #'
 #' @return No returned value (just printed summary).
@@ -16,7 +16,7 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{densIC.object}}, \code{\link{plot.densIC}}, \code{\link{densityIC}}.
+#' @seealso \code{\link{densLPS.object}}, \code{\link{plot.densLPS}}, \code{\link{densityLPS}}.
 #'
 #' @export
 #'
@@ -31,7 +31,7 @@
 #' plot(fit$derr)  ## Plot the estimated error density
 #' print(fit$derr) ## ... and provide some descriptive elements on it
 #'
-print.densIC = function(x,...){
+print.densLPS = function(x,...){
   fit = x
   cat("** Constrained Density/Hazard estimation from right- and Interval-censored data **\n")
   cat("INPUT:\n")

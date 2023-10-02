@@ -1,11 +1,11 @@
-#' Plot the density estimate in a \code{densIC.object}
-#' @description Plot the density estimate obtained by \code{densityIC} from censored data with given mean and variance.
+#' Plot the density estimate in a \code{densLPS.object}
+#' @description Plot the density estimate obtained by \code{densityLPS} from censored data with given mean and variance.
 #'
-#' @usage \method{plot}{densIC}(x,
+#' @usage \method{plot}{densLPS}(x,
 #'        xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,
 #'        xlab="",ylab="Density",main="",...)
 #'
-#' @param x a \code{\link{densIC.object}}.
+#' @param x a \code{\link{densLPS.object}}.
 #' @param xlim interval of values where the density should be plotted.
 #' @param breaks (Optional) breaks for the histogram of the observed residuals.
 #' @param hist Logical (Default: FALSE) indicating whether the histogram of the (pseudo-) data should be plotted with the estimated density.
@@ -24,14 +24,14 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{densIC.object}}, \code{\link{print.densIC}}, \code{\link{densityIC}}.
+#' @seealso \code{\link{densLPS.object}}, \code{\link{print.densLPS}}, \code{\link{densityLPS}}.
 #'
 #' @export
 #'
 #' @examples
 #' require(DALSM)
 #'
-#' ## Example 1: density estimation from IC data
+#' ## Example 1: density estimation from simulated IC data
 #' n = 500 ## Sample size
 #' x = 3 + rgamma(n,10,2) ## Exact generated data
 #' width = runif(n,1,3) ## Width of the IC data (mean width = 2)
@@ -40,7 +40,7 @@
 #' head(xmat)
 #' obj.data = Dens1d(xmat,ymin=0) ## Prepare the data for estimation
 #' ## Density estimation with fixed mean and variance
-#' obj = densityIC(obj.data,Mean0=3+10/2,Var0=10/4)
+#' obj = densityLPS(obj.data,Mean0=3+10/2,Var0=10/4)
 #' plot(obj, hist=TRUE) ## Histogram of the pseudo-data with the density estimate
 #' curve(dgamma(x-3,10,2), ## ... compared to the true density (in red)
 #'       add=TRUE,col="red",lwd=2,lty=2)
@@ -60,7 +60,7 @@
 #'        legend=c("Estimated error density","Pseudo-residuals"),bty="n")
 #' print(fit$derr) ## ... and provide summary statistics for it
 
-plot.densIC = function(x,xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,xlab="",ylab="Density",main="",...){
+plot.densLPS = function(x,xlim=range(fit$bins),breaks=NULL,hist=FALSE,histRC=FALSE,xlab="",ylab="Density",main="",...){
   fit = x
   dens.grid = fit$ddist(fit$ugrid) ## Fitted density at bin midpoints
   ##

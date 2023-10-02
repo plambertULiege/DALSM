@@ -25,10 +25,10 @@ Dens1d(y, event=NULL, ymin=NULL, ymax=NULL,
 \item{nbins}{number of small bins used for quadrature and approximations.}
 }
 \value{
-A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityIC}}.
+A \link{Dens1d.object}, i.e. a list with summary measures and precomputed components required for density estimation using \code{\link{densityLPS}}.
 }
 \description{
-Object creation for density estimation from right- or interval-censored data using function \link{densityIC}.
+Object creation for density estimation from right- or interval-censored data using function \link{densityLPS}.
 }
 \examples{
 library(DALSM)
@@ -36,7 +36,7 @@ data(DALSM_IncomeData)
 resp = DALSM_IncomeData[,1:2]
 head(resp,n=20)
 temp = Dens1d(y=resp,ymin=0) ## Create Dens1d object from positive censored data
-obj = densityIC(temp) ## Density estimation from IC & RC data
+obj = densityLPS(temp) ## Density estimation from IC & RC data
 plot(obj) ## Visualize the estimated density
 
 }
@@ -48,7 +48,7 @@ interval-censored data.
 <doi:10.1016/j.csda.2021.107250>
 }
 \seealso{
-\code{\link{Dens1d.object}}, \code{\link{densityIC}}.
+\code{\link{Dens1d.object}}, \code{\link{densityLPS}}.
 }
 \author{
 Philippe Lambert \email{p.lambert@uliege.be}

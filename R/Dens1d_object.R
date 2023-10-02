@@ -1,6 +1,6 @@
-#' Object created by \code{Dens1d} to prepare for density estimation from censored data using \code{densityIC}
+#' Object created by \code{Dens1d} to prepare for density estimation from censored data using \code{densityLPS}
 #'
-#' @description An object returned by function \code{\link{Dens1d}} to prepare for density estimation with given mean and variance from censored data using function \code{\link{densityIC}}.
+#' @description An object returned by function \code{\link{Dens1d}} to prepare for density estimation with given mean and variance from censored data using function \code{\link{densityLPS}}.
 #'
 #' @return A \code{Dens1d.object} is a list with the following elements:
 #'
@@ -41,7 +41,7 @@
 #' \emph{Computational Statistics and Data Analysis}, 161: 107250.
 #' <doi:10.1016/j.csda.2021.107250>
 #'
-#' @seealso \code{\link{Dens1d}}, \code{\link{densityIC}}, \code{\link{densIC.object}}
+#' @seealso \code{\link{Dens1d}}, \code{\link{densityLPS}}, \code{\link{densLPS.object}}
 #'
 #' @name Dens1d.object
 NULL

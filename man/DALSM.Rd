@@ -72,7 +72,7 @@ or plotted using \code{\link{plot.DALSM}}.
 }
 \description{
 Fit a location-scale regression model with a flexible error distribution and
-additive terms in location (=mean) and dispersion (= log(sd))
+additive terms in location (=mean) and dispersion (= log(sd)) using Laplace P-splines
 from potentially right- and interval-censored response data.
 }
 \examples{

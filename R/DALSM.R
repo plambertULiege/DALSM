@@ -1,6 +1,6 @@
 #' Fit a double additive location-scale model (DALSM) with a flexible error distribution
 #' @description Fit a location-scale regression model with a flexible error distribution and
-#' additive terms in location (=mean) and dispersion (= log(sd))
+#' additive terms in location (=mean) and dispersion (= log(sd)) using Laplace P-splines
 #' from potentially right- and interval-censored response data.
 #' @usage DALSM(y, formula1,formula2, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
@@ -446,12 +446,12 @@ DALSM = function(y, formula1,formula2, data,
         phi.cur = phi.ref = phi.Norm(obj1d$knots)
       }
       ##
-      fit1d.0 = densityIC(obj1d,
+      fit1d.0 = densityLPS(obj1d,
                        phi0=phi.cur,
                        fixed.phi=fixed.phi,phi.ref=phi.ref,
                        is.density=TRUE,Mean0=NULL,Var0=NULL,
                        method="LPS",verbose=FALSE)
-      fit1d = densityIC(obj1d,
+      fit1d = densityLPS(obj1d,
                      phi0=fit1d.0$phi,
                      fixed.phi=fixed.phi, phi.ref=phi.ref,
                      is.density=TRUE,Mean0=0,Var0=1,
