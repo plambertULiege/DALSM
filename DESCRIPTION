@@ -7,7 +7,7 @@ Authors@R: person("Philippe","Lambert",
  comment=c(ORCID ="0000-0002-3670-3328"))
 Maintainer: Philippe Lambert <p.lambert@uliege.be>
 BugReports: https://github.com/plambertULiege/DALSM/issues 
-Description: Fit of a double additive location-scale model with a nonparametric error distribution from possibly right- or interval censored data. The additive terms in the location and dispersion submodels, as well as the unknown error distribution in the location-scale model, are estimated using Laplace P-splines. For more details, see Lambert (2021) <doi:10.1016/j.csda.2021.107250>.
+Description: Fit of a double additive location-scale model with a nonparametric error distribution from possibly right- or interval-censored data. The additive terms in the location and dispersion submodels, as well as the unknown error distribution in the location-scale model, are estimated using Laplace P-splines. For more details, see Lambert (2021) <doi:10.1016/j.csda.2021.107250>.
 License: GPL-3
 URL: <https://github.com/plambertULiege/DALSM>
 Encoding: UTF-8
