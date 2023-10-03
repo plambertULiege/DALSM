@@ -229,7 +229,7 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## -----------------------------------------------------------------------
     ## Convergence status: TRUE 
-    ## Elapsed time: 0.7 seconds  (5 iterations)
+    ## Elapsed time: 0.6 seconds  (5 iterations)
     ## -----------------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
@@ -414,7 +414,7 @@ with right- and interval-censored data. Computational Statistics and
 Data Analysis, 161: 107250.
 [doi:10.1016/j.csda.2021.107250](http://doi.org/10.1016/j.csda.2021.107250)
 
-\[2\] Lambert, P. (2021) R-package *DALSM* (Nonparametric **D**ouble
-**A**dditive **L**ocation-**S**cale **M**odel)-
-[R-cran](https://CRAN.R-project.org/package=DALSM) ; GitHub:
-[plambertULiege/DALSM](https://github.com/plambertULiege/DALSM)
+\[2\] Lambert, P. (2021). *DALSM*: Nonparametric **D**ouble **A**dditive
+**L**ocation-**S**cale **M**odel - R package version 0.9.1.
+<https://CRAN.R-project.org/package=DALSM> ; GitHub:
+<https://github.com/plambertULiege/DALSM>
