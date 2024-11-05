@@ -229,7 +229,7 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## -----------------------------------------------------------------------
     ## Convergence status: TRUE 
-    ## Elapsed time: 0.35 seconds  (5 iterations)
+    ## Elapsed time: 0.36 seconds  (5 iterations)
     ## -----------------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
@@ -292,6 +292,8 @@ censored data, the DALSM package contains an independent and very fast
 function, *densityLPS*, for density estimation from right- or
 interval-censored data with possible constraints on the mean and
 variance using Laplace P-splines.
+
+#### Interval- and right-censored with given mean and variance
 
 Let us generate interval-censored (IC) data from a Gamma(10,2)
 distribution with mean 5.0 and variance 2.5. The mean width of the
@@ -368,7 +370,7 @@ print(obj)
     ##   Selected penalty parameter <tau>: 23.4 
     ##   Effective number of parameters: 5.4 
     ## -----------------------------------------------------------------------
-    ## Elapsed time: 0.1 seconds  (6 iterations)
+    ## Elapsed time: 0.05 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
 
 The estimated density and cdf can also be visualized and compared to
@@ -410,6 +412,81 @@ with(obj, cbind(x=xvals, fx=ddist(xvals), Fx=pdist(xvals),
     ## [4,]  8 0.037772450 0.9578901 0.89694276 3.16747360
     ## [5,] 10 0.006622663 0.9950990 1.35118549 5.31831549
 
+#### Grouped data
+
+Density estimation can also be performed from weighted data. Consider
+the following grouped data:
+
+``` r
+brks = c(0,2,4,6,10,12) ## Limits of the grouped data
+ymat = cbind(low=head(brks,-1), up=tail(brks,-1)) ## Data categories
+rownames(ymat) = c("(0,2]","(2,4]","(4,6]","(6,10]","(10,12]") ## 
+w = c(4,141,251,100,4) ## Weights
+print(cbind(ymat,weight=w)) ## Observed grouped data
+```
+
+    ##         low up weight
+    ## (0,2]     0  2      4
+    ## (2,4]     2  4    141
+    ## (4,6]     4  6    251
+    ## (6,10]    6 10    100
+    ## (10,12]  10 12      4
+
+They can be visualised using an histogram:
+
+``` r
+weighted.hist(rowMeans(ymat),breaks=brks,weight=w,freq=FALSE, xlab="",
+               main="Observed grouped data",border=TRUE,col="#D9D9D980")
+```
+
+![](man/figures/DALSM4b-1.png)<!-- -->
+
+A density estimate can be obtained from it and compared to the observed
+data:
+
+``` r
+obj.data = Dens1d(y=ymat,w=w,ymin=0,ymax=12,pen.order=2) ## Data object
+obj = densityLPS(obj.data)  ## Density estimation
+print(obj)
+```
+
+    ## -----------------------------------------------------------------------
+    ##    Constrained Density/Hazard estimation from censored data using LPS  
+    ## -----------------------------------------------------------------------
+    ## INPUT:
+    ##   Total weighted sample size:  500 
+    ##   Uncensored data: 0 (0 percents)
+    ##   Interval-censored (IC) data: 500 (100 percents)
+    ##   Right-censored (RC) data: 0 (0 percents)
+    ##   ---
+    ##   Range of the IC data: (0,12)
+    ##   ---
+    ##   Assumed support: (0,12)
+    ##   Number of small bins on the support: 501 
+    ##   Number of B-splines: 25 ; Penalty order: 2 
+    ## 
+    ## OUTPUT:
+    ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
+    ##   Parameter estimates:  phi, tau
+    ##   Value of the estimated cdf at +infty: 1 
+    ##   Mean of the fitted density: 4.932674 
+    ##   Variance of the fitted density: 2.442753 
+    ##   Selected penalty parameter <tau>: 13 
+    ##   Effective number of parameters: 7.4 
+    ## -----------------------------------------------------------------------
+    ## Elapsed time: 0.01 seconds  (7 iterations)
+    ## -----------------------------------------------------------------------
+
+``` r
+plot(obj,lwd=2) ## Plot the estimated density ... and the observed grouped data
+weighted.hist(rowMeans(ymat),breaks=brks,weight=w,freq=FALSE,
+               main="Estimated density",border=TRUE,col="#D9D9D980",add=TRUE)
+legend("topright",col=c("black","grey"),lwd=c(2,10),lty=c(1,1),
+        legend=c("Estimated density","Observed grouped data"),bty="n")
+```
+
+![](man/figures/DALSM4c-1.png)<!-- -->
+
 ## License
 
 **DALSM**: Nonparametric Double Additive Location-Scale Model (DALSM).
@@ -437,6 +514,6 @@ Data Analysis, 161: 107250.
 [doi:10.1016/j.csda.2021.107250](http://doi.org/10.1016/j.csda.2021.107250)
 
 \[2\] Lambert, P. (2021). *DALSM*: Nonparametric **D**ouble **A**dditive
-**L**ocation-**S**cale **M**odel - R package version 0.9.1.
+**L**ocation-**S**cale **M**odel - R package version 0.9.2.
 <https://CRAN.R-project.org/package=DALSM> ; GitHub:
 <https://github.com/plambertULiege/DALSM>

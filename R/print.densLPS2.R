@@ -70,7 +70,7 @@ print.densLPS = function(x,...){
   cat("  Selected penalty parameter <tau>:",round(fit$tau,1),"\n")
   cat("  Effective number of parameters:",round(fit$ed,1),"\n")
   cat("-----------------------------------------------------------------------\n")
-  cat("Elapsed time: ",round(fit$elapsed.time,1)," seconds  (",fit$iter," iterations)\n",sep="")
+  cat("Elapsed time: ",round(fit$elapsed.time,2)," seconds  (",fit$iter," iterations)\n",sep="")
   cat("-----------------------------------------------------------------------\n")
 }
 
