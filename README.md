@@ -229,7 +229,7 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## -----------------------------------------------------------------------
     ## Convergence status: TRUE 
-    ## Elapsed time: 0.36 seconds  (5 iterations)
+    ## Elapsed time: 0.35 seconds  (5 iterations)
     ## -----------------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
@@ -370,7 +370,7 @@ print(obj)
     ##   Selected penalty parameter <tau>: 23.4 
     ##   Effective number of parameters: 5.4 
     ## -----------------------------------------------------------------------
-    ## Elapsed time: 0.05 seconds  (6 iterations)
+    ## Elapsed time: 0.04 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
 
 The estimated density and cdf can also be visualized and compared to
@@ -421,7 +421,7 @@ the following grouped data:
 brks = c(0,2,4,6,10,12) ## Limits of the grouped data
 ymat = cbind(low=head(brks,-1), up=tail(brks,-1)) ## Data categories
 rownames(ymat) = c("(0,2]","(2,4]","(4,6]","(6,10]","(10,12]") ## 
-w = c(4,141,251,100,4) ## Weights
+w = c(4,141,251,103,1) ## Weights
 print(cbind(ymat,weight=w)) ## Observed grouped data
 ```
 
@@ -429,8 +429,8 @@ print(cbind(ymat,weight=w)) ## Observed grouped data
     ## (0,2]     0  2      4
     ## (2,4]     2  4    141
     ## (4,6]     4  6    251
-    ## (6,10]    6 10    100
-    ## (10,12]  10 12      4
+    ## (6,10]    6 10    103
+    ## (10,12]  10 12      1
 
 They can be visualised using an histogram:
 
@@ -469,12 +469,12 @@ print(obj)
     ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
     ##   Parameter estimates:  phi, tau
     ##   Value of the estimated cdf at +infty: 1 
-    ##   Mean of the fitted density: 4.932674 
-    ##   Variance of the fitted density: 2.442753 
-    ##   Selected penalty parameter <tau>: 13 
-    ##   Effective number of parameters: 7.4 
+    ##   Mean of the fitted density: 4.897135 
+    ##   Variance of the fitted density: 2.181506 
+    ##   Selected penalty parameter <tau>: 14.7 
+    ##   Effective number of parameters: 6.9 
     ## -----------------------------------------------------------------------
-    ## Elapsed time: 0.01 seconds  (7 iterations)
+    ## Elapsed time: 0.01 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
 
 ``` r

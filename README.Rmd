@@ -221,7 +221,7 @@ Density estimation can also be performed from weighted data. Consider the follow
 brks = c(0,2,4,6,10,12) ## Limits of the grouped data
 ymat = cbind(low=head(brks,-1), up=tail(brks,-1)) ## Data categories
 rownames(ymat) = c("(0,2]","(2,4]","(4,6]","(6,10]","(10,12]") ## 
-w = c(4,141,251,100,4) ## Weights
+w = c(4,141,251,103,1) ## Weights
 print(cbind(ymat,weight=w)) ## Observed grouped data
 ```
 
