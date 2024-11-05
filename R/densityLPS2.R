@@ -1,6 +1,7 @@
-## Author: Philippe LAMBERT (ULg, UCL, Belgium), Nov 2018
+## Author: Philippe LAMBERT (ULg, UCL, Belgium), Nov 2018 ;
+##  Updated in October 2024 to handle weights.
 ###################################################################################
-#' Constrained density estimation from censored data with given mean and variance using Laplace P-splines
+#' Constrained density estimation from censored data using Laplace P-splines
 #' @description P-spline estimation of the density (pdf), cumulative distribution (cdf),
 #' hazard and cumulative hazard functions from interval- or right-censored data under possible marginal
 #' mean and/or variance constraints. The penalty parameter \eqn{\tau} tuning the smoothness of
@@ -88,6 +89,25 @@
 #' legend("right",col=c("black","red"),lwd=c(2,2),lty=c(1,2),
 #'        legend=c("Estimated cdf","True cdf"),bty="n")
 #'
+#' ## Example 4: density estimation from weighted grouped data
+#' set.seed(123)
+#' n = 500 ## Sample size
+#' y = rgamma(n,10,2) ## Generate raw data
+#' brks = c(0,2,4,6,10,12) ## Limits of the grouped data
+#' y.cat = cut(y,breaks=brks) ## Categorization of the raw data
+#' ymat = cbind(low=head(brks,-1), up=brks[-1]) ## Different grouped data
+#' w = table(y.cat) ## Weight associated to each group data
+#' print(cbind(ymat,w)) ## Observed grouped data
+#' obj.data = Dens1d(y=ymat,w=w,ymin=0,pen.order=2) ## Data object
+#' obj = densityLPS(obj.data,Mean0=10/2,Var0=10/4)  ## Density estimation
+#' print(obj)
+#' plot(obj,lwd=2)
+#' weighted.hist(rowMeans(ymat),breaks=brks,weight=w,freq=FALSE,
+#'               main="Estimated density",border=TRUE,col="#D9D9D980",add=TRUE)
+#' curve(dgamma(x,10,2),add=TRUE,col="red",lwd=2,lty=2)
+#' legend("topright",col=c("black","red","grey"),lwd=c(2,2,10),lty=c(1,2,1),
+#'        legend=c("Estimated density","True density","Observed grouped data"),bty="n")
+#'
 densityLPS = function(obj.data,
                     is.density=TRUE,Mean0=NULL, Var0=NULL,
                     fixed.penalty=FALSE,method=c("LPS","Schall"),
@@ -95,7 +115,7 @@ densityLPS = function(obj.data,
                     phi0=NULL,tau0=exp(5),tau.min=.1,
                     verbose=FALSE){
   method = match.arg(method)
-  if (fixed.penalty) method = NULL
+  if (fixed.penalty) method = "Fixed penalty"
   if (is.null(obj.data)){
     print("Data object prepared using <Dens1d> required !!")
     return(NA)
@@ -105,8 +125,10 @@ densityLPS = function(obj.data,
   ##
   y = obj.data$y ## Reported times ; a nx2 matrix if IC data
   event = obj.data$event
+  w = obj.data$w ## Weights
+  sw = sum(w) ## Sum of the weights
   ymid = obj.data$ymid ## y if non-IC or .5*(y[,1]+y[,2]) if IC
-  n.IC = obj.data$n.IC ## Number of Interval Censored data
+  ## n.IC = obj.data$n.IC ## Number of Interval Censored data
   K = obj.data$K ## Number of B-splines coefs
   Pd = obj.data$Pd ## Penalty matrix
   pen.order = obj.data$pen.order ## Penalty order
@@ -121,15 +143,16 @@ densityLPS = function(obj.data,
   du = obj.data$dbins ## Width of a small bin
   ugrid = obj.data$ugrid ## Mid of small bins
   ngrid = length(ugrid) ## Number of small bins
-  n = obj.data$n ## Number of units
+  n = obj.data$n ## Number of data entries
   ev = obj.data$ev ## Eigenvalues
   ##
   ## Initial value for <phi> & <tau>
-  T = sum(obj.data$ymid) ## Total "follow-up" duration
-  dd = sum(obj.data$event) ## Total number of events (i.e. of non right-censored units)
+  T = with(obj.data, sum(w * ymid)) ## Total weighted "follow-up" duration
+  dd = with(obj.data, sum(w * event)) ## Total weighted number of events (i.e. of non right-censored units)
   ##
   ## Initial values for the spline parameters
-  mean.y = mean(ymid) ; sd.y = sd(ymid)
+  mean.y = sum((w/sw) * ymid) ; sd.y = sqrt(sum((w/sw) * (ymid - mean.y)^2) * (sw / (sw-1)))
+  ##  mean.y = mean(ymid) ; sd.y = sd(ymid)
   haz.t = (1/sd.y)*dt((ugrid-mean.y)/sd.y,df=5)/(1-pt((ugrid-mean.y)/sd.y,df=5))
   ## haz.norm = dnorm(ugrid,mean.y,sd.y)/(1-pnorm(ugrid,mean.y,sd.y))
   if (is.null(phi0)) phi.cur = c(solve(t(Bg)%*%Bg)%*%t(Bg)%*%log(haz.t)) ## phi.cur = rep(log(dd/T),K)+runif(K,-.1,.1) ##
@@ -243,7 +266,8 @@ densityLPS = function(obj.data,
     BWB = t(Bg)%*%(expctd*Bg)
     U.phi = c(t(Bg) %*% (fg - expctd)) - tau*c(Pd%*%(phi.cur-phi.ref))
     quad = sum(diff(phi.cur,diff=pen.order)^2)
-    denom = sum(n*ev/(tau+n*ev)) ## cf. Evidence based method
+    denom = sum(sw*ev/(tau+sw*ev)) ## cf. Evidence based method
+    ## denom = sum(n*ev/(tau+n*ev)) ## cf. Evidence based method
     ed = sum(t(solve(BWB+tau*Pd))*BWB) ## cf. Schall's method
   }
   ##
@@ -264,16 +288,20 @@ densityLPS = function(obj.data,
       dens.grid = h.grid*exp(-H.grid)
       ##
       ## Prepare for update of <fgrid> and <rgrid>
-      temp = t(dens.grid*t(C))
-      normCst = apply(temp,1,sum)
+      ##   <fgrid>: grid frequencies (= weighted number of events within a given bin)
+      ##   <rgrid>: weighted number of units 'still at risk' in a given bin defined by the grid
+      temp = t(dens.grid*t(C)) ## (ngrid x n) matrix
+      normCst = rowSums(temp) ## apply(temp,1,sum)
       temp = ifelse(normCst==0,0,1/normCst) * temp
+      temp = w * temp  ## Account for weights
       ## Update <fgrid> with IC units contributing to a given bin
       ##    proportionnally to the current density estimate
-      fg = apply(temp[event==1,],2,sum)
+      fg = colSums(temp[event==1,]) ## apply(temp[event==1,],2,sum)
       ## Update <rgrid> computing the number of units at risks within a given bin
       ##  (accordingly to the current density estimate)
-      temp2 = apply(temp,2,sum)
-      rg = n-c(0,cumsum(temp2)[-ngrid]) ## Number of units 'still at risk' in a given bin defined by the grid
+      temp2 = colSums(temp) ## apply(temp,2,sum)
+      rg = sw-c(0,cumsum(temp2)[-ngrid]) ## Weighted number of units 'still at risk' in a given bin defined by the grid
+      ## rg = n-c(0,cumsum(temp2)[-ngrid]) ## Number of units 'still at risk' in a given bin defined by the grid
       ## rg = rg - .5*fg ## Account for the fact that a person is at risk half the time when having the event
       ##
       eta.cur = c(Bg %*% phi.cur)
@@ -387,7 +415,7 @@ densityLPS = function(obj.data,
       tau.old = tau
       if (method=="LPS"){
         ## Evidence-based method
-        denom = sum(n*ev/(tau+n*ev))
+        denom = sum(sw*ev/(tau+sw*ev))
         tau = max(tau.min,denom/quad)
       }
       if (method=="Schall"){

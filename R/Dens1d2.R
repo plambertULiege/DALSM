@@ -1,12 +1,14 @@
 ## Author: Philippe LAMBERT (ULiege, UCLouvain, Belgium), Sept 2017
+##  Updated in October 2024 to handle weights.
 ###################################################################################
 #' Object creation for density estimation from right- or interval-censored data
 #' @description Object creation for density estimation from right- or interval-censored data using function \link{densityLPS}.
 #'
-#' @usage Dens1d(y, event=NULL, ymin=NULL, ymax=NULL,
+#' @usage Dens1d(y, event=NULL, w, ymin=NULL, ymax=NULL,
 #'        K=25, equid.knots=TRUE, pen.order=2, nbins=501)
 #' @param y a n-vector (if no interval-censored data) or a nx2 matrix (left and right limits of the interval for IC data ; right limit set to Inf for right-censored data).
 #' @param event a n-vector of observation indicators (0: right-censored ; 1: exactly observed or interval-censored).
+#' @param w vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).
 #' @param ymin left limit of the variable support.
 #' @param ymax right limit of the variable support.
 #' @param K number of B-splines in the basis to approximate the log-hazard.
@@ -35,10 +37,10 @@
 #' obj = densityLPS(temp) ## Density estimation from IC & RC data
 #' plot(obj) ## Visualize the estimated density
 #'
-Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
+Dens1d = function(y, event=NULL, w, ymin=NULL, ymax=NULL,
                   K=25, equid.knots=TRUE, pen.order=2, nbins=501){
   if (is.data.frame(y)) y = as.matrix(y)
-  ## n: number of units
+  ## n: number of units or data entries
   if (is.matrix(y)){
     if (any(y[,1] > y[,2])) stop("y[i,1] cannot be larger than y[i,2] !!")
     n = nrow(y)
@@ -47,6 +49,12 @@ Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
   } else {
     stop("'y' should be a matrix or a vector !")
   }
+  ## Weight vector
+  if (missing(w)) w = rep(1,n) ## Default 1.0 weight for all units
+  if (!all(w>=0)) stop("Weights in vector <w> should all be non negative !")
+  if (length(w) != n) stop("Weight vector <w> should be of length <n>")
+  w = c(w)
+  sw = sum(w) ## Weighted number of units
   ##
   if (is.matrix(y)){ ## IC data with (n x 2) matrix with left and right limit
     if (is.null(event)){
@@ -54,9 +62,10 @@ Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
     }
     ## For RC data with y[i,2]=Inf, set yup[i]=ylow[i]
     ylow = y[,1] ; yup = ifelse(is.infinite(y[,2]),y[,1],y[,2])
-    ymid = apply(cbind(ylow,yup),1,mean) ## Impute center of the interval for IC data
+    ymid = rowMeans(cbind(ylow,yup)) ## Impute center of the interval for IC data
+    ## ymid = apply(cbind(ylow,yup),1,mean) ## Impute center of the interval for IC data
     is.IC = (ylow!=yup) ## Interval censoring indicator
-    n.IC = sum(is.IC) ## Number of interval-censored data
+    n.IC = sum(w * is.IC) ## Weighted number of interval-censored data
   } else {
     ylow = yup = ymid = y
     is.IC = rep(FALSE,length(ymid))
@@ -67,10 +76,18 @@ Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
   ## n = length(ymid) ## Number of units
   ## if (is.null(event)) event = rep(1,n) ##Unless indicated, assumed that event occured for each unit
   is.uncensored = (ylow==yup) & (event==1)
-  n.uncensored = sum(is.uncensored)
+  n.uncensored = sum(w * is.uncensored) ## Weighted number of uncensored
   is.RC = (event==0)
-  n.RC = sum(is.RC)
+  n.RC = sum(w * is.RC) ## Weighted number of right-censored
   ##
+  fun = function(y,w){
+      sw = sum(w)
+      mean.y = sum((w/sw) * y) ; sd.y = sqrt(sum((w/sw) * (y - mean.y)^2) * (sw / max(1,(sw-1))))
+      return(list(mu=mean.y,sd=sd.y))
+  }
+  temp = fun(ymid, w)
+  if (is.null(ymin)) ymin = min(ylow[w>0]) - temp$sd
+  if (is.null(ymax)) ymax = max(yup[w>0]) + temp$sd
   ## Knots & Penalty matrix
   obj.knots = qknots(cbind(ylow,yup), xmin=ymin,xmax=ymax,
                      equid.knots = equid.knots, pen.order=pen.order, K=K)
@@ -86,11 +103,13 @@ Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
   ngrid = length(ugrid)
   Bgrid = Bsplines(ugrid, knots) ## B-spline basis on a fine regular grid
   Bbins = Bsplines(bins, knots) ## B-spline basis at the bin limits
-  ## Compute the number of events & number at risk within a given bin
+  ##
+  ##
+  ## Compute the weighted number of events & weighted number at risk within a given bin
   ##   with IC data assimilated to their midpoint
-  fgrid = hist(ymid[event==1],breaks=bins,plot=FALSE)$counts ## Grid frequencies (= number of events within a given bin)
-  temp = hist(ymid,breaks=bins,plot=FALSE)$counts ## Count the number of units with an event or right censoring within a bin
-  rgrid = n-c(0,cumsum(temp)[-ngrid]) ## Number of units 'still at risk' in a given bin defined by the grid
+  fgrid = weighted.hist(ymid[event==1],breaks=bins,weight=w[event==1],plot=FALSE)$counts ## Grid frequencies (= weighted number of events within a given bin)
+  temp = weighted.hist(ymid,breaks=bins,weight=w,plot=FALSE)$counts ## Count the weighted number of units with an event or right censoring within a bin
+  rgrid = sw-c(0,cumsum(temp)[-ngrid]) ## Weighted number of units 'still at risk' in a given bin defined by the grid
   rgrid = rgrid - .5*fgrid ## Account for the fact that a person is at risk half the time when having the event
   ##
   ## (n x ngrid) Matrix 'C' of event or censoring indicators
@@ -102,16 +121,17 @@ Dens1d = function(y, event=NULL, ymin=NULL, ymax=NULL,
   ##
   ## Other data summaries
   Bs = Bsplines(sort(ymid), knots)
-  BsB = t(Bs)%*%Bs
+  BsB = t(Bs)%*% (w * Bs)
   ## ev = eigenvalues of  diag(1/sqrt(svd(Pd)$d)) %*% (1/n)*M %*% diag(1/sqrt(svd(Pd)$d))
   sP = svd(Pd)
   id1 = 1:(K-pen.order) ; id0 = (K-pen.order+1):K
-  Bstilde = Bs %*% sP$u
+  Bstilde = (sqrt(w) * Bs) %*% sP$u
   B1 = Bstilde[,id1] ; B0 = Bstilde[,id0]
   Mat = t(B1)%*%B1-t(B1)%*%B0%*%solve(t(B0)%*%B0+1e-6*diag(ncol(B0)))%*%t(B0)%*%B1
-  ev=svd(diag(sqrt(1/sP$d[id1]))%*%((1/n)*Mat)%*%diag(sqrt(1/sP$d[id1])))$d
+  ev = svd(diag(sqrt(1/sP$d[id1]))%*%((1/sw)*Mat)%*%diag(sqrt(1/sP$d[id1])))$d
+##  ev=svd(diag(sqrt(1/sP$d[id1]))%*%((1/n)*Mat)%*%diag(sqrt(1/sP$d[id1])))$d
   ##
-  ans = list(n=n, y=y, event=event, ymin=ymin,ymax=ymax,
+  ans = list(n=n, y=y, event=event, w=w, sw=sw, ymin=ymin,ymax=ymax,
              is.uncensored=is.uncensored, n.uncensored=n.uncensored,
              is.IC=is.IC, n.IC = n.IC,
              is.RC=is.RC, n.RC=n.RC,

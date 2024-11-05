@@ -12,11 +12,11 @@
 #'
 #' @format A data frame with 756 rows and 5 columns:
 #' \itemize{
-#' \item{\code{inc.low} : \verb{ }}{lower bound for the individual income data.}
-#' \item{\code{inc.up} : \verb{ }}{upper bound for the individual income data (\code{Inf} if right-censored).}
-#' \item{\code{twoincomes} : \verb{ }}{\code{0}: one-income household ; \code{1}: two-income household.}
-#' \item{\code{age} : \verb{ }}{age of the respondent.}
-#' \item{\code{eduyrs} : \verb{ }}{number of years of education completed.}
+#' \item \code{inc.low} : lower bound for the individual income data.
+#' \item \code{inc.up} : upper bound for the individual income data (\code{Inf} if right-censored).
+#' \item \code{twoincomes} : \code{0}: one-income household ; \code{1}: two-income household.
+#' \item \code{age} : age of the respondent.
+#' \item \code{eduyrs} : number of years of education completed.
 #' }
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
 #' @references Lambert, P. (2021). Fast Bayesian inference using Laplace approximations

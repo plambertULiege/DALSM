@@ -34,9 +34,9 @@ and $\mathrm{V}(\varepsilon)=1$.
 
 Assume that independent copies
 $(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$ are observed on $n$
-units with the possibility of right or interval-censoring on $y_i$ as
-described above. Additive models for the conditional location and
-dispersion of the response are specified,
+units with the possibility of right censoring or interval censoring on
+$y_i$ as described above. Additive models for the conditional location
+and dispersion of the response are specified,
 $$\mu(z_i, x_i)= \beta_0+ \Sigma_ {k=1}^p \beta_k z_{ik}+\Sigma_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$$
 $$\log\sigma(z_i,x_i)= \delta_0+\Sigma_ {k=1}^p \delta_k z_ {ik}+\Sigma_ {j=1}^{J} {{f_{j}^{\sigma}}}(x_ {ij})$$
 where $f_{j}^{\mu}(\cdot)$ and $f_{j}^{\sigma}(\cdot)$ denote smooth
@@ -201,35 +201,35 @@ print(fit)
     ## -----------------------------------------------------------------------
     ## Fixed effects for Location:
     ##               est    se   low    up      Z Pval
-    ## (Intercept) 1.572 0.062 1.450 1.695 25.234    0
-    ## twoincomes  0.252 0.051 0.152 0.352  4.957    0
+    ## (Intercept) 1.574 0.062 1.452 1.696 25.275    0
+    ## twoincomes  0.249 0.051 0.150 0.348  4.916    0
     ## 
     ## 2 additive term(s) in Location: Eff.dim / Test No effect
-    ##        ED.hat   low    up    Chi2 Pval
-    ## age     4.247 2.277 4.977  13.839 0.01
-    ## eduyrs  3.554 1.811 4.679 118.901 0.00
+    ##        ED.hat   low    up    Chi2  Pval
+    ## age     4.234 2.270 4.971  13.595 0.011
+    ## eduyrs  3.559 1.818 4.683 119.804 0.000
     ## 
     ## Fixed effects for Dispersion:
     ##                est    se    low     up      Z  Pval
-    ## (Intercept) -0.436 0.086 -0.604 -0.268 -5.092 0.000
-    ## twoincomes  -0.042 0.070 -0.179  0.094 -0.610 0.542
+    ## (Intercept) -0.434 0.085 -0.601 -0.268 -5.116 0.000
+    ## twoincomes  -0.049 0.069 -0.184  0.085 -0.719 0.472
     ## 
     ## 2 additive term(s) in Dispersion: Eff.dim / Test No effect
     ##        ED.hat   low    up   Chi2  Pval
-    ## age     3.318 1.456 4.409 15.249 0.002
-    ## eduyrs  3.311 1.508 4.329 41.345 0.000
+    ## age     3.308 1.451 4.408 15.334 0.002
+    ## eduyrs  3.294 1.499 4.324 41.415 0.000
     ## 
     ## 10  B-splines per additive component in location
     ## 10  B-splines per additive component in dispersion
-    ## 20  B-splines for the error density on (-3.76,6.64)
+    ## 20  B-splines for the error density on (-3.72,6.56)
     ## 
-    ## Total sample size: 756 ; Credible level for CI: 0.95 
+    ## Total weighted sample size: 756 ; Credible level for CI: 0.95 
     ## Uncensored data: 0 (0 percents)
     ## Interval Censored data: 691 (91.4 percents)
     ## Right censored data: 65 (8.6 percents)
     ## -----------------------------------------------------------------------
     ## Convergence status: TRUE 
-    ## Elapsed time: 0.6 seconds  (5 iterations)
+    ## Elapsed time: 0.35 seconds  (5 iterations)
     ## -----------------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
@@ -240,28 +240,50 @@ The effects of *Age* and *Educ* on the conditional mean and dispersion
 can be visualized on the plots below with the estimated additive terms.
 
 ``` r
-plot(fit, new.dev=FALSE)
+plot(fit, select=1:4, pages=1)
 ```
 
-![](man/figures/DALSM2b-1.png)<!-- -->![](man/figures/DALSM2b-2.png)<!-- -->![](man/figures/DALSM2b-3.png)<!-- -->
+![](man/figures/DALSM2b-1.png)<!-- -->
 
 The amount of money available per person in the household tends to
 decrease with age, see $f_1^\mu(\mathrm{age})$, between approximately 27
 and 37 (most likely due the arrival of children in the family) and to
 increase after 40 (probably thanks to wage increase with seniority and
-the departure of children). The log-dispersion significantly increases
-with *Age*, see $f_1^\sigma(\mathrm{age})$, with an acceleration over
-30. However, the dominant effect comes from the respondent’s level of
-education, with a difference of about 1,000 euros (in expected
-disposable income per person) between a less educated (6 years) and a
-highly educated (20 years) respondent, see $f_2^\mu(\mathrm{eduyrs})$.
-The effect on dispersion is also large, see
-$f_2^\sigma(\mathrm{eduyrs})$, with essentially an important contrast
-between less and highly educated respondents, the latter group showing
-the largest heterogeneity. The estimated density for the error term can
-also be seen, with a right-skewed shape clearly distinguishable from the
-Gaussian one often implicitly assumed when fitting location-scale
-regression models.
+the departure of children).
+
+The log-dispersion significantly increases with *Age*, see
+$f_1^\sigma(\mathrm{age})$, with an acceleration over 30. However, the
+dominant effect comes from the respondent’s level of education, with a
+difference of about 1,000 euros (in expected disposable income per
+person) between a less educated (6 years) and a highly educated (20
+years) respondent, see $f_2^\mu(\mathrm{eduyrs})$. The effect on
+dispersion is also large, see $f_2^\sigma(\mathrm{eduyrs})$, with
+essentially an important contrast between less and highly educated
+respondents, the latter group showing the largest heterogeneity.
+
+The estimated density for the error term can also be seen, with a
+right-skewed shape clearly distinguishable from the Gaussian one often
+implicitly assumed when fitting location-scale regression models.
+
+``` r
+plot(fit, select=0)
+```
+
+![](man/figures/DALSM2d-1.png)<!-- -->
+
+*Predicted* values for the conditional mean, standard deviation and
+quantiles of the response for additional subjects with known values of
+the model covariates can also be obtained:
+
+``` r
+newdata = data.frame(twoincomes=c(1,0),age=c(40,50),eduyrs=c(18,12))
+pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
+with(pred, cbind(newdata, mu, sd, quant))
+```
+
+    ##   twoincomes age eduyrs       mu        sd       0.2      0.5      0.8
+    ## 1          1  40     18 2.044224 0.7586711 1.4430241 1.939655 2.555509
+    ## 2          0  50     12 1.482937 0.7121443 0.9186064 1.384780 1.962866
 
 ### Estimation of a density from censored data
 
@@ -325,7 +347,7 @@ print(obj)
     ##    Constrained Density/Hazard estimation from censored data using LPS  
     ## -----------------------------------------------------------------------
     ## INPUT:
-    ##   Total sample size:  500 
+    ##   Total weighted sample size:  500 
     ##   Uncensored data: 0 (0 percents)
     ##   Interval-censored (IC) data: 367 (73.4 percents)
     ##   Right-censored (RC) data: 133 (26.6 percents)
@@ -333,7 +355,7 @@ print(obj)
     ##   Range of the IC data: (0.1708629,12.56085)
     ##   Range of the RC data: (0.009145886,7.785088)
     ##   ---
-    ##   Assumed support: (0,14.69175)
+    ##   Assumed support: (0,14.49633)
     ##   Number of small bins on the support: 501 
     ##   Number of B-splines: 25 ; Penalty order: 2 
     ## 
@@ -342,8 +364,8 @@ print(obj)
     ##   Parameter estimates:  phi, tau
     ##   Value of the estimated cdf at +infty: 1 
     ##   Constraint on the Mean: 5  ; Fitted mean: 5 
-    ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499669 
-    ##   Selected penalty parameter <tau>: 22.5 
+    ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499678 
+    ##   Selected penalty parameter <tau>: 23.4 
     ##   Effective number of parameters: 5.4 
     ## -----------------------------------------------------------------------
     ## Elapsed time: 0.1 seconds  (6 iterations)
@@ -381,12 +403,12 @@ with(obj, cbind(x=xvals, fx=ddist(xvals), Fx=pdist(xvals),
                 hx=hdist(xvals), Hx=Hdist(xvals)))
 ```
 
-    ##       x          fx         Fx         hx         Hx
-    ## [1,]  2 0.031622032 0.01849226 0.03221816 0.01866538
-    ## [2,]  4 0.234756524 0.26468056 0.31927749 0.30745026
-    ## [3,]  6 0.186674735 0.76413790 0.79144393 1.44450795
-    ## [4,]  8 0.037761707 0.95797288 0.89847167 3.16944027
-    ## [5,] 10 0.006598059 0.99509435 1.34498959 5.31736848
+    ##       x          fx        Fx         hx         Hx
+    ## [1,]  2 0.031580821 0.0184655 0.03217517 0.01863811
+    ## [2,]  4 0.234794156 0.2646647 0.31931677 0.30742864
+    ## [3,]  6 0.186550062 0.7642655 0.79134371 1.44504906
+    ## [4,]  8 0.037772450 0.9578901 0.89694276 3.16747360
+    ## [5,] 10 0.006622663 0.9950990 1.35118549 5.31831549
 
 ## License
 

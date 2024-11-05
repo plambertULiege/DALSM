@@ -13,11 +13,11 @@
 #'
 #' @return Returns a list containing:
 #' \itemize{
-#' \item{\code{mu} : \verb{ }}{estimated conditional mean.}
-#' \item{\code{sd} : \verb{ }}{estimated conditional standard deviation.}
-#' \item{\code{quant} : \verb{ }}{estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model.}
-#' \item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model.}
-#' \item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles.}
+#' \item \code{mu} : estimated conditional mean.
+#' \item \code{sd} : estimated conditional standard deviation.
+#' \item \code{quant} : estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model.
+#' \item \code{qerr} : quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model.
+#' \item \code{probs} : a reminder of the requested probability levels for the fitted quantiles.
 #' }
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -39,8 +39,9 @@
 #'             formula1 = ~twoincomes+s(age)+s(eduyrs),
 #'             formula2 = ~twoincomes+s(age)+s(eduyrs),
 #'             data = DALSM_IncomeData)
-#' data2 = data.frame(age=c(40,60),eduyrs=c(18,12))
-#' predict(fit, data = DALSM_IncomeData, newdata=data2, probs=c(.2,.5,.8))
+#' newdata = data.frame(twoincomes=c(1,0),age=c(40,50),eduyrs=c(18,12))
+#' pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
+#' with(pred, cbind(newdata, mu, sd, quant)) ## Predicted mu,sd and quantiles
 predict.DALSM = function(object, newdata=NULL, probs, ...){
     data = object$data ## Data frame used when calling the DALSM function
     if (is.null(newdata)){
@@ -53,7 +54,8 @@ predict.DALSM = function(object, newdata=NULL, probs, ...){
     }
     ##
     ## Values for <mu> for the <newdata>
-    temp = DesignFormula(object$formula1, plyr::rbind.fill(data,newdata))
+    K1 = object$regr1$K ; pen.order1 = object$regr1$pen.order
+    temp = DesignFormula(object$formula1, plyr::rbind.fill(data,newdata), K=K1, pen.order=pen.order1)
     if (!identical(object$regr1$knots,temp$knots)){
         message("Predictions requested for covariate values outside their range in the fitted model for location !")
         return(NA)
@@ -61,7 +63,8 @@ predict.DALSM = function(object, newdata=NULL, probs, ...){
     Xcal.1 = tail(temp$Xcal, npred)
     mu.pred = Xcal.1 %*% object$psi1
     ## Values for <sd> for the <newdata>
-    temp = DesignFormula(object$formula2, plyr::rbind.fill(data,newdata))
+    K2 = object$regr2$K ; pen.order2 = object$regr2$pen.order
+    temp = DesignFormula(object$formula2, plyr::rbind.fill(data,newdata), K=K2, pen.order=pen.order2)
     if (!identical(object$regr2$knots,temp$knots)){
         message("Predictions requested for covariate values outside their range in the fitted model for dispersion !")
         return(NA)

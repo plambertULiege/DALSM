@@ -18,11 +18,11 @@
 \value{
 Returns a list containing:
 \itemize{
-\item{\code{mu} : \verb{ }}{estimated conditional mean.}
-\item{\code{sd} : \verb{ }}{estimated conditional standard deviation.}
-\item{\code{quant} : \verb{ }}{estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model.}
-\item{\code{qerr} : \verb{ }}{quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model.}
-\item{\code{probs} : \verb{ }}{a reminder of the requested probability levels for the fitted quantiles.}
+\item \code{mu} : estimated conditional mean.
+\item \code{sd} : estimated conditional standard deviation.
+\item \code{quant} : estimated quantiles (at probability level \code{probs}) of the fitted conditional response in the DALSM model.
+\item \code{qerr} : quantiles (at probability level \code{probs}) of the fitted error distribution in the DALSM model.
+\item \code{probs} : a reminder of the requested probability levels for the fitted quantiles.
 }
 }
 \description{
@@ -38,8 +38,9 @@ fit = DALSM(y=resp,
             formula1 = ~twoincomes+s(age)+s(eduyrs),
             formula2 = ~twoincomes+s(age)+s(eduyrs),
             data = DALSM_IncomeData)
-data2 = data.frame(age=c(40,60),eduyrs=c(18,12))
-predict(fit, data = DALSM_IncomeData, newdata=data2, probs=c(.2,.5,.8))
+newdata = data.frame(twoincomes=c(1,0),age=c(40,50),eduyrs=c(18,12))
+pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
+with(pred, cbind(newdata, mu, sd, quant)) ## Predicted mu,sd and quantiles
 }
 \references{
 Lambert, P. (2021). Fast Bayesian inference using Laplace approximations

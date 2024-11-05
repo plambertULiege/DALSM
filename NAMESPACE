@@ -14,6 +14,7 @@ export(densityLPS)
 export(logDet.fun)
 export(plotRegion)
 export(s)
+export(weighted.hist)
 
 exportPattern("^[[:alpha:]]+")
 
@@ -21,10 +22,11 @@ importFrom(cubicBsplines,Bsplines)
 importFrom(cubicBsplines,D1Bsplines)
 importFrom(cubicBsplines,D2Bsplines)
 importFrom(plyr,rbind.fill)
-importFrom("grDevices", "dev.new", "x11")
-importFrom("graphics", "abline", "curve", "hist", "lines", "par",
-           "polygon", "legend")
-importFrom("stats", "dnorm", "dt", "integrate", "model.matrix",
-                "pchisq", "pnorm", "pt", "qchisq", "qnorm", "sd",
-                "splinefun", "quantile", "optim")
-importFrom("utils", "tail")
+importFrom("grDevices", "dev.new", "dev.interactive", "devAskNewPage",
+           "x11", "nclass.FD", "nclass.Sturges", "nclass.scott")
+importFrom("graphics", "abline", "curve", "grid", "hist", "lines", "par",
+           "matplot", "polygon", "legend")
+importFrom("stats", "dnorm", "dt",  "integrate", "model.matrix",
+           "pchisq", "pnorm", "pt", "qchisq", "qnorm", "sd",
+           "splinefun", "quantile", "optim", "xtabs")
+importFrom("utils", "head", "tail")

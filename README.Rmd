@@ -38,7 +38,7 @@ $\mathrm{V}(\varepsilon)=1$.
 Assume that independent copies 
 $(y_i,\mathbf{z}_ i,\mathbf{x}_ i)~(i=1,\ldots,n)$
 are observed on $n$ units with the possibility of
-right or interval-censoring on $y_i$  as described above.
+right censoring or interval censoring on $y_i$  as described above.
 Additive models for the conditional location and
 dispersion of the response are specified,
 $$\mu(z_i, x_i)= \beta_0+ \Sigma_ {k=1}^p \beta_k z_{ik}+\Sigma_ {j=1} ^{J} {f_j ^{\mu}}(x_ {ij})$$
@@ -132,14 +132,17 @@ statistically significant.
 The effects of *Age* and *Educ* on
 the conditional mean and dispersion can be visualized on the plots below with the
 estimated additive terms.  
+
 ```{r DALSM2b}
-plot(fit, new.dev=FALSE)
+plot(fit, select=1:4, pages=1)
 ```
 
 The amount of money available
 per person in the household tends to decrease with age, see $f_1^\mu(\mathrm{age})$, between approximately 27 and 37 (most likely due the arrival of children in the family) and to increase after 40
 (probably thanks to wage increase with seniority and the departure of
-children). The log-dispersion significantly increases with
+children). 
+
+The log-dispersion significantly increases with
 *Age*, see $f_1^\sigma(\mathrm{age})$, with an acceleration over 30. However, the dominant effect
 comes from the respondent's level of education, with a difference of
 about 1\,000 euros (in expected disposable income per person) between
@@ -147,11 +150,23 @@ a less educated (6 years) and a highly educated (20 years) respondent,
 see $f_2^\mu(\mathrm{eduyrs})$. The effect on dispersion is also large,
 see $f_2^\sigma(\mathrm{eduyrs})$, with essentially an important
 contrast between less and highly educated respondents, the latter
-group showing the largest heterogeneity. The estimated density for the
-error term can also be seen, 
+group showing the largest heterogeneity. 
+
+The estimated density for the error term can also be seen, 
 with a right-skewed shape clearly distinguishable from the Gaussian
 one often implicitly assumed when fitting
 location-scale regression models.
+```{r DALSM2d}
+plot(fit, select=0)
+```
+
+*Predicted* values for the conditional mean, standard deviation and quantiles of the response for additional subjects with known values of the model covariates can also be obtained:
+```{r DALSM2e}
+newdata = data.frame(twoincomes=c(1,0),age=c(40,50),eduyrs=c(18,12))
+pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
+with(pred, cbind(newdata, mu, sd, quant))
+```
+
 
 ### Estimation of a density from censored data
 Besides fitting Nonparametric Double Additive Location-Scale Model to censored data, the DALSM package contains an independent and very fast function, *densityLPS*, for density estimation from right- or interval-censored data with possible constraints on the mean and variance using Laplace P-splines.

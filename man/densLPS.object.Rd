@@ -7,32 +7,32 @@
 An object returned by \code{\link{densityLPS}} has the following elements:
 Essential part:
 \itemize{
-\item{\code{converged} : \verb{ }}{logical convergence indicator.}
-\item{\code{ddist} : \verb{ }}{fitted density function.}
-\item{\code{Hdist} : \verb{ }}{fitted cumulative hazard function.}
-\item{\code{hdist} : \verb{ }}{fitted hazard function.}
-\item{\code{pdist} : \verb{ }}{fitted cumulative distribution function.}
-\item{\code{ymin, ymax} : \verb{ }}{assumed values for the support of the distribution.}
-\item{\code{phi} : \verb{ }}{estimated B-spline coefficients for the log-hazard of the error distribution.}
-\item{\code{U.phi} : \verb{ }}{score of the Lagrangian G(\eqn{\phi|\omega}).}
-\item{\code{tau}, \code{ltau} : \verb{ }}{selected penalty parameter and its logarithm.}
-\item{\code{est} : \verb{ }}{vector containing the estimated/selected (\eqn{\phi,\log\tau}) parameters.}
-\item{\code{fixed.phi} : \verb{ }}{logical indicating whether the spline parameters were given fixed values or estimated from the data.}
-\item{\code{phi.ref} : \verb{ }}{reference values for the spline parameters with respect to which \eqn{\phi} is compared during penalization.}
-\item{\code{BWB} : \verb{ }}{Hessian for \eqn{\phi} without the penalty contribution.}
-\item{\code{Prec} : \verb{ }}{Hessian or posterior precision matrix for \eqn{\phi}.}
-\item{\code{Fisher} : \verb{ }}{Fisher information for \eqn{\phi}.}
-\item{\code{bins, ugrid, du} : \verb{ }}{bins (of width 'du') and with midpoints 'ugrid' partitioning the support of the density.}
-\item{\code{h.grid, H.grid, dens.grid} : \verb{ }}{hazard, cumulative hazard and density values at the grid midpoints 'ugrid'.}
-\item{\code{h.bins, H.bins, dens.bins} : \verb{ }}{hazard, cumulative hazard and density values at the bin limits 'bins'.}
-\item{\code{expected} : \verb{ }}{expected number of observations within each bin.}
-\item{\code{Finfty} : \verb{ }}{integrated density value over the considered support.}
-\item{\code{Mean0, Var0} : \verb{ }}{when specified, constrained mean and variance values during estimation.}
-\item{\code{mean.dist, var.dist} : \verb{ }}{mean and variance of the fitted density.}
-\item{\code{method} : \verb{ }}{method used for penaly selection: "evidence" (by maximizing the marginal posterior for \eqn{\tau}) or "Schall" (Schall's method).}
-\item{\code{ed} : \verb{ }}{effective number of (spline) parameters.}
-\item{\code{iterations} : \verb{ }}{total number of iterations necessary for convergence.}
-\item{\code{elapsed.time} : \verb{ }}{time required for convergence.}
+\item \code{converged} : logical convergence indicator.
+\item \code{ddist} : fitted density function.
+\item \code{Hdist} : fitted cumulative hazard function.
+\item \code{hdist} : fitted hazard function.
+\item \code{pdist} : fitted cumulative distribution function.
+\item \code{ymin, ymax} : assumed values for the support of the distribution.
+\item \code{phi} : estimated B-spline coefficients for the log-hazard of the error distribution.
+\item \code{U.phi} : score of the Lagrangian G(\eqn{\phi|\omega}).
+\item \code{tau}, \code{ltau} : selected penalty parameter and its logarithm.
+\item \code{est} : vector containing the estimated/selected (\eqn{\phi,\log\tau}) parameters.
+\item \code{fixed.phi} : logical indicating whether the spline parameters were given fixed values or estimated from the data.
+\item \code{phi.ref} : reference values for the spline parameters with respect to which \eqn{\phi} is compared during penalization.
+\item \code{BWB} : Hessian for \eqn{\phi} without the penalty contribution.
+\item \code{Prec} : Hessian or posterior precision matrix for \eqn{\phi}.
+\item \code{Fisher} : Fisher information for \eqn{\phi}.
+\item \code{bins, ugrid, du} : bins (of width 'du') and with midpoints 'ugrid' partitioning the support of the density.
+\item \code{h.grid, H.grid, dens.grid} : hazard, cumulative hazard and density values at the grid midpoints 'ugrid'.
+\item \code{h.bins, H.bins, dens.bins} : hazard, cumulative hazard and density values at the bin limits 'bins'.
+\item \code{expected} : expected number of observations within each bin.
+\item \code{Finfty} : integrated density value over the considered support.
+\item \code{Mean0, Var0} : when specified, constrained mean and variance values during estimation.
+\item \code{mean.dist, var.dist} : mean and variance of the fitted density.
+\item \code{method} : method used for penaly selection: "evidence" (by maximizing the marginal posterior for \eqn{\tau}) or "Schall" (Schall's method).
+\item \code{ed} : effective number of (spline) parameters.
+\item \code{iterations} : total number of iterations necessary for convergence.
+\item \code{elapsed.time} : time required for convergence.
 }
 Additional elements:
 the content of the \link{Dens1d.object} used when \link{densityLPS} was called.

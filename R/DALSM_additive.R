@@ -23,18 +23,18 @@
 #'
 #' @return It returns an invisible list containing:
 #' \itemize{
-#' \item{\code{J1} : \verb{ }}{number of additive terms in the location sub-model.}
-#' \item{\code{labels.loc} : \verb{ }}{labels of the additive terms in the location sub-model.}
-#' \item{\code{f.loc.grid} : \verb{ }}{list of length \code{J1} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid.}
-#' \item{\code{f.loc} : \verb{ }}{a list of length \code{J1} with, for each additive term <x>, a list with f.loc$x: a function computing the additive term f.loc(x) for a given covariate value 'x' ; attributes(f.loc$x): support, label, range.}
-#' \item{\code{se.loc} : \verb{ }}{a list of length \code{J1} with, for each additive term <x>, a list with se.loc$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.loc$x): support, label, range.}
-#' \item{\code{coverage.loc} : \verb{ }}{if \code{true.loc} is provided: a vector of length \code{J1} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the location sub-model.}
-#' \item{\code{J2} : \verb{ }}{number of additive terms in the dispersion sub-model.}
-#' \item{\code{labels.disp} : \verb{ }}{labels of the additive terms in the dispersion sub-model.}
-#' \item{\code{f.disp.grid} : \verb{ }}{list of length \code{J2} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; se: the standard error of the additive term on the x-grid.}
-#' \item{\code{f.disp} : \verb{ }}{a list of length \code{J2} with, for each additive term <x>, a list with f.disp$x: a function computing the additive term f.disp(x) for a given covariate value 'x' ; attributes(f.disp$x): support, label, range.}
-#' \item{\code{se.disp} : \verb{ }}{a list of length \code{J2} with, for each additive term <x>, a list with se.disp$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.disp$x): support, label, range.}
-#' \item{\code{coverage.disp} : \verb{ }}{if <true.disp> is provided: a vector of length \code{J2} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the dispersion sub-model.}
+#' \item \code{J1} : number of additive terms in the location sub-model.
+#' \item \code{labels.loc} : labels of the additive terms in the location sub-model.
+#' \item \code{f.loc.grid} : list of length \code{J1} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; 'y.mat2': a matrix with 3 columns (est,low,up) giving the additive term and its simultaneous credible region ; se: the standard error of the additive term on the x-grid.
+#' \item \code{f.loc} : a list of length \code{J1} with, for each additive term <x>, a list with f.loc$x: a function computing the additive term f.loc(x) for a given covariate value 'x' ; attributes(f.loc$x): support, label, range.
+#' \item \code{se.loc} : a list of length \code{J1} with, for each additive term <x>, a list with se.loc$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.loc$x): support, label, range.
+#' \item \code{coverage.loc} : if \code{true.loc} is provided: a vector of length \code{J1} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the location sub-model.
+#' \item \code{J2} : number of additive terms in the dispersion sub-model.
+#' \item \code{labels.disp} : labels of the additive terms in the dispersion sub-model.
+#' \item \code{f.disp.grid} : list of length \code{J2} with, for each additive term, a list of length 3 with elements 'x': a vector of \code{ngrid} values for the covariate ; 'y.mat': a matrix with 3 columns (est,low,up) giving the additive term and its pointwise credible region ; 'y.mat2': a matrix with 3 columns (est,low,up) giving the additive term and its simultaneous credible region ; se: the standard error of the additive term on the x-grid.
+#' \item \code{f.disp} : a list of length \code{J2} with, for each additive term <x>, a list with f.disp$x: a function computing the additive term f.disp(x) for a given covariate value 'x' ; attributes(f.disp$x): support, label, range.
+#' \item \code{se.disp} : a list of length \code{J2} with, for each additive term <x>, a list with se.disp$x: a function computing the s.e. of f(x) for a given covariate value 'x' ; attributes(se.disp$x): support, label, range.
+#' \item \code{coverage.disp} : if <true.disp> is provided: a vector of length \code{J2} giving the average effective coverage of pointwise credible intervals for each of the additive terms in the dispersion sub-model.
 #' }
 #'
 #' @author Philippe Lambert \email{p.lambert@uliege.be}
@@ -108,6 +108,7 @@ DALSM_additive <- function(obj.DALSM,
     ## colnames(f.loc) = paste("f(",addloc.lab,")",sep="") ## paste("f.loc.",1:J1,sep="")
     ## colnames(se.loc) = paste("se.",addloc.lab,sep="") ## paste("se.loc.",1:J1,sep="")
     names(coverage.loc) = paste("f(",add.lab,")",sep="") ## colnames(f.loc)
+    ED = obj.DALSM$ED1[,1]
     for (j in 1:J1){
       xlow = min(knots.1[[j]]) ; xup = max(knots.1[[j]])
       x.grid = seq(xlow,xup,length=ngrid)
@@ -116,17 +117,19 @@ DALSM_additive <- function(obj.DALSM,
       idx = nfixed1 + (j-1)*K1 + (1:K1)
       S.loc = obj.DALSM$Cov.psi1
       S11 = S.loc[idx,idx]
-      ##
+      ## Pointwise credible region
       fj.grid = BB.1%*%psi1.cur[idx]
       fj.se = sqrt(pmax(0,rowSums((BB.1%*%S11)*BB.1)))
       fj.min = fj.grid-z.alpha*fj.se ; fj.max = fj.grid+z.alpha*fj.se
-      ## f.loc[,j] = fj.grid = BB.1%*%psi1.cur[idx]
-      ## se.loc[,j] = fj.se = sqrt(pmax(0,rowSums((BB.1%*%S11)*BB.1)))
-      ## fj.min = fj.grid-z.alpha*fj.se ; fj.max = fj.grid+z.alpha*fj.se
+      ## Simultaneous credible region
+      c2 = sqrt(qchisq(ci.level,ED[j]))
+      fj.min2 = fj.grid - c2 * fj.se ; fj.max2  = fj.grid + c2 * fj.se
       ##
       f.loc.grid[[add.lab[j]]]$x = x.grid
       mat = cbind(est=fj.grid, low=fj.min, up=fj.max) ; colnames(mat) = c("est","low","up")
-      f.loc.grid[[add.lab[j]]]$y.mat = mat ## cbind(est=fj.grid, low=fj.min, up=fj.max)
+      mat2 = cbind(est=fj.grid, low=fj.min2, up=fj.max2) ; colnames(mat) = c("est","low","up")
+      f.loc.grid[[add.lab[j]]]$y.mat = mat
+      f.loc.grid[[add.lab[j]]]$y.mat2 = mat2
       f.loc.grid[[add.lab[j]]]$se = fj.se
       ##
       f.loc[[add.lab[j]]]  = splinefun(x.grid, fj.grid)
@@ -155,13 +158,8 @@ DALSM_additive <- function(obj.DALSM,
   if (J2 > 0){
     Cst2 = coverage.disp = rep(0,J2)
     add.lab = labels.disp = obj.DALSM$regr2$additive.lab
-    ## temp = matrix(nrow=ngrid,ncol=J2) ; rownames(temp) = 1:ngrid
-    ## x.disp = f.disp = se.disp = temp
-    ## adddisp.lab = obj.DALSM$regr2$additive.lab
-    ## colnames(x.disp) = adddisp.lab ## paste("x.disp.",1:J2,sep="")
-    ## colnames(f.disp) = paste("f(",adddisp.lab,")",sep="") ## paste("f.disp.",1:J2,sep="")
-    ## colnames(se.disp) = paste("se.",adddisp.lab,sep="") ## paste("se.disp.",1:J2,sep="")
     names(coverage.disp) = paste("f(",add.lab,")",sep="") ## colnames(f.disp)
+    ED = obj.DALSM$ED2[,1]
     for (j in 1:J2){
       xlow = min(knots.2[[j]]) ; xup = max(knots.2[[j]])
       x.grid = seq(xlow,xup,length=ngrid)
@@ -169,17 +167,19 @@ DALSM_additive <- function(obj.DALSM,
       idx = nfixed2 + (j-1)*K2 + (1:K2)
       S.disp = obj.DALSM$Cov.psi2
       S11 = S.disp[idx,idx]
-      ##
+      ## Pointwise credible region
       fj.grid = BB.2%*%psi2.cur[idx]
       fj.se = sqrt(pmax(0,rowSums((BB.2%*%S11)*BB.2)))
       fj.min = fj.grid-z.alpha*fj.se ; fj.max = fj.grid+z.alpha*fj.se
-      ## f.disp[,j] = fj.grid = BB.2%*%psi2.cur[idx]
-      ## se.disp[,j] = fj.se = sqrt(pmax(0,rowSums((BB.2%*%S11)*BB.2)))
-      ## fj.min = fj.grid-z.alpha*fj.se ; fj.max = fj.grid+z.alpha*fj.se
+      ## Simultaneous credible region
+      c2 = sqrt(qchisq(ci.level,ED[j]))
+      fj.min2 = fj.grid - c2 * fj.se ; fj.max2  = fj.grid + c2 * fj.se
       ##
       f.disp.grid[[add.lab[j]]]$x = x.grid
       mat = cbind(est=fj.grid, low=fj.min, up=fj.max) ; colnames(mat) = c("est","low","up")
-      f.disp.grid[[add.lab[j]]]$y.mat = mat ## cbind(est=fj.grid, low=fj.min, up=fj.max)
+      mat2 = cbind(est=fj.grid, low=fj.min2, up=fj.max2) ; colnames(mat) = c("est","low","up")
+      f.disp.grid[[add.lab[j]]]$y.mat = mat
+      f.disp.grid[[add.lab[j]]]$y.mat2 = mat2
       f.disp.grid[[add.lab[j]]]$se = fj.se
       ##
       f.disp[[add.lab[j]]]  = splinefun(x.grid, fj.grid)

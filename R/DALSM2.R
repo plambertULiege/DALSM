@@ -2,17 +2,19 @@
 #' @description Fit a location-scale regression model with a flexible error distribution and
 #' additive terms in location (=mean) and dispersion (= log(sd)) using Laplace P-splines
 #' from potentially right- and interval-censored response data.
-#' @usage DALSM(y, formula1,formula2, data,
+#' @usage DALSM(y, formula1,formula2, w, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
 #'        b.tau=1e-4, lambda1.min=1, lambda2.min=1,
-#'        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
+#'        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
+#'        lambda0.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
 #'        REML=FALSE, diag.only=TRUE, Normality=FALSE, sandwich=TRUE,
 #'        K.error=20, rmin=NULL,rmax=NULL,
 #'        ci.level=.95, iterlim=50,verbose=FALSE)
 #'
-#' @param y n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals Inf).
+#' @param y n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals +Inf).
 #' @param formula1 model formula for location (i.e. for the conditional mean).
 #' @param formula2 model formula for dispersion (i.e. for the log of the conditional standard deviation).
+#' @param w vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).
 #' @param data data frame containing the model covariates.
 #' @param K1 (optional) number of B-splines to describe a given additive term in the location submodel (default: 10).
 #' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10).
@@ -24,6 +26,7 @@
 #' @param phi.0 (optional) initial values for the spline parameters in the log-hazard of the standardized error distribution.
 #' @param psi1.0 (optional) initial values for the location submodel parameters.
 #' @param psi2.0 (optional) initial values for the dispersion submodel parameters.
+#' @param lambda0.0 (optional) initial value for the penalty parameter used during the estimation of the error density.
 #' @param lambda1.0 (optional) initial value for the J1 penalty parameters of the additive terms in the location submodel.
 #' @param lambda2.0 (optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel.
 #' @param REML (optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE).
@@ -59,14 +62,16 @@
 #'             formula2 = ~twoincomes+s(age)+s(eduyrs),
 #'             data = DALSM_IncomeData)
 #' print(fit)
-#' plot(fit)
+#' plot(fit, select=0) ## Estimated error density
+#' plot(fit, select=1:4, pages=1) ## Estimated additive terms
 #'
 #' @export
 
-DALSM = function(y, formula1,formula2, data,
+DALSM = function(y, formula1,formula2, w, data,
                  K1=10, K2=10,pen.order1=2, pen.order2=2, b.tau=1e-4,
                  lambda1.min=1, lambda2.min=1,
-                 phi.0=NULL,psi1.0=NULL,psi2.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
+                 phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
+                 lambda0.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
                  REML=FALSE, diag.only=TRUE, Normality=FALSE, sandwich=TRUE,
                  K.error=20, rmin=NULL,rmax=NULL,
                  ci.level=.95,
@@ -88,17 +93,21 @@ DALSM = function(y, formula1,formula2, data,
   }
   n = nrow(y)
   if (n != nrow(data)){message("<y> and <data> should share the same number of units !") ; return(NULL)}
+  if (missing(w)) w = rep(1,n) ## Default 1.0 weight for all units
+  if (!all(w>0)) stop("Weights in vector <w> should all be non negative !")
+  if (length(w) != n) stop("Weight vector <w> should be of length <n> !")
   event = ifelse(is.finite(yup),1,0) ## Event = 1 if non-RC, 0 otherwise
   resp = y ; resp[,2] = ifelse(is.finite(yup),yup,ylow) ## Working (nx2) response matrix with identical columns if non-IC (in particular when RC)
-  ymid = apply(resp,1,mean) ## Midpoint of IC response, reported exactly observed or right-censored response otherwise
+  ymid = rowMeans(resp) ## apply(resp,1,mean) ## Midpoint of IC response, reported exactly observed or right-censored response otherwise
   is.IC = (ylow != yup) & (is.finite(yup)) ## Indicated whether Interval Censored (with, then, event=1)
-  n.IC = sum(is.IC)
+  n.IC = sum(w * is.IC) ## Weighted number of interval-censored data
   ##
   ## Numbers of RC & IC data
   is.uncensored = (ylow==yup) & (event==1)
-  n.uncensored = sum(is.uncensored)
+  n.uncensored = sum(w * is.uncensored) ## Weighted number of uncensored
   is.RC = (event==0)
-  n.RC = sum(is.RC)
+  n.RC = sum(w * is.RC) ## Weighted number of right-censored
+  sw = sum(w) ## Total weighted sample size
   ##
   ## Index of units with a reported event
   obs = (event==1)
@@ -125,21 +134,33 @@ DALSM = function(y, formula1,formula2, data,
   z.alpha = qnorm(1-.5*alpha)
   ##
   ## Initial values
+  ## ... for the spline parameters defining the standardized error density
+  if (is.null(lambda0.0)) lambda0.0 = eval(formals(densityLPS)$tau0) ## Default value for the Penalty parameter
+  lambda0.cur = lambda0.0
+  if (!is.null(phi.0)){
+    K.error = length(phi.0)
+    phi.cur =  phi.0
+  }
   ## ... for location stuff
   if (J1 > 0){
     Bcal.1 = regr1$Bcal
     if (is.null(lambda1.0)) lambda1.0 = rep(100,J1)
     names(lambda1.0) = lambda1.lab
     lambda1.cur = lambda1.0 ; P1.cur = Pcal.fun(nfixed1,lambda1.cur,Pd1.x)
-    psi1.cur = c(solve(t(Xcal.1[obs,,drop=FALSE])%*%Xcal.1[obs,,drop=FALSE] + P1.cur, t(Xcal.1[obs,,drop=FALSE])%*%ymid[obs]))
+    psi1.cur = c(solve(t(Xcal.1[obs,,drop=FALSE])%*%(w[obs]*Xcal.1[obs,,drop=FALSE]) + P1.cur, t(w[obs]*Xcal.1[obs,,drop=FALSE])%*%ymid[obs]))
   } else {
-    psi1.cur = c(solve(t(Xcal.1[obs,,drop=FALSE])%*%Xcal.1[obs,,drop=FALSE], t(Xcal.1[obs,,drop=FALSE])%*%ymid[obs]))
+    psi1.cur = c(solve(t(Xcal.1[obs,,drop=FALSE])%*%(w[obs]*Xcal.1[obs,,drop=FALSE]), t(w[obs]*Xcal.1[obs,,drop=FALSE])%*%ymid[obs]))
     lambda1.cur = NULL
   }
   names(psi1.cur) = loc.lab
   ##
   ## ... for dispersion stuff
-  sd0 = 1.1*sd(ymid[obs]-c(Xcal.1[obs,,drop=FALSE]%*%psi1.cur))
+  fun = function(y,w){ ## Weighted mean and sd
+    sw = sum(w)
+    mean.y = sum((w/sw) * y) ; sd.y = sqrt(sum((w/sw) * (y - mean.y)^2) * (sw / max(1,(sw-1))))
+    return(list(mu=mean.y,sd=sd.y))
+  }
+  sd0 = 1.1 * fun(y=ymid[obs]-c(Xcal.1[obs,,drop=FALSE]%*%psi1.cur), w=w[obs])$sd
   if (J2 > 0){
     Bcal.2 = regr2$Bcal
     if (is.null(lambda2.0)) lambda2.0 = rep(100,J2) ## PHL: 10 instead of 100
@@ -220,9 +241,9 @@ DALSM = function(y, formula1,formula2, data,
     ## lpost
     ## -----
     Dif.S = pmax(1e-6,S1.cur-S2.cur)
-    lpost.cur = llik.cur = sum(ifelse(is.IC,
-                                      log(Dif.S),
-                                      event*(log(h1.cur)-log(sd.cur)) - H1.cur))
+    lpost.cur = llik.cur = sum(w * ifelse(is.IC,
+                                          log(Dif.S),
+                                          event*(log(h1.cur)-log(sd.cur)) - H1.cur))
     if (J1 > 0) lpost.cur = lpost.cur - .5*sum(psi1.cur*c(P1.cur%*%psi1.cur))
     if (J2 > 0) lpost.cur = lpost.cur - .5*sum(psi2.cur*c(P2.cur%*%psi2.cur))
     ## Score
@@ -232,7 +253,8 @@ DALSM = function(y, formula1,formula2, data,
                         -(1/sd.cur)*(f1.cur-f2.cur)/(Dif.S),
                         c(((event/sd.cur)*dB1)%*%phi.cur -1/sd.cur*h1.cur))
     omega.psi1 = -temp.Upsi1
-    U.psi1 = c(t(Xcal.1) %*% omega.psi1) ## Score.psi1
+    ## U.psi1 should be multiplied by <k> if (w -> k*w)  (hence w * omega.psi1 !!) :
+    U.psi1 = c(t(Xcal.1) %*% (w * omega.psi1)) ## Score.psi1
     if (J1 > 0) U.psi1 = U.psi1 - c(P1.cur%*%psi1.cur) ## Score.psi1 if additive component(s)
     ##
     ## <psi2>
@@ -240,7 +262,8 @@ DALSM = function(y, formula1,formula2, data,
                         -(res[,1]*f1.cur-res[,2]*f2.cur)/(Dif.S),
                         c((event*res[,1]*dB1)%*%phi.cur + event-res[,1]*h1.cur))
     omega.psi2 = -temp.Upsi2
-    U.psi2 = c(t(Xcal.2) %*% omega.psi2) ## Score.psi2
+    ## U.psi2 should be multiplied by <k> if (w -> k*w)  (hence w * omega.psi2 !!) :
+    U.psi2 = c(t(Xcal.2) %*% (w * omega.psi2)) ## Score.psi2
     if (J2 > 0) U.psi2 = U.psi2 - c(P2.cur%*%psi2.cur) ## Score.psi2 if additive component(s)
     ##
     U.psi = c(U.psi1,U.psi2) ## Score for <psi> = <psi1,psi2>
@@ -252,7 +275,7 @@ DALSM = function(y, formula1,formula2, data,
     if (hessian){
       ## <psi1>
       g1.cur = c(dB1%*%phi.cur) - h1.cur ; g2.cur = c(dB2%*%phi.cur) - h2.cur
-      W.psi1 = (1/sd.cur^2)*
+      W.psi1 = w * (1/sd.cur^2)*
         ifelse(is.IC,
                (f1.cur*g1.cur-f2.cur*g2.cur)/(Dif.S) + (f1.cur-f2.cur)^2/(Dif.S)^2,
                -c((event*d2B-h1.cur*dB1)%*%phi.cur)) ## Weight.psi1
@@ -266,7 +289,7 @@ DALSM = function(y, formula1,formula2, data,
       }
       ## <psi2>
       m1.cur = 1 + res[,1]*(c(dB1%*%phi.cur)-h1.cur) ; m2.cur = 1 + res[,2]*(c(dB2%*%phi.cur)-h2.cur)
-      W.psi2 = ifelse(is.IC,
+      W.psi2 = w * ifelse(is.IC,
                       (res[,1]*f1.cur*m1.cur-res[,2]*f2.cur*m2.cur)/(Dif.S) +
                         (res[,1]*f1.cur-res[,2]*f2.cur)^2/(Dif.S)^2,
                       c(-event*(res[,1]^2)*c(d2B%*%phi.cur)
@@ -281,7 +304,7 @@ DALSM = function(y, formula1,formula2, data,
         Mcal.2 = t(Bcal.2)%*%(W.psi2*Bcal.2) -t(tZWB.2)%*%inv.tZWZ.2%*%tZWB.2 ## Required to update <lambda2>
       }
       ## Cross-derivatives
-      W.cross = (1/sd.cur)*
+      W.cross = w * (1/sd.cur)*
         ifelse(is.IC,
                (f1.cur-f2.cur)/(Dif.S) +
                  (res[,1]*f1.cur*g1.cur-res[,2]*f2.cur*g2.cur)/(Dif.S) +
@@ -348,7 +371,7 @@ DALSM = function(y, formula1,formula2, data,
     ldet.cur = NULL
     if (REML){
       if(any(is.nan(Hes.psi1))) return(stopthis()) ## stopthis() ## PHL
-      ldet.cur = logDet.fun(-Hes.psi1) ## logdet(X1'W1 X1 + K1
+      ldet.cur = logDet.fun(-Hes.psi1) ## logdet(X1'W1 X1 + K1)
       lpost.cur = lpost.cur -.5*ldet.cur  ## REML: add -.5*logdet(X1'W1 X1 + K1)
     }
     ##
@@ -376,7 +399,7 @@ DALSM = function(y, formula1,formula2, data,
     ## Output
     ## ------
     if (any(is.na(U.psi))) return(stopthis())
-    ans = list(y=y, data=data,
+    ans = list(y=y, w=w, data=data,
                formula1=formula1, formula2=formula2,
                psi1=psi1,psi2=psi2, lambda1=lambda1,lambda2=lambda2,
                psi=c(psi1,psi2),
@@ -401,7 +424,7 @@ DALSM = function(y, formula1,formula2, data,
     }
     ##
     return(ans)
-  }
+  } ## End <ff> function
   ##
   ## ESTIMATION
   ## ----------
@@ -437,26 +460,32 @@ DALSM = function(y, formula1,formula2, data,
     if (!final.iteration){
       KK = K.error
       ## Estimate error density
-      obj1d = Dens1d(res, event=event,
+      obj1d = Dens1d(res, event=event, w=w,
                      ymin=rmin, ymax=rmax, K=K.error,
                      equid.knots=TRUE)
+      if (iter <= 2) phi.ref = phi.Norm(obj1d$knots) ## Compute reference <phi> from a N(0,1) error density
       ## Force a N(0,1) density during a couple of iterations OR till the end if Normality=TRUE
-      fixed.phi = ifelse((iter <= 2) | Normality ,TRUE,FALSE)
-      if (iter <=2){
-        phi.cur = phi.ref = phi.Norm(obj1d$knots)
+      fixed.phi = is.null(phi.0) & ifelse((iter <= 2) | Normality ,TRUE,FALSE)
+      if ((iter <=2) & is.null(phi.0)){ ## Force N(0,1) during 2 iterations if no user-defined initial values
+          phi.cur = phi.ref
       }
-      ##
-      fit1d.0 = densityLPS(obj1d,
-                       phi0=phi.cur,
-                       fixed.phi=fixed.phi,phi.ref=phi.ref,
-                       is.density=TRUE,Mean0=NULL,Var0=NULL,
-                       method="LPS",verbose=FALSE)
-      fit1d = densityLPS(obj1d,
-                     phi0=fit1d.0$phi,
-                     fixed.phi=fixed.phi, phi.ref=phi.ref,
-                     is.density=TRUE,Mean0=0,Var0=1,
-                     method="LPS",verbose=FALSE)
+      ## Start by not constraining moments for the error density...
+      fit1d = fit1d.0 = densityLPS(obj1d,
+                                   tau0=lambda0.cur, phi0=phi.cur,
+                                   fixed.phi=fixed.phi,phi.ref=phi.ref,
+                                   is.density=TRUE,Mean0=NULL,Var0=NULL,
+                                   method="LPS",verbose=FALSE)
+      ## ... then constrain moments if necessary
+      moments.cur = with(fit1d.0, c(mean.dist,var.dist))
+      if (!fixed.phi & (max(moments.cur-c(0,1)) > 1e-3)){
+          fit1d = densityLPS(obj1d,
+                             tau0=fit1d.0$tau,phi0=fit1d.0$phi,
+                             fixed.phi=fixed.phi, phi.ref=phi.ref,
+                             is.density=TRUE,Mean0=0,Var0=1,
+                             method="LPS",verbose=FALSE)
+      }
       fit1d$n=n ; fit1d$n.uncensored=n.uncensored ; fit1d$n.IC=n.IC ; fit1d$n.RC=n.RC
+      lambda0.cur = fit1d$tau ## Current penalty parameter for the spline parameters in the error density
       phi.cur = fit1d$phi ## Current spline parameter estimates in error density estimation
     }
     ## -2- Update <psi1> & <psi2> (i.e. regression coefs related to location)
@@ -468,8 +497,8 @@ DALSM = function(y, formula1,formula2, data,
         dpsi = with(obj, Cov.psi%*%U.psi) ## Increment.psi
       } else {
         ## Newton-Raphson step using Sandwich Var-Cov
-        temp = cbind(Xcal.1 * obj$omega.psi1, Xcal.2 * obj$omega.psi2)
-        Vn.psi = crossprod(temp) ## PHL
+        temp = cbind(Xcal.1 * (sqrt(w) * obj$omega.psi1), Xcal.2 * (sqrt(w) * obj$mega.psi2))
+        Vn.psi = crossprod(temp) ## Vn.psi should be multiplied by <k> if (w -> k*w)  (hence sqrt(w) !!)
         idx1 = 1:q1 ; idx2 = (q1+1):(q1+q2)
         if (J1 > 0) Vn.psi[idx1,idx1] = Vn.psi[idx1,idx1] + obj$P1
         if (J2 > 0) Vn.psi[idx2,idx2] = Vn.psi[idx2,idx2] + obj$P2
@@ -717,8 +746,8 @@ DALSM = function(y, formula1,formula2, data,
   ##
   ## Sandwich variance-covariance for <psi>
   ## --------------------------------------
-  temp = cbind(Xcal.1 * obj.cur$omega.psi1, Xcal.2 * obj.cur$omega.psi2)
-  Vn.psi = crossprod(temp)
+  temp = cbind(Xcal.1 * (sqrt(w) * obj.cur$omega.psi1), Xcal.2 * (sqrt(w) * obj.cur$omega.psi2))
+  Vn.psi = crossprod(temp) ## Vn.psi should be multiplied by <k> if (w -> k*w)  (hence sqrt(w) !!)
   ## ## Meaning of crossprod:
   ## Vn.psi1 = temp[1,]%o%temp[1,]
   ## for (i in 2:n) Vn.psi1 = Vn.psi1 + temp[i,]%o%temp[i,]
@@ -733,7 +762,7 @@ DALSM = function(y, formula1,formula2, data,
   }
   ##
   bread.psi = obj.cur$Cov.psi ## Minus-Inverse Hessian for <psi>
-  Sand.psi = bread.psi %*% Vn.psi %*% bread.psi ## Sandwich estimator
+  Sand.psi = bread.psi %*% (Vn.psi %*% bread.psi) ## Sandwich estimator
   ##
   ## Compute variance-covariance matrices for location and dispersion parameters
   Sand.psi1  = Sand.psi[idx1,idx1,drop=FALSE] ## Sandwich estimator for Var-Cov of location regr coef
@@ -844,15 +873,15 @@ DALSM = function(y, formula1,formula2, data,
   # if (sum(1-event)>0) expctd.res[event==0] = temp[(res[event==0]-bins[1])%/%du+1]
   ##
   ## Percentage of exactly observed, interval-censored and right-censored data
-  perc.obs = round(100*n.uncensored/n,1) ## Percentage exactly observed
-  perc.IC = round(100*n.IC/n,1) ## Percentage Interval Censored
-  perc.RC = round(100*n.RC/n,1) ## Percentage Right Censored
+  perc.obs = round(100*n.uncensored/sw,1) ## Percentage exactly observed
+  perc.IC = round(100*n.IC/sw,1) ## Percentage Interval Censored
+  perc.RC = round(100*n.RC/sw,1) ## Percentage Right Censored
   ##
   ## Output
   ans = list(converged=converged,
              y=y, data=data,
              formula1=formula1, formula2=formula2,
-             n=n,resp=resp,is.IC=is.IC,
+             n=n,sw=sw,resp=resp,is.IC=is.IC,
              n.uncensored=n.uncensored, n.IC=n.IC, n.RC=n.RC,
              perc.obs=perc.obs,perc.IC=perc.IC,perc.RC=perc.RC,
              regr1=regr1,regr2=regr2,
@@ -864,6 +893,7 @@ DALSM = function(y, formula1,formula2, data,
              alpha=alpha, ## Significance level
              sandwich=sandwich, ## Indicates whether sandwich estimator for variance-covariance
              psi1=psi1.cur, ## Location regr coefs
+             bread.psi=bread.psi, Sand.psi=Sand.psi, ## Var-Cov for psi
              bread.psi1=bread.psi1, Sand.psi1=Sand.psi1, Cov.psi1=Cov.psi1, ## Var-Cov for psi1
              U.psi1=obj.cur$U.psi1, ## Gradient psi1
              psi2=psi2.cur, ## Dispersion regr coefs
