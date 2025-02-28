@@ -229,10 +229,10 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## ---------------------------------------------------------------
     ## Convergence status: TRUE  --  Algorithms: NR-LPS / LM-LPS
-    ## Elapsed time: 1.69 seconds  (12 iterations)
+    ## Elapsed time: 1.64 seconds  (12 iterations)
     ## ---------------------------------------------------------------
 
-It suggests an average increase of 252 euros (available per person in
+It suggests an average increase of 256 euros (available per person in
 the household) when the respondent and his/her partner are in paid work
 (conditionally on *Age* and *Educ*), while the effect on dispersion is
 not statistically significant.  
