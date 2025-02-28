@@ -196,41 +196,41 @@ fit = DALSM(y=resp,
 print(fit)
 ```
 
-    ## -----------------------------------------------------------------------
-    ##                 Double Additive Location-SCALE Model 
-    ## -----------------------------------------------------------------------
+    ## ---------------------------------------------------------------
+    ##                 Double Additive Location-Scale Model 
+    ## ---------------------------------------------------------------
     ## Fixed effects for Location:
-    ##               est    se   low    up      Z Pval
-    ## (Intercept) 1.574 0.062 1.452 1.696 25.275    0
-    ## twoincomes  0.249 0.051 0.150 0.348  4.916    0
+    ##               est    se   low    up     Z   Pval    
+    ## (Intercept) 1.591 0.068 1.458 1.724 23.51 <0.001 ***
+    ## twoincomes  0.256 0.052 0.155 0.357  4.96 <0.001 ***
     ## 
     ## 2 additive term(s) in Location: Eff.dim / Test No effect
-    ##        ED.hat   low    up    Chi2  Pval
-    ## age     4.234 2.270 4.971  13.595 0.011
-    ## eduyrs  3.559 1.818 4.683 119.804 0.000
+    ##         EDF  low   up   Chi2   Pval    
+    ## age    3.77 2.58 5.22  15.52  0.003 ** 
+    ## eduyrs 3.71 2.48 5.08 129.07 <0.001 ***
     ## 
     ## Fixed effects for Dispersion:
-    ##                est    se    low     up      Z  Pval
-    ## (Intercept) -0.434 0.085 -0.601 -0.268 -5.116 0.000
-    ## twoincomes  -0.049 0.069 -0.184  0.085 -0.719 0.472
+    ##                est    se    low     up     Z   Pval    
+    ## (Intercept) -0.466 0.084 -0.631 -0.301 -5.53 <0.001 ***
+    ## twoincomes  -0.034 0.070 -0.171  0.103 -0.49  0.627    
     ## 
     ## 2 additive term(s) in Dispersion: Eff.dim / Test No effect
-    ##        ED.hat   low    up   Chi2  Pval
-    ## age     3.308 1.451 4.408 15.334 0.002
-    ## eduyrs  3.294 1.499 4.324 41.415 0.000
+    ##         EDF  low   up  Chi2   Pval    
+    ## age    2.29 1.19 4.36 14.34  0.001 ** 
+    ## eduyrs 4.11 2.79 5.19 54.51 <0.001 ***
     ## 
     ## 10  B-splines per additive component in location
     ## 10  B-splines per additive component in dispersion
-    ## 20  B-splines for the error density on (-3.72,6.56)
+    ## 20  B-splines for the error density on (-6,6.75)
     ## 
     ## Total weighted sample size: 756 ; Credible level for CI: 0.95 
     ## Uncensored data: 0 (0 percents)
     ## Interval Censored data: 691 (91.4 percents)
     ## Right censored data: 65 (8.6 percents)
-    ## -----------------------------------------------------------------------
-    ## Convergence status: TRUE 
-    ## Elapsed time: 0.35 seconds  (5 iterations)
-    ## -----------------------------------------------------------------------
+    ## ---------------------------------------------------------------
+    ## Convergence status: TRUE  --  Algorithms: NR-LPS / LM-LPS
+    ## Elapsed time: 1.69 seconds  (12 iterations)
+    ## ---------------------------------------------------------------
 
 It suggests an average increase of 252 euros (available per person in
 the household) when the respondent and his/her partner are in paid work
@@ -281,9 +281,9 @@ pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
 with(pred, cbind(newdata, mu, sd, quant))
 ```
 
-    ##   twoincomes age eduyrs       mu        sd       0.2      0.5      0.8
-    ## 1          1  40     18 2.044224 0.7586711 1.4430241 1.939655 2.555509
-    ## 2          0  50     12 1.482937 0.7121443 0.9186064 1.384780 1.962866
+    ##   twoincomes age eduyrs       mu        sd       0.2      0.5     0.8
+    ## 1          1  40     18 2.043767 0.7837852 1.4376400 1.924716 2.55405
+    ## 2          0  50     12 1.478902 0.7392955 0.9071802 1.366608 1.96022
 
 ### Estimation of a density from censored data
 
@@ -357,7 +357,7 @@ print(obj)
     ##   Range of the IC data: (0.1708629,12.56085)
     ##   Range of the RC data: (0.009145886,7.785088)
     ##   ---
-    ##   Assumed support: (0,14.49633)
+    ##   Assumed support: (-1.926336,14.49633)
     ##   Number of small bins on the support: 501 
     ##   Number of B-splines: 25 ; Penalty order: 2 
     ## 
@@ -366,9 +366,9 @@ print(obj)
     ##   Parameter estimates:  phi, tau
     ##   Value of the estimated cdf at +infty: 1 
     ##   Constraint on the Mean: 5  ; Fitted mean: 5 
-    ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499678 
-    ##   Selected penalty parameter <tau>: 23.4 
-    ##   Effective number of parameters: 5.4 
+    ##   Constraint on the Variance: 2.5  ; Fitted variance: 2.499587 
+    ##   Selected penalty parameter <tau>: 14.1 
+    ##   Effective number of parameters: 5.5 
     ## -----------------------------------------------------------------------
     ## Elapsed time: 0.04 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
@@ -405,12 +405,12 @@ with(obj, cbind(x=xvals, fx=ddist(xvals), Fx=pdist(xvals),
                 hx=hdist(xvals), Hx=Hdist(xvals)))
 ```
 
-    ##       x          fx        Fx         hx         Hx
-    ## [1,]  2 0.031580821 0.0184655 0.03217517 0.01863811
-    ## [2,]  4 0.234794156 0.2646647 0.31931677 0.30742864
-    ## [3,]  6 0.186550062 0.7642655 0.79134371 1.44504906
-    ## [4,]  8 0.037772450 0.9578901 0.89694276 3.16747360
-    ## [5,] 10 0.006622663 0.9950990 1.35118549 5.31831549
+    ##       x          fx         Fx         hx         Hx
+    ## [1,]  2 0.030867794 0.01767263 0.03142341 0.01783066
+    ## [2,]  4 0.235792511 0.26542225 0.32100058 0.30845943
+    ## [3,]  6 0.186389601 0.76445108 0.79127789 1.44583665
+    ## [4,]  8 0.037742422 0.95767131 0.89160454 3.16229029
+    ## [5,] 10 0.006723156 0.99506982 1.36356069 5.31237956
 
 #### Grouped data
 
@@ -461,7 +461,7 @@ print(obj)
     ##   ---
     ##   Range of the IC data: (0,12)
     ##   ---
-    ##   Assumed support: (0,12)
+    ##   Assumed support: (-1.785278,13.78528)
     ##   Number of small bins on the support: 501 
     ##   Number of B-splines: 25 ; Penalty order: 2 
     ## 
@@ -469,10 +469,10 @@ print(obj)
     ##   Returned functions:  ddist, pdist, hdist, Hdist(x)
     ##   Parameter estimates:  phi, tau
     ##   Value of the estimated cdf at +infty: 1 
-    ##   Mean of the fitted density: 4.897135 
-    ##   Variance of the fitted density: 2.181506 
-    ##   Selected penalty parameter <tau>: 14.7 
-    ##   Effective number of parameters: 6.9 
+    ##   Mean of the fitted density: 4.901806 
+    ##   Variance of the fitted density: 2.159135 
+    ##   Selected penalty parameter <tau>: 6.6 
+    ##   Effective number of parameters: 6.8 
     ## -----------------------------------------------------------------------
     ## Elapsed time: 0.01 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
@@ -490,7 +490,7 @@ legend("topright",col=c("black","grey"),lwd=c(2,10),lty=c(1,1),
 ## License
 
 **DALSM**: Nonparametric Double Additive Location-Scale Model (DALSM).
-Copyright (C) 2021-2023 Philippe Lambert
+Copyright (C) 2021-2025 Philippe Lambert
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -514,6 +514,6 @@ Data Analysis, 161: 107250.
 [doi:10.1016/j.csda.2021.107250](http://doi.org/10.1016/j.csda.2021.107250)
 
 \[2\] Lambert, P. (2021). *DALSM*: Nonparametric **D**ouble **A**dditive
-**L**ocation-**S**cale **M**odel - R package version 0.9.2.
+**L**ocation-**S**cale **M**odel - R package version 0.9.3.
 <https://CRAN.R-project.org/package=DALSM> ; GitHub:
 <https://github.com/plambertULiege/DALSM>

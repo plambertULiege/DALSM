@@ -125,7 +125,7 @@ fit = DALSM(y=resp,
            data = DALSM_IncomeData)
 print(fit)
 ```
-It suggests an average increase of 252 euros (available per person in the household) 
+It suggests an average increase of 256 euros (available per person in the household) 
 when the respondent and his/her partner are in paid work (conditionally on
 *Age* and *Educ*), while the effect on dispersion is not
 statistically significant.  
@@ -246,7 +246,7 @@ legend("topright",col=c("black","grey"),lwd=c(2,10),lty=c(1,1),
 
 
 ## License
-**DALSM**: Nonparametric Double Additive Location-Scale Model (DALSM). Copyright (C) 2021-2023 Philippe Lambert
+**DALSM**: Nonparametric Double Additive Location-Scale Model (DALSM). Copyright (C) 2021-2025 Philippe Lambert
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -257,4 +257,4 @@ You should have received a copy of the GNU General Public License along with thi
 ## References
 [1] Lambert, P. (2021) Fast Bayesian inference using Laplace approximations in nonparametric double additive location-scale models with right- and interval-censored data. Computational Statistics and Data Analysis, 161: 107250. [doi:10.1016/j.csda.2021.107250](http://doi.org/10.1016/j.csda.2021.107250)
 
-[2] Lambert, P. (2021). *DALSM*: Nonparametric **D**ouble **A**dditive **L**ocation-**S**cale **M**odel - R package version 0.9.2. [https://CRAN.R-project.org/package=DALSM](https://CRAN.R-project.org/package=DALSM) ; GitHub: [https://github.com/plambertULiege/DALSM](https://github.com/plambertULiege/DALSM)
+[2] Lambert, P. (2021). *DALSM*: Nonparametric **D**ouble **A**dditive **L**ocation-**S**cale **M**odel - R package version 0.9.3. [https://CRAN.R-project.org/package=DALSM](https://CRAN.R-project.org/package=DALSM) ; GitHub: [https://github.com/plambertULiege/DALSM](https://github.com/plambertULiege/DALSM)

@@ -6,12 +6,18 @@
 \usage{
 DALSM(y, formula1,formula2, w, data,
        K1=10, K2=10, pen.order1=2, pen.order2=2,
-       b.tau=1e-4, lambda1.min=1, lambda2.min=1,
+       a.tau=1, b.tau=1e-4, lambda1.min=1, lambda2.min=1,
        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
+       psi.method=c("LM","NR","BFGS","NM"),
        lambda0.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
+       lambda.method=c("LPS","LPS2","none"), logscale=FALSE,
+       density.method=c("LPS","Schall"),
        REML=FALSE, diag.only=TRUE, Normality=FALSE, sandwich=TRUE,
+       joint.computation=FALSE,
        K.error=20, rmin=NULL,rmax=NULL,
-       ci.level=.95, iterlim=50,verbose=FALSE)
+       ci.level=.95,
+       eps.grad=1e-2, eps.RDM=1e-4, eps.fun=1e-3,
+       iterlim=50,verbose=FALSE)
 }
 \arguments{
 \item{y}{n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals +Inf).}
@@ -32,7 +38,9 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{pen.order2}{(optional) penalty order for the additive terms in the dispersion submodel (default: 2).}
 
-\item{b.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(1,b.tau=1e-4) (for additive terms) (default: 1e-4).}
+\item{a.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau=1e-4,b.tau) (for additive terms) (default: 1e-4).}
+
+\item{b.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau,b.tau=1e-4) (for additive terms) (default: 1e-4).}
 
 \item{lambda1.min}{(optional) minimal value for the penalty parameters in the additive model for location (default: 1.0).}
 
@@ -44,11 +52,19 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{psi2.0}{(optional) initial values for the dispersion submodel parameters.}
 
+\item{psi.method}{(optional) algorithm used for the computation of the conditional posterior mode of the regression and splines parameters. Possible choices are Levenberg-Marquardt ("LM"), Newton-Raphson ("NR"), Broyden–Fletcher–Goldfarb–Shanno ("BFGS") and Nelder-Mead ("NM") (default: "LM").}
+
 \item{lambda0.0}{(optional) initial value for the penalty parameter used during the estimation of the error density.}
 
 \item{lambda1.0}{(optional) initial value for the J1 penalty parameters of the additive terms in the location submodel.}
 
 \item{lambda2.0}{(optional) initial value for the J2 penalty parameters of the additive terms in the dispersion submodel.}
+
+\item{lambda.method}{(optional) algorithm used for the computation of the marginal posterior mode of the penalty parameters tuning the smoothness of the estimated additive terms. Possible choices are Laplace P-splines ("LPS" or "LPS2") or "none" if fixed quantities given by initial values (by default set at 100) are desired.}
+
+\item{logscale}{this parameter is only relevant when "LPS2" is chosen for \code{lambda.method}. Setting \code{logscale=TRUE} selects the penalty parameter on the log scale, maximizing the marginal posterior of its log-transformed value (default: FALSE).}
+
+\item{density.method}{algorithm used for the selection of the penalty parameter during density estimation. Possible choices are Laplace- P-splines ("LPS") or Fellner-Schall ("Schall").}
 
 \item{REML}{(optional) logical indicating if a REML correction is desired to estimate the dispersion parameters (default: FALSE).}
 
@@ -58,13 +74,21 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{sandwich}{(optional) logical indicating if sandwich variance estimators are needed for the regression parameters for a NP error distribution (when Normality=FALSE) ; it is forced to be TRUE when Normality=TRUE.}
 
+\item{joint.computation}{indicates whether the computation of the effective degrees of freedom for the additive terms should be made jointly for the location and dispersion additive terms (default: FALSE).}
+
 \item{K.error}{(optional) number of B-splines to approximate the log of the error hazard on (rmin,rmax) (default: 20).}
 
-\item{rmin}{(optional) minimum value for the support of the standardized error distribution (default: min(y)-sd(y)).}
+\item{rmin}{(optional) minimum value for the support of the standardized error distribution.}
 
-\item{rmax}{(optional) maximum value for the support of the standardized error distribution (default: max(y)+sd(y)).}
+\item{rmax}{(optional) maximum value for the support of the standardized error distribution.}
 
-\item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95).}
+\item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95)}
+
+\item{eps.grad}{tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).}
+
+\item{eps.RDM}{tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).}
+
+\item{eps.fun}{tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).}
 
 \item{iterlim}{(optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).}
 

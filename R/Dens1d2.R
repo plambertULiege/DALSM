@@ -86,8 +86,14 @@ Dens1d = function(y, event=NULL, w, ymin=NULL, ymax=NULL,
       return(list(mu=mean.y,sd=sd.y))
   }
   temp = fun(ymid, w)
-  if (is.null(ymin)) ymin = min(ylow[w>0]) - temp$sd
-  if (is.null(ymax)) ymax = max(yup[w>0]) + temp$sd
+  ## >>> NEW NEW (2024.12.20)
+  ymin = min(ymin, min(ylow[w>0]) - temp$sd)
+  ymax = max(ymax, max(yup[w>0]) + temp$sd)
+  ## <<< NEW NEW (2024.12.20)
+  ##
+  ## if (is.null(ymin)) ymin = min(ylow[w>0]) - temp$sd
+  ## if (is.null(ymax)) ymax = max(yup[w>0]) + temp$sd
+  ##
   ## Knots & Penalty matrix
   obj.knots = qknots(cbind(ylow,yup), xmin=ymin,xmax=ymax,
                      equid.knots = equid.knots, pen.order=pen.order, K=K)

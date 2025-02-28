@@ -8,9 +8,13 @@
 #' @description
 #' Print summary information on a \code{DALSM.object}.
 #'
-#' @usage \method{print}{DALSM}(x,...)
+#' @usage \method{print}{DALSM}(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3,...)
 #'
 #' @param x an object of class \code{\link{DALSM.object}}.
+#' @param digits.est number of digits when reporting parameter estimates (default: 3).
+#' @param digits.edf number of digits when reporting effective degrees of freedom (default: 2).
+#' @param digits.tst number of digits when reporting test statistics (default: 2).
+#' @param digits.Pvalue number of digits when reporting P-values (default: 3).
 #' @param ... additional generic printing arguments.
 #'
 #' @details Provides summary measures on the estimation of the regression parameters and additive terms
@@ -39,42 +43,79 @@
 #'
 #' @export
 #'
-print.DALSM = function(x,...){
-  obj.fit = x
-  cat("-----------------------------------------------------------------------\n")
-  cat("                Double Additive Location-SCALE Model \n")
-  cat("-----------------------------------------------------------------------\n")
-  if (obj.fit$REML){
-    cat("*** REML-type estimation ***\n")
-  }
-  cat("Fixed effects for Location:\n")
-  print(round(obj.fit$fixed.loc,3))
-  J1 = obj.fit$regr1$J
-  if (J1 > 0){
-    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
-##    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
-    print(round(obj.fit$ED1[,c(1,4,5,2,3)],3))
-  }
-  cat("\nFixed effects for Dispersion:\n")
-  print(round(obj.fit$fixed.disp,3))
-  J2 = obj.fit$regr2$J
-  if (J2 > 0){
-    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
-##    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
-    print(round(obj.fit$ED2[,c(1,4,5,2,3)],3))
-  }
-  ##
-  cat("\n")
-  if (J1 > 0) cat(obj.fit$K1,"  B-splines per additive component in location\n",sep="")
-  if (J2 > 0) cat(obj.fit$K2,"  B-splines per additive component in dispersion\n",sep="")
-  if (obj.fit$Normality) cat("Normality assumed for the error density\n")
-  else cat(obj.fit$K.error,"  B-splines for the error density on (",round(obj.fit$rmin,2),",",round(obj.fit$rmax,2),")\n",sep="")
-  cat("\nTotal weighted sample size:", obj.fit$sw,"; Credible level for CI:",1-obj.fit$alpha,"\n")
-  cat("Uncensored data: ", obj.fit$n.uncensored, " (", round(100*obj.fit$n.uncensored/obj.fit$sw,2)," percents)\n",sep="")
-  cat("Interval Censored data: ",obj.fit$n.IC, " (",round(100*sum(obj.fit$n.IC)/obj.fit$sw,2), " percents)\n",sep="")
-  cat("Right censored data: ",obj.fit$n.RC, " (",round(100*obj.fit$n.RC/obj.fit$sw,2)," percents)\n",sep="")
-  cat("-----------------------------------------------------------------------\n")
-  cat("Convergence status:",obj.fit$converged,"\n")
-  cat("Elapsed time: ",round(obj.fit$elapsed.time,2)," seconds  (",obj.fit$iter," iterations)\n",sep="")
-  cat("-----------------------------------------------------------------------\n")
+print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3,...){
+    eps.Pvalue = 10^(-digits.Pvalue)
+    obj.fit = x
+    ##
+    printMat = function(mat,cs.est=NULL,cs.tst=NULL,cs.edf=NULL,cs.Pval=NULL){
+        clnms = colnames(mat)
+        mat = data.frame(mat)
+        colnames(mat) = clnms
+        if (!is.null(cs.est)){
+            idx = cs.est ## Columns with parameter estimates
+            mat[,idx] = round(mat[,idx],digits.est)
+        }
+        if (!is.null(cs.edf)){
+            idx = cs.edf ## Columns with EDF
+            mat[,idx] = round(mat[,idx],digits.edf)
+        }
+        if (!is.null(cs.tst)){
+            idx = cs.tst ## Columns with test stats
+            mat[,idx] = round(mat[,idx],digits.tst)
+        }
+        if (!is.null(cs.Pval)){
+            Signif = symnum(as.vector(mat[,ncol(mat)]), ## Signif stars
+                            corr = FALSE, na = FALSE,
+                            cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                            symbols = c("***", "**", "*", ".", " "))
+            idx = cs.Pval ## Columns with Pvalues
+            mat0 = mat[,idx]
+            mat0 = round(mat[,idx],digits.Pvalue)
+            idx0 =  (mat0 < eps.Pvalue)
+            mat0 = format(mat0,scientific=FALSE)
+            mat0[idx0] = paste("<",format(eps.Pvalue,scientific=FALSE),sep="")
+            mat[,idx] = mat0
+            mat = cbind(mat, format(as.vector(Signif))) ## Add stars
+            colnames(mat)[ncol(mat)] = ""
+        }
+        print(mat)
+    }
+    ##
+    cat("---------------------------------------------------------------\n")
+    cat("                Double Additive Location-Scale Model \n")
+    cat("---------------------------------------------------------------\n")
+    if (obj.fit$REML){
+        cat("*** REML-type estimation ***\n")
+    }
+    cat("Fixed effects for Location:\n")
+    printMat(obj.fit$fixed.loc,cs.est=1:4,cs.tst=5,cs.Pval=6)
+    ## print(round(obj.fit$fixed.loc,3))
+    J1 = obj.fit$regr1$J
+    if (J1 > 0){
+        cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
+        ##    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
+        printMat(obj.fit$ED1[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+    }
+    cat("\nFixed effects for Dispersion:\n")
+    printMat(obj.fit$fixed.disp,cs.est=1:4,cs.tst=5,cs.Pval=6)
+    J2 = obj.fit$regr2$J
+    if (J2 > 0){
+        cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
+        ##    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
+        printMat(obj.fit$ED2[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+    }
+    ##
+    cat("\n")
+    if (J1 > 0) cat(obj.fit$K1,"  B-splines per additive component in location\n",sep="")
+    if (J2 > 0) cat(obj.fit$K2,"  B-splines per additive component in dispersion\n",sep="")
+    if (obj.fit$Normality) cat("Normality assumed for the error density\n")
+    else cat(obj.fit$K.error,"  B-splines for the error density on (",round(obj.fit$rmin,2),",",round(obj.fit$rmax,2),")\n",sep="")
+    cat("\nTotal weighted sample size:", obj.fit$sw,"; Credible level for CI:",1-obj.fit$alpha,"\n")
+    cat("Uncensored data: ", obj.fit$n.uncensored, " (", round(100*obj.fit$n.uncensored/obj.fit$sw,2)," percents)\n",sep="")
+    cat("Interval Censored data: ",obj.fit$n.IC, " (",round(100*sum(obj.fit$n.IC)/obj.fit$sw,2), " percents)\n",sep="")
+    cat("Right censored data: ",obj.fit$n.RC, " (",round(100*obj.fit$n.RC/obj.fit$sw,2)," percents)\n",sep="")
+    cat("---------------------------------------------------------------\n")
+    cat("Convergence status: ",obj.fit$converged,"  --  Algorithms: NR-",obj.fit$density.method," / ",obj.fit$psi.method,"-",obj.fit$lambda.method,"\n",sep="")
+    cat("Elapsed time: ",round(obj.fit$elapsed.time,2)," seconds  (",obj.fit$iter," iterations)\n",sep="")
+    cat("---------------------------------------------------------------\n")
 }

@@ -433,7 +433,9 @@ densityLPS = function(obj.data,
     ## (4) Convergence criteria
     ## ------------------------
     converged = all(ok.phi & ((L1(phi.old-phi.cur)/L1(phi.cur))<1e-2) ) | (niter > 20) ##
-    if (niter > 20) cat("Convergence in density estimation did not occur after",niter,"iterations\n")
+    if ((niter > 20) & verbose){
+        cat("Convergence in density estimation did not occur after",niter,"iterations\n")
+    }
   }
   elapsed.time <- (proc.time()-ptm)[1] ## <------------
   if (verbose) cat("\n-- Elapsed time:",elapsed.time,"--\n")
@@ -461,6 +463,7 @@ densityLPS = function(obj.data,
     ilow = floor(idx)+1
     ##
     frac = idx%%1
+    ## ans[!out] = pmax(0,splinefun(bins,dens.bins)(x[!out]))
     ans[!out] = dens.bins[ilow] + frac*(dens.bins[ilow+ceiling(frac)]-dens.bins[ilow])
     return(ans)
   }
@@ -477,7 +480,8 @@ densityLPS = function(obj.data,
     ilow = floor(idx)+1
     ##
     frac = idx%%1
-    ans[!out] = splinefun(bins,H.bins)(x[!out])
+    ans[!out] = H.bins[ilow] + frac*(H.bins[ilow+ceiling(frac)]-H.bins[ilow])
+    ## ans[!out] = splinefun(bins,H.bins)(x[!out])
     return(ans)
   }
   ## (c) Estimated hazard (as a function)
@@ -494,7 +498,6 @@ densityLPS = function(obj.data,
     ilow = floor(idx)+1
     ##
     frac = idx%%1
-    lhb = log(h.bins)
     ans[!out] = h.bins[ilow] + frac*(h.bins[ilow+ceiling(frac)]-h.bins[ilow])
     return(ans)
   }
@@ -502,6 +505,22 @@ densityLPS = function(obj.data,
   ## (d) Estimated cdf (as a function)
   ## ---------------------------------
   pdist = function(x) 1-exp(-Hdist(x))
+  ##
+  ## pdist = function(x),pdist.out=c(1e-12,1)){
+  ##     out = (x<bins[1]) | (x>=tail(bins,n=1))
+  ##     ans = 0*x
+  ##     ans[x<bins[1]] = pdist.out[1]
+  ##     ans[x>=tail(bins,n=1)] = pdist.out[2]
+  ##     ##
+  ##     xx = x[!out]
+  ##     idx = (xx-bins[1])/du
+  ##     ilow = floor(idx)+1
+  ##     ##
+  ##     frac = idx%%1
+  ##     cdf.bins = cumsum(dens.bins) * du
+  ##     ans[!out] = cdf.bins[ilow] + frac*(cdf.bins[ilow+ceiling(frac)]-cdf.bins[ilow])
+  ##     return(ans)
+  ## }
   ##
   ## Estimated mean and variance
   mean.dist = sum(ugrid*du*dens.grid)

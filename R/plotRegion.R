@@ -8,12 +8,13 @@
 #'
 #' @usage plotRegion(x,mat,
 #'        add=FALSE, xlim=range(x), ylim=range(mat),
-#'        lwd=2, xlab="", ylab="", main="", ...)
+#'        colfill="#D9D9D980", lwd=2, xlab="", ylab="", main="", ...)
 #' @param x vector of values where the curve is evaluated.
 #' @param mat cbind(f.hat,f.low,f.up) is a matrix containing the point estimates <f.hat> and the liming values <f.low> and <f.up> for the credible region.
 #' @param add Logical indicating if the plot must be added to the active plot (Default: FALSE).
 #' @param xlim range of <x> values for which the plot should be provided.
 #' @param ylim range of curve values that should be considered for the plot.
+#' @param colfill color used for filling the shaded region. (Default: "#D9D9D980").
 #' @param lwd line width for the plot (Default: 2).
 #' @param xlab x-label.
 #' @param ylab y-label.
@@ -48,10 +49,10 @@
 #' with(obj$f.disp.grid$age, plotRegion(x, y.mat,
 #'      xlab="age", ylab=expression('f'[1]^{~sigma}*(age))))
 plotRegion = function(x,mat,add=FALSE,xlim=range(x),ylim=range(mat),
-                      lwd=2,xlab="",ylab="",main="",...){
+                      colfill="#D9D9D980",lwd=2,xlab="",ylab="",main="",...){
   f = mat[,1] ; f.low = mat[,2] ; f.up = mat[,3]
   if (add==FALSE) plot(x,f,type="n",ylim=ylim,xlim=xlim,
                        lwd=lwd,xlab=xlab,ylab=ylab,main=main,...)
-  polygon(c(x,rev(x)),c(f.low,rev(f.up)),col="grey",border=F)
+  polygon(c(x,rev(x)),c(f.low,rev(f.up)),col=colfill,border=F)
   lines(x,f,lwd=lwd)
 }

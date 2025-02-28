@@ -74,7 +74,7 @@ DesignFormula = function(formula, data, K=10, pen.order=2, n=NULL){
     colnames(Z) <- "(Intercept)"
   ## Some labels
   fixed.lab = colnames(Z) ## Labels of the fixed effects
-  additive.lab = lambda.lab = Bcal = NULL
+  additive.lab = lambda.lab = Bcal = knots.x = NULL
   ## Additives terms
   Bx = NULL ## B-spline for the additive terms
   if (J > 0){
@@ -111,18 +111,19 @@ DesignFormula = function(formula, data, K=10, pen.order=2, n=NULL){
   ##
   Pd.x = Dd.x = NULL
   if (J > 0){
-    Pd.x = Bx[[1]]$Pd ## Same penalty matrix for all functional components
-    Dd.x = Bx[[1]]$Dd ## Same difference matrix for all functional components
+      Pd.x = Bx[[1]]$Pd ## Same penalty matrix for all functional components
+      diag(Pd.x) = diag(Pd.x)
+      Dd.x = Bx[[1]]$Dd ## Same difference matrix for all functional components
   }
   ##
   ans = list(Z=Z,X=X,Xcal=Xcal,
              nfixed=nfixed,J=J,K=K)
-  if (J > 0){
+  ## if (J > 0){
     ans = c(ans,
             list(
                  Bcal=Bcal,
                  Bx=Bx,Pd.x=Pd.x,Dd.x=Dd.x,knots.x=knots.x,
                  pen.order=pen.order,additive.lab=additive.lab,lambda.lab=lambda.lab))
-  }
+  ## }
   return(ans)
 }

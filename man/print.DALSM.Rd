@@ -4,10 +4,18 @@
 \alias{print.DALSM}
 \title{Print summary information on a \code{DALSM.object}}
 \usage{
-\method{print}{DALSM}(x,...)
+\method{print}{DALSM}(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3,...)
 }
 \arguments{
 \item{x}{an object of class \code{\link{DALSM.object}}.}
+
+\item{digits.est}{number of digits when reporting parameter estimates (default: 3).}
+
+\item{digits.edf}{number of digits when reporting effective degrees of freedom (default: 2).}
+
+\item{digits.tst}{number of digits when reporting test statistics (default: 2).}
+
+\item{digits.Pvalue}{number of digits when reporting P-values (default: 3).}
 
 \item{...}{additional generic printing arguments.}
 }

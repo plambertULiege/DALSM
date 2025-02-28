@@ -77,6 +77,7 @@ plot.DALSM = function(x, ngrid=300, ci.level=.95, pages=0, select=NULL,
   z.alpha = qnorm(1-.5*alpha)
   ## ## Make sure to restore graphical user's options after function call
   ## oldpar <- par(no.readonly = TRUE) ; on.exit(par(oldpar))
+  ##
   ## ## Plot fitted density
   ## if (new.dev) dev.new()
   ## par(mfrow=c(1,1))

@@ -6,7 +6,7 @@
 \usage{
 plotRegion(x,mat,
        add=FALSE, xlim=range(x), ylim=range(mat),
-       lwd=2, xlab="", ylab="", main="", ...)
+       colfill="#D9D9D980", lwd=2, xlab="", ylab="", main="", ...)
 }
 \arguments{
 \item{x}{vector of values where the curve is evaluated.}
@@ -18,6 +18,8 @@ plotRegion(x,mat,
 \item{xlim}{range of <x> values for which the plot should be provided.}
 
 \item{ylim}{range of curve values that should be considered for the plot.}
+
+\item{colfill}{color used for filling the shaded region. (Default: "#D9D9D980").}
 
 \item{lwd}{line width for the plot (Default: 2).}
 
