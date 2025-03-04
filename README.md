@@ -201,23 +201,23 @@ print(fit)
     ## ---------------------------------------------------------------
     ## Fixed effects for Location:
     ##               est    se   low    up     Z   Pval    
-    ## (Intercept) 1.591 0.068 1.458 1.724 23.51 <0.001 ***
-    ## twoincomes  0.256 0.052 0.155 0.357  4.96 <0.001 ***
+    ## (Intercept) 1.592 0.068 1.460 1.725 23.57 <0.001 ***
+    ## twoincomes  0.253 0.051 0.153 0.354  4.94 <0.001 ***
     ## 
     ## 2 additive term(s) in Location: Eff.dim / Test No effect
     ##         EDF  low   up   Chi2   Pval    
-    ## age    3.77 2.58 5.22  15.52  0.003 ** 
-    ## eduyrs 3.71 2.48 5.08 129.07 <0.001 ***
+    ## age    3.73 2.54 5.19  15.14  0.003 ** 
+    ## eduyrs 3.72 2.48 5.09 129.50 <0.001 ***
     ## 
     ## Fixed effects for Dispersion:
     ##                est    se    low     up     Z   Pval    
-    ## (Intercept) -0.466 0.084 -0.631 -0.301 -5.53 <0.001 ***
-    ## twoincomes  -0.034 0.070 -0.171  0.103 -0.49  0.627    
+    ## (Intercept) -0.463 0.084 -0.627 -0.299 -5.54 <0.001 ***
+    ## twoincomes  -0.040 0.069 -0.175  0.095 -0.58  0.563    
     ## 
     ## 2 additive term(s) in Dispersion: Eff.dim / Test No effect
     ##         EDF  low   up  Chi2   Pval    
-    ## age    2.29 1.19 4.36 14.34  0.001 ** 
-    ## eduyrs 4.11 2.79 5.19 54.51 <0.001 ***
+    ## age    2.28 1.18 4.37 14.31  0.001 ** 
+    ## eduyrs 4.07 2.75 5.16 54.34 <0.001 ***
     ## 
     ## 10  B-splines per additive component in location
     ## 10  B-splines per additive component in dispersion
@@ -229,10 +229,10 @@ print(fit)
     ## Right censored data: 65 (8.6 percents)
     ## ---------------------------------------------------------------
     ## Convergence status: TRUE  --  Algorithms: NR-LPS / LM-LPS
-    ## Elapsed time: 1.64 seconds  (12 iterations)
+    ## Elapsed time: 1.64 seconds  (11 iterations)
     ## ---------------------------------------------------------------
 
-It suggests an average increase of 256 euros (available per person in
+It suggests an average increase of 253 euros (available per person in
 the household) when the respondent and his/her partner are in paid work
 (conditionally on *Age* and *Educ*), while the effect on dispersion is
 not statistically significant.  
@@ -281,9 +281,9 @@ pred = predict(fit, data = DALSM_IncomeData, newdata=newdata, probs=c(.2,.5,.8))
 with(pred, cbind(newdata, mu, sd, quant))
 ```
 
-    ##   twoincomes age eduyrs       mu        sd       0.2      0.5     0.8
-    ## 1          1  40     18 2.043767 0.7837852 1.4376400 1.924716 2.55405
-    ## 2          0  50     12 1.478902 0.7392955 0.9071802 1.366608 1.96022
+    ##   twoincomes age eduyrs      mu        sd       0.2      0.5      0.8
+    ## 1          1  40     18 2.04490 0.7834762 1.4380680 1.925958 2.556449
+    ## 2          0  50     12 1.48043 0.7406853 0.9067417 1.367985 1.964041
 
 ### Estimation of a density from censored data
 

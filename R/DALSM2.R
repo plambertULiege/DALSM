@@ -1105,7 +1105,6 @@ DALSM <- function(y, formula1,formula2, w, data,
           hess <- -obj.cur$Hes ## hess = NEGATIVE Hessian !!
           ## Hessian regularisation
           hess_reg <- hess ; diag(hess_reg) <- diag(hess_reg) + lambda
-          ## hess_reg <- hess + lambda * diag(nrow(hess))
           ##
           ## Check positive definite
           is_positive_definite <- FALSE
@@ -1117,7 +1116,6 @@ DALSM <- function(y, formula1,formula2, w, data,
                   ## Increase lambda if not positive-definite
                   lambda <<- lambda * lambda_factor
                   hess_reg <<- hess ; diag(hess_reg) <<- diag(hess_reg) + lambda
-                  ## hess_reg <<- hess + lambda * diag(nrow(hess))
               })
           }
           ## Compute dtheta and update theta
@@ -1126,15 +1124,17 @@ DALSM <- function(y, formula1,formula2, w, data,
           ##
           ## Accept update ?
           obj.prop <- g(theta.prop, Dtheta=TRUE)
-          if (verbose) cat(i,"> ",lambda,obj.cur$g,obj.prop$g,"\n")
-          if (!is.na(obj.prop$g) && (obj.prop$g > obj.cur$g)) {
+          g.cur = obj.cur$g ; g.prop = obj.prop$g
+          g.dif = g.prop - g.cur
+          if (verbose) cat(i,"> ",lambda, g.cur, g.prop, "--> g.dif =",g.dif,"\n")
+          if (!is.na(g.dif) && (g.dif > 0)) {
               nreject = 0
               theta <- theta.prop
               lambda <- lambda / lambda_factor
               obj.cur <- obj.prop
           } else {
               nreject = nreject + 1
-              if (nreject > 5) break
+              if (nreject > 10) break
               lambda <- lambda * lambda_factor
           }
           if (verbose) cat("L2(grad):",L2norm(obj.cur$grad),"\n")
@@ -1144,7 +1144,8 @@ DALSM <- function(y, formula1,formula2, w, data,
           ## Check convergence
           converged = (L2norm(obj.cur$grad) < eps.grad)
           if (converged) break
-      }
+          ## if ((converged) || (abs(g.dif) < eps.fun)) break
+      } ## End iteration loop
       ans = list(val=obj.cur$g, val.start=g.start,
                  theta=obj.cur$theta,
                  grad=obj.cur$grad, RDM=RDM,
@@ -1237,6 +1238,7 @@ DALSM <- function(y, formula1,formula2, w, data,
     ED1.old = obj.cur$ED1 ; ED2.old = obj.cur$ED2
     ##
     ## -- Estimation of (psi1,psi2) given (lambda1,lambda2) --
+    if (verbose) cat("\n-- Update regression and spline parameters --\n\n")
     if (psi.method == "LM"){
         ## -- LM: Levenberg-Marquardt (DEFAULT) --
         g.regr <- function(theta,Dtheta=TRUE){
@@ -1255,12 +1257,12 @@ DALSM <- function(y, formula1,formula2, w, data,
         ##
         regr.LM = myLevMarq(g=g.regr, theta=psi.cur,
                             eps.grad=eps.grad, eps.RDM=eps.RDM,
-                            lambda_init=1e-3, lambda_factor=10,
                             verbose=verbose)
         if (verbose){
             with(regr.LM,
                  cat("\nLevenberg-Marquardt: niter=",iter,
                      " ; RDM=",RDM,
+                     " ; L2(grad)=",L2norm(grad),
                      " ; converged=",converged,
                      "\n",sep=""))
         }
@@ -1435,6 +1437,7 @@ DALSM <- function(y, formula1,formula2, w, data,
     ## browser()
     ##
     if (update.lambda & !final.iteration){
+        if (verbose) cat("\n-- Update penalty parameters --\n")
         ## -- Method 1 (DEFAULT) --
         if (lambda.method == "LPS"){
             temp = select.lambda.LPS(psi=psi.cur, lambda1=lambda1.cur,lambda2=lambda2.cur)
@@ -1499,9 +1502,6 @@ DALSM <- function(y, formula1,formula2, w, data,
     final.iteration = green ## One final iteration required after the 1st green light to complete the estimation process
     ##
     if (verbose){
-      ## cat("\niter:",iter," (",iter.psi,iter.lam1,iter.lam2,") ; convergence:",converged.detail,"\n")
-      cat("\nScore for <psi1> in",range(obj.cur$U.psi1),"\n")
-      cat("Score for <psi2> in",range(obj.cur$U.psi2),"\n")
       if (J1 > 0){
         cat("\nlambda1.cur:",lambda1.cur,"\n")
         ## cat("ED1 before & after: ",ED1.old," ---> ",obj.cur$ED1,"\n")
@@ -1514,8 +1514,12 @@ DALSM <- function(y, formula1,formula2, w, data,
         cat("ED2:\n")
         print(cbind(before=ED2.old,after=obj.cur$ED2))
       }
-        cat("\nConvergence details:\n")
-        print(converged.detail)
+      ## cat("\niter:",iter," (",iter.psi,iter.lam1,iter.lam2,") ; convergence:",converged.detail,"\n")
+      cat("\nScore for <psi1> in",range(obj.cur$U.psi1),"\n")
+      cat("Score for <psi2> in",range(obj.cur$U.psi2),"\n")
+      ##
+      cat("\nConvergence details:\n")
+      print(converged.detail)
     }
     ##
     if (iter > iterlim){
