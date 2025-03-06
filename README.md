@@ -227,7 +227,9 @@ print(fit)
     ## Uncensored data: 0 (0 percents)
     ## Interval Censored data: 691 (91.4 percents)
     ## Right censored data: 65 (8.6 percents)
+    ## 
     ## ---------------------------------------------------------------
+    ## logEvid: -1572.48   Dev: 3005.68   AIC: 3041.28   BIC: 3122.07 
     ## Convergence status: TRUE  --  Algorithms: NR-LPS / LM-LPS
     ## Elapsed time: 1.64 seconds  (11 iterations)
     ## ---------------------------------------------------------------
@@ -370,7 +372,7 @@ print(obj)
     ##   Selected penalty parameter <tau>: 14.1 
     ##   Effective number of parameters: 5.5 
     ## -----------------------------------------------------------------------
-    ## Elapsed time: 0.04 seconds  (6 iterations)
+    ## Elapsed time: 0.06 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
 
 The estimated density and cdf can also be visualized and compared to
