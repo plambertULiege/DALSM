@@ -4,7 +4,7 @@
 #' from potentially right- and interval-censored response data.
 #' @usage DALSM(y, formula1,formula2, w, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
-#'        a.tau=1, b.tau=1e-4, lambda1.min=1, lambda2.min=1,
+#'        a.pen=1, b.pen=1e-4, lambda1.min=1, lambda2.min=1,
 #'        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
 #'        psi.method=c("LM","NR","BFGS","NM"),
 #'        lambda0.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
@@ -14,7 +14,7 @@
 #'        joint.computation=FALSE,
 #'        K.error=20, rmin=NULL,rmax=NULL,
 #'        ci.level=.95,
-#'        eps.grad=1e-2, eps.RDM=1e-4, eps.fun=1e-3,
+#'        grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
 #'        iterlim=50,verbose=FALSE)
 #'
 #' @param y n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals +Inf).
@@ -26,8 +26,8 @@
 #' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10).
 #' @param pen.order1 (optional) penalty order for the additive terms in the location submodel (default: 2).
 #' @param pen.order2 (optional) penalty order for the additive terms in the dispersion submodel (default: 2).
-#' @param a.tau (optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau=1e-4,b.tau) (for additive terms) (default: 1e-4).
-#' @param b.tau (optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau,b.tau=1e-4) (for additive terms) (default: 1e-4).
+#' @param a.pen (optional) prior on penalty parameter \eqn{\tau} is Gamma(a.pen=1,b.pen) (for additive terms) (default: 1).
+#' @param b.pen (optional) prior on penalty parameter \eqn{\tau} is Gamma(a.pen,b.pen=1e-4) (for additive terms) (default: 1e-4).
 #' @param lambda1.min (optional) minimal value for the penalty parameters in the additive model for location (default: 1.0).
 #' @param lambda2.min (optional) minimal value for penalty parameters in the additive model for log-dispersion (default: 1.0).
 #' @param phi.0 (optional) initial values for the spline parameters in the log-hazard of the standardized error distribution.
@@ -49,9 +49,9 @@
 #' @param rmin (optional) minimum value for the support of the standardized error distribution.
 #' @param rmax (optional) maximum value for the support of the standardized error distribution.
 #' @param ci.level (optional) nominal level for the reported credible intervals (default: .95)
-#' @param eps.grad tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).
-#' @param eps.RDM tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).
-#' @param eps.fun tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).
+#' @param grad.tol tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).
+#' @param RDM.tol tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).
+#' @param fun.tol tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).
 #' @param iterlim (optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).
 #' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE).
 #'
@@ -84,7 +84,7 @@
 
 DALSM <- function(y, formula1,formula2, w, data,
                   K1=10, K2=10,pen.order1=2, pen.order2=2,
-                  a.tau=1, b.tau=1e-4,
+                  a.pen=1, b.pen=1e-4,
                   lambda1.min=1, lambda2.min=1,
                   phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
                   psi.method=c("LM","NR","BFGS","NM"), ## "LevMarq","LevMarq1","nloptr","nlm"),
@@ -96,7 +96,7 @@ DALSM <- function(y, formula1,formula2, w, data,
                   joint.computation=FALSE,
                   K.error=20, rmin=NULL,rmax=NULL,
                   ci.level=.95,
-                  eps.grad=1e-2, eps.RDM=1e-4, eps.fun=1e-3,
+                  grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
                   iterlim=50,verbose=FALSE){
   cl <- match.call()
   lambda.method = match.arg(lambda.method)
@@ -287,12 +287,15 @@ DALSM <- function(y, formula1,formula2, w, data,
           names(ED1) = parms1$addnames
           ans$ED1 = ED1
       }
+      ans$ED1.tot = parms1$nfixed + ifelse(J1==0, 0, sum(ED1))
       if (J2 > 0) {
           ED2 = tapply(temp2, grp2, sum)
           ED2 = ED2[-1] # remove fixed part
           names(ED2) = parms2$addnames
           ans$ED2 = ED2
       }
+      ans$ED2.tot = parms2$nfixed + ifelse(J2==0, 0, sum(ED2))
+      ans$ED.tot = with(ans, ED1.tot + ED2.tot)
       return(ans)
   }
   ## End EDF.fun
@@ -348,8 +351,21 @@ DALSM <- function(y, formula1,formula2, w, data,
     lpost.cur = llik.cur = sum(w * ifelse(is.IC,
                                           log(Dif.S),
                                           event*(log(h1.cur)-log(sd.cur)) - H1.cur))
-    if (J1 > 0) lpost.cur = lpost.cur - .5*sum(psi1.cur*c(P1.cur%*%psi1.cur))
-    if (J2 > 0) lpost.cur = lpost.cur - .5*sum(psi2.cur*c(P2.cur%*%psi2.cur))
+    eps.ev = 1e-10
+    if (J1 > 0){
+        ## Prior on <lambda1>
+        lpost.cur = lpost.cur + sum(dgamma(lambda1.cur,a.pen,b.pen,log=TRUE)) ## Prior on <lambda1>
+        ## Prior on (psi1 | lambda1)
+        ev.psi1 = svd(P1.cur,nu=0,nv=0)$d
+        lpost.cur = lpost.cur + .5*sum(log(ev.psi1[ev.psi1>eps.ev])) - .5*sum(psi1.cur*c(P1.cur%*%psi1.cur))
+    }
+    if (J2 > 0){
+        ## Prior on <lambda2>
+        lpost.cur = lpost.cur + sum(dgamma(lambda2.cur,a.pen,b.pen,log=TRUE)) ## Prior on <lambda2>
+        ## Prior on (psi2 | lambda2)
+        ev.psi2 = svd(P2.cur,nu=0,nv=0)$d
+        lpost.cur = lpost.cur + .5*sum(log(ev.psi2[ev.psi2>eps.ev])) - .5*sum(psi2.cur*c(P2.cur%*%psi2.cur))
+    }
     ## Score
     ## -----
     U.psi = U.psi1 = U.psi2 = NULL
@@ -504,9 +520,9 @@ DALSM <- function(y, formula1,formula2, w, data,
     ## ---------------------------------------
     if (hessian){
         EDF = EDF.fun(Hes0.psi, lambda1.cur, lambda2.cur, parms1, parms2, joint.computation=joint.computation)
-        ED1 = EDF$ED1 ; ED2 = EDF$ED2
+        ED1 = EDF$ED1 ; ED2 = EDF$ED2 ; ED.tot = EDF$ED.tot
     } else {
-        ED1 = NULL ; ED2 = NULL
+        ED1 = NULL ; ED2 = NULL ; ED.tot = NULL
     }
     ##
     ## Output
@@ -517,11 +533,11 @@ DALSM <- function(y, formula1,formula2, w, data,
                psi1=psi1,psi2=psi2, lambda1=lambda1,lambda2=lambda2,
                psi=c(psi1,psi2),
                res=res, mu=mu.cur, sd=sd.cur,
-               lpost=lpost.cur, llik=llik.cur,
+               lpost=lpost.cur, llik=llik.cur, dev=-2*llik.cur,
                h1=h1.cur, h2=h2.cur, H1=H1.cur, H2=H2.cur,
                f1=f1.cur, f2=f2.cur, S1=S1.cur, S2=S2.cur,
                P1=P1.cur, P2=P2.cur,
-               ED1=ED1, ED2=ED2,
+               ED1=ED1, ED2=ED2, ED.tot=ED.tot,
                Mcal.1=Mcal.1, Mcal.2=Mcal.2,
                ldet=ldet.cur,
                REML=REML,hessian=hessian)
@@ -550,10 +566,13 @@ DALSM <- function(y, formula1,formula2, w, data,
   ## Tools for the selection of the penalty parameters
   ## -------------------------------------------------
   ##
-  ## Log-determinant of a positive definite matrix based on Choleski
-  ##  Note: faster than methods based on functions svd, qr or determinant
+  ## Log-determinant of a positive definite matrix based on determinant(.)
+  ##  Note: faster than methods based on functions cholevski, svd or qr
   ## ---------------------------------------------------------------------
-  ldet.fun <- function(x) sum(log(abs(diag(qr(x)$qr))))
+  ldet.fun = function(x) c(determinant(x,logarithm=TRUE)$mod)
+  ## ldet.fun = function(x) 2*sum(log(diag(chol(x))))
+  ## ldet.fun = function(x) sum(log(svd(A,nu=0,nv=0)$d))
+  ## ldet.fun  = function(x) sum(log(abs(diag(qr(x)$qr))))
   ##
   ## Fast calculation of log |B'WB + lambda*Pd| using pre-computed eigenvalues:
   ##  log |B'WB + lambda*Pd| = ldet0 + sum(log(lambda1)) + sum_j(log(tau+dj))
@@ -566,7 +585,7 @@ DALSM <- function(y, formula1,formula2, w, data,
       M = BwB[id1,id1] - BwB[id1,id2,drop=FALSE]%*%solve(BwB[id2,id2,drop=FALSE])%*%BwB[id2,id1,drop=FALSE]
       MM = sqrt(1/lambda1) * t(sqrt(1/lambda1)*t(M))
       ## MM2 = diag(1/sqrt(lambda1))%*%M%*%diag(1/sqrt(lambda1))
-      dj = svd(MM)$d
+      dj = svd(MM,nu=0,nv=0)$d
       ldet0 = ldet.fun(BwB[id2,id2,drop=FALSE])
       ## log |B'WB + lambda*Pd| = ldet0 + sum(log(lambda1)) + sum_j(log(tau+dj))
       return(list(ldet0=ldet0,lambda1=lambda1,dj=dj))
@@ -600,7 +619,7 @@ DALSM <- function(y, formula1,formula2, w, data,
                   Rj[[j]] = iMpen%*%(Pj/lam.j[j])
                   idx = nfixed + (j-1)*K + (1:K)
                   theta.j = psi.cur[idx]
-                  quad.cur[j] = sum(theta.j*c(Pd.x%*%theta.j)) + b.tau  ## <-----
+                  quad.cur[j] = sum(theta.j*c(Pd.x%*%theta.j)) + b.pen  ## <-----
                   U.lam[j] = .5*(K-pen.order)/lam.j[j] -.5*quad.cur[j] -.5*sum(diag(Rj[[j]]))
               }
               ## Score.xi  where  lambda = lambda.min + exp(xi)
@@ -641,7 +660,7 @@ DALSM <- function(y, formula1,formula2, w, data,
               xi.cur = xi.prop
               lambda = lambda.min + exp(xi.cur)
               ## Convergence ?
-              ok.xi = (max(abs(U.xi)) < eps.grad) | (iter.lam > itermax)
+              ok.xi = (max(abs(U.xi)) < grad.tol) | (iter.lam > itermax)
           }
           xi.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi)))) ## sqrt(diag(solve(-Hes.xi)))
           xi.low = xi.cur - z.alpha*xi.se ; xi.up = xi.cur + z.alpha*xi.se
@@ -692,15 +711,15 @@ DALSM <- function(y, formula1,formula2, w, data,
               ttr = sum(1 / (lambda+ev))
               if (!logscale){
                   ## Posterior mode of lambda
-                  lambda = ((a.tau-1) + .5*rk) / (b.tau + .5*(quad + ttr))
+                  lambda = ((a.pen-1) + .5*rk) / (b.pen + .5*(quad + ttr))
               } else {
                   ## Exponential of the posterior mode of log(lambda)
-                  lambda = (a.tau + .5*rk) / (b.tau + .5*(quad + ttr))
+                  lambda = (a.pen + .5*rk) / (b.pen + .5*(quad + ttr))
               }
               lam.dif = abs((lambda - lambda.old)/lambda)
               ok.lam = (lam.dif < .001) | (iter.lam >= itermax)
           }
-          curv = (b.tau+.5*quad)/lambda + .5*sum(ev/lambda/(lambda+ev)^2)
+          curv = (b.pen+.5*quad)/lambda + .5*sum(ev/lambda/(lambda+ev)^2)
           se.lambda = 1 / sqrt(curv)
           ## se.lambda = 1 / sqrt(.5 * sum(ev/(lambda*(lambda+ev)^2)))
           se.loglambda = 1 / sqrt(lambda^2 * curv) ## <-- HERE
@@ -793,7 +812,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##                 Rj.1[[j]] = iMpen.1%*%(Pj.1/lam1.j[j])
   ##                 idx = nfixed1 + (j-1)*K1 + (1:K1)
   ##                 theta.j = psi1.cur[idx]
-  ##                 quad1.cur[j] = sum(theta.j*c(Pd1.x%*%theta.j)) + b.tau  ## <-----
+  ##                 quad1.cur[j] = sum(theta.j*c(Pd1.x%*%theta.j)) + b.pen  ## <-----
   ##                 U.lam1[j] = .5*(K1-pen.order.1)/lam1.j[j] -.5*quad1.cur[j] -.5*sum(diag(Rj.1[[j]]))
   ##             }
   ##             ## Score.xi1  where  lambda1 = lambda1.min + exp(xi1)
@@ -836,7 +855,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             ##
   ##             mat = Mcal.1 + P1.cur[-(1:nfixed1),-(1:nfixed1)]
   ##             ## Convergence ?
-  ##             ok.xi1 = (max(abs(U.xi1)) < eps.grad) | (iter.lam1 > itermax)
+  ##             ok.xi1 = (max(abs(U.xi1)) < grad.tol) | (iter.lam1 > itermax)
   ##         }
   ##         xi1.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi1)))) ## sqrt(diag(solve(-Hes.xi1)))
   ##         xi1.low = xi1.cur - z.alpha*xi1.se ; xi1.up = xi1.cur + z.alpha*xi1.se
@@ -866,7 +885,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##                 Rj.2[[j]] = iMpen.2%*%(Pj.2/lam2.j[j])
   ##                 idx = nfixed2 + (j-1)*K2 + (1:K2)
   ##                 theta2.j = psi2.cur[idx]
-  ##                 quad2.cur[j] = sum(theta2.j*c(Pd2.x%*%theta2.j)) + b.tau  ## <-----
+  ##                 quad2.cur[j] = sum(theta2.j*c(Pd2.x%*%theta2.j)) + b.pen  ## <-----
   ##                 U.lam2[j] = .5*(K2-pen.order.2)/lam2.j[j] -.5*quad2.cur[j] -.5*sum(diag(Rj.2[[j]]))
   ##             }
   ##             ## Score.xi2  where  lambda2 = lambda2.min + exp(xi2)
@@ -907,7 +926,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             xi2.cur = xi2.prop
   ##             lambda2 = lambda2.min + exp(xi2.cur)
   ##             ## Convergence ?
-  ##             ok.xi2 = (max(abs(U.xi2)) < eps.grad) | (iter.lam2 > itermax)
+  ##             ok.xi2 = (max(abs(U.xi2)) < grad.tol) | (iter.lam2 > itermax)
   ##         }
   ##         xi2.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi2)))) ## sqrt(diag(solve(-Hes.xi2)))
   ##         xi2.low = xi2.cur - z.alpha*xi2.se ; xi2.up = xi2.cur + z.alpha*xi2.se
@@ -938,9 +957,9 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       - dtheta2: solve(Vn, grad) with Vn = mean of gradient crossproducts
   ##       - RDM2: sum(grad * dtheta2) / ntheta
   ##    * theta: starting value
-  ##    * eps.grad: tolerance value for |gradient_k| for all k
-  ##    * eps.RDM: tolerance value for the RDM (= Relative Damping Measure)
-  ##    * eps.fun: tolerance value for changes in function g to declare convergence
+  ##    * grad.tol: tolerance value for |gradient_k| for all k
+  ##    * RDM.tol: tolerance value for the RDM (= Relative Damping Measure)
+  ##    * fun.tol: tolerance value for changes in function g to declare convergence
   ##    * itermax: maximum number of iterations
   ##
   ## OUTPUT:
@@ -952,7 +971,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       * RDM: Relative Damping Measure at <theta>
   ##       * iter: number of iterations
   ##       * convergence: convergence indicator based on L2(grad), RDM and last changes in g(.)
-  NewtonRaphson <- function(g, theta, eps.grad=1e-4, eps.RDM=1e-4, eps.fun=1e-3,
+  NewtonRaphson <- function(g, theta, grad.tol=1e-4, RDM.tol=1e-4, fun.tol=1e-3,
                             itermax=100, step_factor=10, verbose=FALSE){
       ntheta = length(theta)
       theta.cur = theta
@@ -992,9 +1011,9 @@ DALSM <- function(y, formula1,formula2, w, data,
       ##
       iter = 0
       grad.desc = TRUE ## Also test gradient descent step
-      converged = all(abs(obj.cur$grad) < eps.grad)
+      converged = all(abs(obj.cur$grad) < grad.tol)
       ## cat("\nBefore: range(grad):",range(obj.cur$grad),"\n")
-      ## converged = (RDM < eps.RDM) && all(abs(grad) < eps.grad)
+      ## converged = (RDM < RDM.tol) && all(abs(grad) < grad.tol)
       MaxStepHalving = 15
       gain = 0 ; nrep = 0
       ## Main loop
@@ -1045,9 +1064,9 @@ DALSM <- function(y, formula1,formula2, w, data,
           grad = c(obj.cur$grad)
           RDM = obj.cur$RDM ; RDM2 = obj.cur$RDM2
           ## RDM = with(obj.cur, sum(grad * dtheta)) / ntheta
-          conv.RDM = (0 < RDM & RDM < eps.RDM) || (RDM2 < eps.RDM)
-          conv.grad = (L2norm(grad) < eps.grad) ## all(abs(grad) < eps.grad)
-          conv.gain = (gain > 0 & gain < eps.fun)
+          conv.RDM = (0 < RDM & RDM < RDM.tol) || (RDM2 < RDM.tol)
+          conv.grad = (L2norm(grad) < grad.tol) ## all(abs(grad) < grad.tol)
+          conv.gain = (gain > 0 & gain < fun.tol)
           converged = (conv.RDM && conv.gain) && conv.grad
           if (verbose){
               if (action == "NR") cat(action,"step =",step1," RDM=",RDM,g0,obj.cur$g,gain,"\n")
@@ -1074,8 +1093,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       - Hes: Hessian matrix of the function
   ##       - RDM: grad' (-H)^-1 grad / ntheta
   ##    * theta0: starting value
-  ##    * eps.grad: tolerance value for the L2-norm of the gradient
-  ##    * eps.RDM: tolerance value for the RDM (= Relative Damping Measure)
+  ##    * grad.tol: tolerance value for the L2-norm of the gradient
+  ##    * RDM.tol: tolerance value for the RDM (= Relative Damping Measure)
   ##    * max_iter: maximum number of iterations
   ##    * lambda_init: initial value of the damping parameter in Levenberg-Marquardt
   ##    * lambda_factor: adaptative factor for the damping parameter
@@ -1088,8 +1107,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       * grad: gradient at <theta>
   ##       * RDM: Relative Damping Measure at <theta>
   ##       * iter: number of iterations
-  ##       * convergence: logical indicating if convergence occured: L2(grad) < eps.grad
-  myLevMarq <- function(g, theta0, eps.grad=1e-2, eps.RDM=1e-4,
+  ##       * convergence: logical indicating if convergence occured: L2(grad) < grad.tol
+  myLevMarq <- function(g, theta0, grad.tol=1e-2, RDM.tol=1e-4,
                         max_iter=25, lambda_init=1e-3, lambda_factor=10,
                         verbose=FALSE){
       theta <- theta0
@@ -1142,9 +1161,9 @@ DALSM <- function(y, formula1,formula2, w, data,
           grad = obj.cur$grad
           RDM = sum(grad * dtheta) / ntheta
           ## Check convergence
-          converged = (L2norm(obj.cur$grad) < eps.grad)
+          converged = (L2norm(obj.cur$grad) < grad.tol)
           if (converged) break
-          ## if ((converged) || (abs(g.dif) < eps.fun)) break
+          ## if ((converged) || (abs(g.dif) < fun.tol)) break
       } ## End iteration loop
       ans = list(val=obj.cur$g, val.start=g.start,
                  theta=obj.cur$theta,
@@ -1256,7 +1275,7 @@ DALSM <- function(y, formula1,formula2, w, data,
         } ## End g.regr
         ##
         regr.LM = myLevMarq(g=g.regr, theta=psi.cur,
-                            eps.grad=eps.grad, eps.RDM=eps.RDM,
+                            grad.tol=grad.tol, RDM.tol=RDM.tol,
                             verbose=verbose)
         if (verbose){
             with(regr.LM,
@@ -1301,7 +1320,7 @@ DALSM <- function(y, formula1,formula2, w, data,
         } ## End g.regr
         ##
         regr.NR = NewtonRaphson(g=g.regr,theta=psi.cur,
-                                eps.grad=eps.grad,eps.RDM=eps.RDM,eps.fun=eps.fun,
+                                grad.tol=grad.tol,RDM.tol=RDM.tol,fun.tol=fun.tol,
                                 verbose=verbose)
         if (verbose){
             cat("\nNewton-Raphson: niter=",regr.NR$iter,
@@ -1354,14 +1373,14 @@ DALSM <- function(y, formula1,formula2, w, data,
     ##                            REML=REML, diag.only=diag.only)$U.psi
     ##     hess <- function(psi) -ff(psi, lambda1.cur,lambda2.cur, hessian=TRUE,
     ##                              REML=REML, diag.only=diag.only)$Hes.psi
-    ##     result = marqLevAlg(b=psi.cur, fn=fn, gr=gr, hess=hess, epsb=eps.fun, epsd=eps.RDM)
+    ##     result = marqLevAlg(b=psi.cur, fn=fn, gr=gr, hess=hess, epsb=fun.tol, epsd=RDM.tol)
     ##     iter.psi = result$ni
     ##     psi.cur = result$b  ; psi1.cur = psi.cur[1:q1] ; psi2.cur = psi.cur[-(1:q1)]
     ##     obj.cur = ff(psi.cur,lambda1.cur,lambda2.cur,REML=REML,diag.only=diag.only)
     ##     obj.cur$v = result$v ## Upper diagonal elements of Variance matrix
     ##     obj.cur$U.psi = result$grad
     ##     obj.cur$U.psi1 = obj.cur$U.psi[1:q1] ; obj.cur$U.psi2 = obj.cur$U.psi[-(1:q1)]
-    ##     ok.psi = ok.psi1 = ok.psi2 = (result$rdm <= eps.RDM)
+    ##     ok.psi = ok.psi1 = ok.psi2 = (result$rdm <= RDM.tol)
     ##     ## End LevMarq
     ## }
     ## else if (psi.method == "nloptr"){ ## Requires <nloptr> R-package
@@ -1386,14 +1405,14 @@ DALSM <- function(y, formula1,formula2, w, data,
     ##                            REML=REML, diag.only=diag.only)$lpost
     ##     gr <- function(psi) -ff(psi, lambda1.cur,lambda2.cur, hessian=FALSE,
     ##                            REML=REML, diag.only=diag.only)$U.psi
-    ##     result = marqLevAlg(b=psi.cur, fn=fn, gr=gr, epsb=eps.fun, epsd=eps.RDM)
+    ##     result = marqLevAlg(b=psi.cur, fn=fn, gr=gr, epsb=fun.tol, epsd=RDM.tol)
     ##     iter.psi = result$ni
     ##     psi.cur = result$b  ; psi1.cur = psi.cur[1:q1] ; psi2.cur = psi.cur[-(1:q1)]
     ##     obj.cur = ff(psi.cur,lambda1.cur,lambda2.cur,REML=REML,diag.only=diag.only)
     ##     obj.cur$v = result$v ## Upper diagonal elements of Variance matrix
     ##     obj.cur$U.psi = result$grad
     ##     obj.cur$U.psi1 = obj.cur$U.psi[1:q1] ; obj.cur$U.psi2 = obj.cur$U.psi[-(1:q1)]
-    ##     ok.psi = ok.psi1 = ok.psi2 = (result$rdm <= eps.RDM)
+    ##     ok.psi = ok.psi1 = ok.psi2 = (result$rdm <= RDM.tol)
     ##     ## End LevMarq1
     ## } else if (psi.method == "nlm"){
     ##     ## -- nlm (fn + gradient) --
@@ -1474,7 +1493,7 @@ DALSM <- function(y, formula1,formula2, w, data,
     L2 <- function(x) sqrt(sum(x^2))
     L1 <- function(x) sum(abs(x))
     ##
-    eps = eps.grad ## 1e-3
+    eps = grad.tol ## 1e-3
     ##
     if (!final.iteration){
       converged.loc = (L2(obj.cur$U.psi1) < eps)   ## L2 criterion
@@ -1685,11 +1704,18 @@ DALSM <- function(y, formula1,formula2, w, data,
       }
   }
   ## Percentage of exactly observed, interval-censored and right-censored data
+  ## -------------------------------------------------------------------------
   perc.obs = round(100*n.uncensored/sw,1) ## Percentage exactly observed
   perc.IC = round(100*n.IC/sw,1) ## Percentage Interval Censored
   perc.RC = round(100*n.RC/sw,1) ## Percentage Right Censored
   ##
+  ## Information criteria
+  ## --------------------
+  AIC = obj.cur$dev + 2*obj.cur$ED.tot
+  BIC = obj.cur$dev + log(sw - n.RC) * obj.cur$ED.tot
+  logEvid = with(obj.cur, lpost - .5 * (ldet.fun(-Hes.psi1) + ldet.fun(-Hes.psi2)))
   ## Output
+  ## ------
   ans = list(converged=converged,
              y=y, data=data,
              formula1=formula1, formula2=formula2,
@@ -1760,6 +1786,8 @@ DALSM <- function(y, formula1,formula2, w, data,
           list(
               res=res,mu=obj.cur$mu,sd=obj.cur$sd,
               REML=REML,diag.only=diag.only,
+              dev=obj.cur$dev, llik=obj.cur$llik, logEvid=logEvid,
+              AIC=AIC, BIC=BIC, ED.tot=obj.cur$ED.tot,
               iter=iter,
               call=cl,
               elapsed.time=elapsed.time))

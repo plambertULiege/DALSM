@@ -1,7 +1,7 @@
 Package: DALSM
 Type: Package
 Title: Nonparametric Double Additive Location-Scale Model (DALSM)
-Version: 0.9.3
+Version: 0.9.4
 Authors@R: person("Philippe","Lambert", 
  email="p.lambert@uliege.be", role=c("aut","cre"),
  comment=c(ORCID ="0000-0002-3670-3328"))

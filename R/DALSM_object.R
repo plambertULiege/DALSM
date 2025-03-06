@@ -15,6 +15,12 @@
 #' \item \code{fixed.disp} : matrix with the estimated fixed effects (est,se,ci.low,ci.up) in the dispersion sub-model.
 #' \item \code{mu} : n-vector with the fitted conditional mean.
 #' \item \code{sd} : n-vector with the fitted conditional standard deviation.
+#' \item \code{dev}: deviance for the fitted model.
+#' \item \code{llik}: log-likelihood for the fitted model.
+#' \item \code{logEvid} : log-evidence (or marginal likelihood) for the fitted model (conditionally on the selected penalty parameters).
+#' \item \code{AIC}: Akaike Information Criterion for the fitted model.
+#' \item \code{BIC}: Bayesian Information Criterion for the fitted model.
+#' \item \code{ED.tot}: total effective degrees of freedom for the regression parts of the fitted model.
 #' }
 #' Additional elements:
 #' \itemize{

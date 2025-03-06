@@ -6,7 +6,7 @@
 \usage{
 DALSM(y, formula1,formula2, w, data,
        K1=10, K2=10, pen.order1=2, pen.order2=2,
-       a.tau=1, b.tau=1e-4, lambda1.min=1, lambda2.min=1,
+       a.pen=1, b.pen=1e-4, lambda1.min=1, lambda2.min=1,
        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
        psi.method=c("LM","NR","BFGS","NM"),
        lambda0.0=NULL,lambda1.0=NULL,lambda2.0=NULL,
@@ -16,7 +16,7 @@ DALSM(y, formula1,formula2, w, data,
        joint.computation=FALSE,
        K.error=20, rmin=NULL,rmax=NULL,
        ci.level=.95,
-       eps.grad=1e-2, eps.RDM=1e-4, eps.fun=1e-3,
+       grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
        iterlim=50,verbose=FALSE)
 }
 \arguments{
@@ -38,9 +38,9 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{pen.order2}{(optional) penalty order for the additive terms in the dispersion submodel (default: 2).}
 
-\item{a.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau=1e-4,b.tau) (for additive terms) (default: 1e-4).}
+\item{a.pen}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.pen=1,b.pen) (for additive terms) (default: 1).}
 
-\item{b.tau}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.tau,b.tau=1e-4) (for additive terms) (default: 1e-4).}
+\item{b.pen}{(optional) prior on penalty parameter \eqn{\tau} is Gamma(a.pen,b.pen=1e-4) (for additive terms) (default: 1e-4).}
 
 \item{lambda1.min}{(optional) minimal value for the penalty parameters in the additive model for location (default: 1.0).}
 
@@ -84,11 +84,11 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95)}
 
-\item{eps.grad}{tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).}
+\item{grad.tol}{tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).}
 
-\item{eps.RDM}{tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).}
+\item{RDM.tol}{tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).}
 
-\item{eps.fun}{tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).}
+\item{fun.tol}{tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).}
 
 \item{iterlim}{(optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).}
 

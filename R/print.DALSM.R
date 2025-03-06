@@ -45,7 +45,7 @@
 #'
 print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3,...){
     eps.Pvalue = 10^(-digits.Pvalue)
-    obj.fit = x
+    obj = x
     ##
     printMat = function(mat,cs.est=NULL,cs.tst=NULL,cs.edf=NULL,cs.Pval=NULL){
         clnms = colnames(mat)
@@ -84,38 +84,43 @@ print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3
     cat("---------------------------------------------------------------\n")
     cat("                Double Additive Location-Scale Model \n")
     cat("---------------------------------------------------------------\n")
-    if (obj.fit$REML){
+    if (obj$REML){
         cat("*** REML-type estimation ***\n")
     }
     cat("Fixed effects for Location:\n")
-    printMat(obj.fit$fixed.loc,cs.est=1:4,cs.tst=5,cs.Pval=6)
-    ## print(round(obj.fit$fixed.loc,3))
-    J1 = obj.fit$regr1$J
+    printMat(obj$fixed.loc,cs.est=1:4,cs.tst=5,cs.Pval=6)
+    ## print(round(obj$fixed.loc,3))
+    J1 = obj$regr1$J
     if (J1 > 0){
-        cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
-        ##    cat("\n",length(obj.fit$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
-        printMat(obj.fit$ED1[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+        cat("\n",length(obj$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
+        ##    cat("\n",length(obj$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
+        printMat(obj$ED1[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
     }
     cat("\nFixed effects for Dispersion:\n")
-    printMat(obj.fit$fixed.disp,cs.est=1:4,cs.tst=5,cs.Pval=6)
-    J2 = obj.fit$regr2$J
+    printMat(obj$fixed.disp,cs.est=1:4,cs.tst=5,cs.Pval=6)
+    J2 = obj$regr2$J
     if (J2 > 0){
-        cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
-        ##    cat("\n",length(obj.fit$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
-        printMat(obj.fit$ED2[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+        cat("\n",length(obj$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
+        ##    cat("\n",length(obj$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
+        printMat(obj$ED2[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
     }
     ##
     cat("\n")
-    if (J1 > 0) cat(obj.fit$K1,"  B-splines per additive component in location\n",sep="")
-    if (J2 > 0) cat(obj.fit$K2,"  B-splines per additive component in dispersion\n",sep="")
-    if (obj.fit$Normality) cat("Normality assumed for the error density\n")
-    else cat(obj.fit$K.error,"  B-splines for the error density on (",round(obj.fit$rmin,2),",",round(obj.fit$rmax,2),")\n",sep="")
-    cat("\nTotal weighted sample size:", obj.fit$sw,"; Credible level for CI:",1-obj.fit$alpha,"\n")
-    cat("Uncensored data: ", obj.fit$n.uncensored, " (", round(100*obj.fit$n.uncensored/obj.fit$sw,2)," percents)\n",sep="")
-    cat("Interval Censored data: ",obj.fit$n.IC, " (",round(100*sum(obj.fit$n.IC)/obj.fit$sw,2), " percents)\n",sep="")
-    cat("Right censored data: ",obj.fit$n.RC, " (",round(100*obj.fit$n.RC/obj.fit$sw,2)," percents)\n",sep="")
-    cat("---------------------------------------------------------------\n")
-    cat("Convergence status: ",obj.fit$converged,"  --  Algorithms: NR-",obj.fit$density.method," / ",obj.fit$psi.method,"-",obj.fit$lambda.method,"\n",sep="")
-    cat("Elapsed time: ",round(obj.fit$elapsed.time,2)," seconds  (",obj.fit$iter," iterations)\n",sep="")
+    if (J1 > 0) cat(obj$K1,"  B-splines per additive component in location\n",sep="")
+    if (J2 > 0) cat(obj$K2,"  B-splines per additive component in dispersion\n",sep="")
+    if (obj$Normality) cat("Normality assumed for the error density\n")
+    else cat(obj$K.error,"  B-splines for the error density on (",round(obj$rmin,2),",",round(obj$rmax,2),")\n",sep="")
+    cat("\nTotal weighted sample size:", obj$sw,"; Credible level for CI:",1-obj$alpha,"\n")
+    cat("Uncensored data: ", obj$n.uncensored, " (", round(100*obj$n.uncensored/obj$sw,2)," percents)\n",sep="")
+    cat("Interval Censored data: ",obj$n.IC, " (",round(100*sum(obj$n.IC)/obj$sw,2), " percents)\n",sep="")
+    cat("Right censored data: ",obj$n.RC, " (",round(100*obj$n.RC/obj$sw,2)," percents)\n",sep="")
+    cat("\n---------------------------------------------------------------\n")
+    cat("logEvid:",round(obj$logEvid,2),
+        "  Dev:",round(obj$dev,2),
+        "  AIC:",round(obj$AIC,2),
+        "  BIC:",round(obj$BIC,2),
+        "\n")
+    cat("Convergence status: ",obj$converged,"  --  Algorithms: NR-",obj$density.method," / ",obj$psi.method,"-",obj$lambda.method,"\n",sep="")
+    cat("Elapsed time: ",round(obj$elapsed.time,2)," seconds  (",obj$iter," iterations)\n",sep="")
     cat("---------------------------------------------------------------\n")
 }
