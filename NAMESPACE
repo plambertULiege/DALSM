@@ -17,7 +17,6 @@ export(centeredBasis.gen)
 export(densityLPS)
 export(logDet.fun)
 export(plotRegion)
-export(s)
 export(weighted.hist)
 
 exportPattern("^[[:alpha:]]+")

@@ -141,6 +141,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##
   ## Regression models for location(formula1) & dispersion (formula2)
   ## ----------------------------------------------------------------
+  environment(formula1) <- asNamespace("DALSM") ## To ensure DALSM::s function used
+  environment(formula2) <- asNamespace("DALSM") ## To ensure DALSM::s function used
   regr1 = DesignFormula(formula1, data=data, K=K1, pen.order=pen.order1, n=n)
   regr2 = DesignFormula(formula2, data=data, K=K2, pen.order=pen.order2, n=n)
   ##

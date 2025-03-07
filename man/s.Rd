@@ -2,17 +2,19 @@
 % Please edit documentation in R/s.R
 \name{s}
 \alias{s}
-\title{Specification of smooth terms in formulas in the DALSM function.}
+\title{Internal function to specify smooth terms in DALSM formulas}
 \usage{
 s(x)
 }
 \arguments{
-\item{x}{Name of the variable for which an additive term is requested}
+\item{x}{A variable for which an additive term is requested.}
 }
 \value{
-The submitted variable for which an additive term is required
+Returns `x` unchanged.
 }
 \description{
-Specification of smooth terms in formulas in the DALSM function.
+This function serves as a placeholder for marking additive terms in formulas
+passed to `DALSM()`. It does not perform any computation but allows users
+to specify smooth terms explicitly.
 }
 \keyword{internal}

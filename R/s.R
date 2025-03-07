@@ -1,6 +1,10 @@
-#' Specification of smooth terms in formulas in the DALSM function.
+#' Internal function to specify smooth terms in DALSM formulas
+#'
+#' This function serves as a placeholder for marking additive terms in formulas
+#' passed to `DALSM()`. It does not perform any computation but allows users
+#' to specify smooth terms explicitly.
+#'
+#' @param x A variable for which an additive term is requested.
+#' @return Returns `x` unchanged.
 #' @keywords internal
-#' @export
-#' @param x Name of the variable for which an additive term is requested
-#' @return The submitted variable for which an additive term is required
-s = function(x) x
+s <- function(x) x
