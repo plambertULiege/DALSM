@@ -215,6 +215,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   ## ####################
   ## ESTIMATION PROCEDURE
   ## ####################
+  L2norm <- function(x) sqrt(sum(x^2)) ## Euclidian norm
+  ##
   res.fun <- function(resp,mu,sd){
     res = (resp-mu)/sd
     if ((!fixed.support) & (!is.null(obj1d))){
