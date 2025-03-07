@@ -49,7 +49,7 @@
 #' @param rmin (optional) minimum value for the support of the standardized error distribution.
 #' @param rmax (optional) maximum value for the support of the standardized error distribution.
 #' @param ci.level (optional) nominal level for the reported credible intervals (default: .95)
-#' @param grad.tol tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).
+#' @param grad.tol tolerance threshold for the L2-norm of the gradient when monitoring convergence. (default: 1e-2).
 #' @param RDM.tol tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).
 #' @param fun.tol tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).
 #' @param iterlim (optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).
@@ -597,6 +597,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   select.lambda.LPS <- function(psi, lambda1, lambda2, itermax = 50) {
       psi1.cur = psi[1:q1] ; psi2.cur = psi[-(1:q1)]
       lambda1.mat <- lambda2.mat <- NULL
+      ## Euclidean norm function
+      L2norm <- function(x) sqrt(sum(x^2))
       ##
       ## Function to update penalty matrix and calculate score and Hessian
       update.penalty <- function(psi.cur, lambda, nfixed, Pd.x, J, K, pen.order, Mcal, lambda.min, add.lab, verbose) {
@@ -660,7 +662,7 @@ DALSM <- function(y, formula1,formula2, w, data,
               xi.cur = xi.prop
               lambda = lambda.min + exp(xi.cur)
               ## Convergence ?
-              ok.xi = (max(abs(U.xi)) < grad.tol) | (iter.lam > itermax)
+              ok.xi = (L2norm(U.xi) < grad.tol) | (iter.lam > itermax)
           }
           xi.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi)))) ## sqrt(diag(solve(-Hes.xi)))
           xi.low = xi.cur - z.alpha*xi.se ; xi.up = xi.cur + z.alpha*xi.se
@@ -791,6 +793,8 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##     psi1.cur = psi[1:q1] ;  psi2.cur = psi[-(1:q1)]
   ##     iter.lam1 = iter.lam2 = 0
   ##     lambda1.mat = lambda2.mat = NULL
+  ##     ## Euclidean norm function
+  ##     L2norm <- function(x) sqrt(sum(x^2))
   ##     ## -3a- LOCATION
   ##     ## -------------
   ##     if (J1 > 0){
@@ -855,7 +859,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             ##
   ##             mat = Mcal.1 + P1.cur[-(1:nfixed1),-(1:nfixed1)]
   ##             ## Convergence ?
-  ##             ok.xi1 = (max(abs(U.xi1)) < grad.tol) | (iter.lam1 > itermax)
+  ##             ok.xi1 = (L2norm(U.xi1) < grad.tol) | (iter.lam1 > itermax)
   ##         }
   ##         xi1.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi1)))) ## sqrt(diag(solve(-Hes.xi1)))
   ##         xi1.low = xi1.cur - z.alpha*xi1.se ; xi1.up = xi1.cur + z.alpha*xi1.se
@@ -926,7 +930,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             xi2.cur = xi2.prop
   ##             lambda2 = lambda2.min + exp(xi2.cur)
   ##             ## Convergence ?
-  ##             ok.xi2 = (max(abs(U.xi2)) < grad.tol) | (iter.lam2 > itermax)
+  ##             ok.xi2 = (L2norm(U.xi2) < grad.tol) | (iter.lam2 > itermax)
   ##         }
   ##         xi2.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi2)))) ## sqrt(diag(solve(-Hes.xi2)))
   ##         xi2.low = xi2.cur - z.alpha*xi2.se ; xi2.up = xi2.cur + z.alpha*xi2.se
@@ -957,7 +961,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       - dtheta2: solve(Vn, grad) with Vn = mean of gradient crossproducts
   ##       - RDM2: sum(grad * dtheta2) / ntheta
   ##    * theta: starting value
-  ##    * grad.tol: tolerance value for |gradient_k| for all k
+  ##    * grad.tol: tolerance value for L2norm(grad)
   ##    * RDM.tol: tolerance value for the RDM (= Relative Damping Measure)
   ##    * fun.tol: tolerance value for changes in function g to declare convergence
   ##    * itermax: maximum number of iterations
@@ -971,7 +975,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       * RDM: Relative Damping Measure at <theta>
   ##       * iter: number of iterations
   ##       * convergence: convergence indicator based on L2(grad), RDM and last changes in g(.)
-  NewtonRaphson <- function(g, theta, grad.tol=1e-4, RDM.tol=1e-4, fun.tol=1e-3,
+  NewtonRaphson <- function(g, theta, grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
                             itermax=100, step_factor=10, verbose=FALSE){
       ntheta = length(theta)
       theta.cur = theta
@@ -1011,7 +1015,7 @@ DALSM <- function(y, formula1,formula2, w, data,
       ##
       iter = 0
       grad.desc = TRUE ## Also test gradient descent step
-      converged = all(abs(obj.cur$grad) < grad.tol)
+      converged = (L2norm(obj.cur$grad) < grad.tol)
       ## cat("\nBefore: range(grad):",range(obj.cur$grad),"\n")
       ## converged = (RDM < RDM.tol) && all(abs(grad) < grad.tol)
       MaxStepHalving = 15
@@ -1493,7 +1497,7 @@ DALSM <- function(y, formula1,formula2, w, data,
     L2 <- function(x) sqrt(sum(x^2))
     L1 <- function(x) sum(abs(x))
     ##
-    eps = grad.tol ## 1e-3
+    eps = grad.tol
     ##
     if (!final.iteration){
       converged.loc = (L2(obj.cur$U.psi1) < eps)   ## L2 criterion

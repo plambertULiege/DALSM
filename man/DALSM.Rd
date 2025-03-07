@@ -84,7 +84,7 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95)}
 
-\item{grad.tol}{tolerance threshold for the absolute value of each gradient component when monitoring convergence. (default: 1e-2).}
+\item{grad.tol}{tolerance threshold for the L2-norm of the gradient when monitoring convergence. (default: 1e-2).}
 
 \item{RDM.tol}{tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).}
 

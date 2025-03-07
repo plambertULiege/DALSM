@@ -231,7 +231,7 @@ print(fit)
     ## ---------------------------------------------------------------
     ## logEvid: -1572.48   Dev: 3005.68   AIC: 3041.28   BIC: 3122.07 
     ## Convergence status: TRUE  --  Algorithms: NR-LPS / LM-LPS
-    ## Elapsed time: 1.64 seconds  (11 iterations)
+    ## Elapsed time: 1.63 seconds  (11 iterations)
     ## ---------------------------------------------------------------
 
 It suggests an average increase of 253 euros (available per person in
@@ -476,7 +476,7 @@ print(obj)
     ##   Selected penalty parameter <tau>: 6.6 
     ##   Effective number of parameters: 6.8 
     ## -----------------------------------------------------------------------
-    ## Elapsed time: 0.01 seconds  (6 iterations)
+    ## Elapsed time: 0.02 seconds  (6 iterations)
     ## -----------------------------------------------------------------------
 
 ``` r
