@@ -2,7 +2,7 @@
 #' @description Fit a location-scale regression model with a flexible error distribution and
 #' additive terms in location (=mean) and dispersion (= log(sd)) using Laplace P-splines
 #' from potentially right- and interval-censored response data.
-#' @usage DALSM(y, formula1,formula2, w, data,
+#' @usage DALSM(y, formula1,formula2, weights=NULL, data,
 #'        K1=10, K2=10, pen.order1=2, pen.order2=2,
 #'        a.pen=1, b.pen=1e-4, lambda1.min=1, lambda2.min=1,
 #'        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
@@ -15,12 +15,13 @@
 #'        K.error=20, rmin=NULL,rmax=NULL,
 #'        ci.level=.95,
 #'        grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
+#'        Lnorm=c("Linf","L2"),
 #'        iterlim=50,verbose=FALSE)
 #'
 #' @param y n-vector of responses or (nx2)-matrix/data.frame when interval-censoring (with the 2 elements giving the interval bounds) or right-censoring (when the element in the 2nd column equals +Inf).
 #' @param formula1 model formula for location (i.e. for the conditional mean).
 #' @param formula2 model formula for dispersion (i.e. for the log of the conditional standard deviation).
-#' @param w vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).
+#' @param weights vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).
 #' @param data data frame containing the model covariates.
 #' @param K1 (optional) number of B-splines to describe a given additive term in the location submodel (default: 10).
 #' @param K2 (optional) number of B-splines to describe a given additive term in the dispersion submodel (default: 10).
@@ -49,9 +50,10 @@
 #' @param rmin (optional) minimum value for the support of the standardized error distribution.
 #' @param rmax (optional) maximum value for the support of the standardized error distribution.
 #' @param ci.level (optional) nominal level for the reported credible intervals (default: .95)
-#' @param grad.tol tolerance threshold for the L2-norm of the gradient when monitoring convergence. (default: 1e-2).
+#' @param grad.tol tolerance threshold for the L-norm of the gradient when monitoring convergence. (default: 1e-2).
 #' @param RDM.tol tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).
 #' @param fun.tol tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).
+#' @param Lnorm Lp norm used to evaluate the gradient for convergence assessment. Options are "Linf" (default) or "L2".
 #' @param iterlim (optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).
 #' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE).
 #'
@@ -82,7 +84,7 @@
 #'
 #' @export
 
-DALSM <- function(y, formula1,formula2, w, data,
+DALSM <- function(y, formula1,formula2, weights=NULL, data,
                   K1=10, K2=10,pen.order1=2, pen.order2=2,
                   a.pen=1, b.pen=1e-4,
                   lambda1.min=1, lambda2.min=1,
@@ -96,10 +98,18 @@ DALSM <- function(y, formula1,formula2, w, data,
                   joint.computation=FALSE,
                   K.error=20, rmin=NULL,rmax=NULL,
                   ci.level=.95,
-                  grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
+                  grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3, Lnorm=c("Linf","L2"),
                   iterlim=50,verbose=FALSE){
   cl <- match.call()
   lambda.method = match.arg(lambda.method)
+  w = weights
+  ##
+  Lnorm = match.arg(Lnorm)
+  if (Lnorm == "Linf"){
+      Lp <- function(x) max(abs(x))
+  } else if (Lnorm == "L2"){
+      Lp <- function(x) sqrt(sum(x^2))
+  }
   ##
   density.method = match.arg(density.method)
   psi.method = match.arg(psi.method)
@@ -120,9 +130,9 @@ DALSM <- function(y, formula1,formula2, w, data,
   }
   n = nrow(y)
   if (n != nrow(data)){message("<y> and <data> should share the same number of units !") ; return(NULL)}
-  if (missing(w)) w = rep(1,n) ## Default 1.0 weight for all units
-  if (!all(w>=0)) stop("Weights in vector <w> should all be non negative !")
-  if (length(w) != n) stop("Weight vector <w> should be of length <n> !")
+  if (is.null(w)) w = rep(1,n) ## Default 1.0 weight for all units
+  if (!all(w>=0)) stop("Weights in vector <weights> should all be non negative !")
+  if (length(w) != n) stop("Weight vector <weights> should be of length <n> !")
   event = ifelse(is.finite(yup),1,0) ## Event = 1 if non-RC, 0 otherwise
   resp = y ; resp[,2] = ifelse(is.finite(yup),yup,ylow) ## Working (nx2) response matrix with identical columns if non-IC (in particular when RC)
   ymid = rowMeans(resp) ## apply(resp,1,mean) ## Midpoint of IC response, reported exactly observed or right-censored response otherwise
@@ -217,8 +227,6 @@ DALSM <- function(y, formula1,formula2, w, data,
   ## ####################
   ## ESTIMATION PROCEDURE
   ## ####################
-  L2norm <- function(x) sqrt(sum(x^2)) ## Euclidian norm
-  ##
   res.fun <- function(resp,mu,sd){
     res = (resp-mu)/sd
     if ((!fixed.support) & (!is.null(obj1d))){
@@ -601,9 +609,6 @@ DALSM <- function(y, formula1,formula2, w, data,
   select.lambda.LPS <- function(psi, lambda1, lambda2, itermax = 50) {
       psi1.cur = psi[1:q1] ; psi2.cur = psi[-(1:q1)]
       lambda1.mat <- lambda2.mat <- NULL
-      ## Euclidean norm function
-      L2norm <- function(x) sqrt(sum(x^2))
-      ##
       ## Function to update penalty matrix and calculate score and Hessian
       update.penalty <- function(psi.cur, lambda, nfixed, Pd.x, J, K, pen.order, Mcal, lambda.min, add.lab, verbose) {
           iter.lam = 0
@@ -666,7 +671,7 @@ DALSM <- function(y, formula1,formula2, w, data,
               xi.cur = xi.prop
               lambda = lambda.min + exp(xi.cur)
               ## Convergence ?
-              ok.xi = (L2norm(U.xi) < grad.tol) | (iter.lam > itermax)
+              ok.xi = (Lp(U.xi) < grad.tol) | (iter.lam > itermax)
           }
           xi.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi)))) ## sqrt(diag(solve(-Hes.xi)))
           xi.low = xi.cur - z.alpha*xi.se ; xi.up = xi.cur + z.alpha*xi.se
@@ -797,8 +802,6 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##     psi1.cur = psi[1:q1] ;  psi2.cur = psi[-(1:q1)]
   ##     iter.lam1 = iter.lam2 = 0
   ##     lambda1.mat = lambda2.mat = NULL
-  ##     ## Euclidean norm function
-  ##     L2norm <- function(x) sqrt(sum(x^2))
   ##     ## -3a- LOCATION
   ##     ## -------------
   ##     if (J1 > 0){
@@ -863,7 +866,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             ##
   ##             mat = Mcal.1 + P1.cur[-(1:nfixed1),-(1:nfixed1)]
   ##             ## Convergence ?
-  ##             ok.xi1 = (L2norm(U.xi1) < grad.tol) | (iter.lam1 > itermax)
+  ##             ok.xi1 = (Lp(U.xi1) < grad.tol) | (iter.lam1 > itermax)
   ##         }
   ##         xi1.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi1)))) ## sqrt(diag(solve(-Hes.xi1)))
   ##         xi1.low = xi1.cur - z.alpha*xi1.se ; xi1.up = xi1.cur + z.alpha*xi1.se
@@ -934,7 +937,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##             xi2.cur = xi2.prop
   ##             lambda2 = lambda2.min + exp(xi2.cur)
   ##             ## Convergence ?
-  ##             ok.xi2 = (L2norm(U.xi2) < grad.tol) | (iter.lam2 > itermax)
+  ##             ok.xi2 = (Lp(U.xi2) < grad.tol) | (iter.lam2 > itermax)
   ##         }
   ##         xi2.se = sqrt(pmax(1e-6,diag(MASS::ginv(-Hes.xi2)))) ## sqrt(diag(solve(-Hes.xi2)))
   ##         xi2.low = xi2.cur - z.alpha*xi2.se ; xi2.up = xi2.cur + z.alpha*xi2.se
@@ -965,7 +968,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ##       - dtheta2: solve(Vn, grad) with Vn = mean of gradient crossproducts
   ##       - RDM2: sum(grad * dtheta2) / ntheta
   ##    * theta: starting value
-  ##    * grad.tol: tolerance value for L2norm(grad)
+  ##    * grad.tol: tolerance value for Lp(grad)
   ##    * RDM.tol: tolerance value for the RDM (= Relative Damping Measure)
   ##    * fun.tol: tolerance value for changes in function g to declare convergence
   ##    * itermax: maximum number of iterations
@@ -985,15 +988,13 @@ DALSM <- function(y, formula1,formula2, w, data,
       theta.cur = theta
       obj.cur = g(theta.cur,Dtheta=TRUE)
       g.start = obj.cur$g ## Function at the iteration start
-      ## Euclidean norm function
-      L2norm <- function(x) sqrt(sum(x^2))
       ## Newton-Raphson (NR) or Gradient descent (GD) step
       NRGDstep <- function(obj.cur, step, method=c("NR","NR2","GD")){
           method = match.arg(method)
           if (method == "NR") theta.prop = with(obj.cur, theta + step * dtheta)
           if (method == "NR2") theta.prop = with(obj.cur, theta + step * dtheta2)
           if (method == "GD"){
-              grad.norm = with(obj.cur, grad / sqrt(L2norm(grad)))
+              grad.norm = with(obj.cur, grad / Lp(grad))
               theta.prop = with(obj.cur, theta + step * grad.norm)
           }
           obj.prop = tryCatch(expr=g(theta.prop,Dtheta=TRUE), error=function(e) e)
@@ -1019,7 +1020,7 @@ DALSM <- function(y, formula1,formula2, w, data,
       ##
       iter = 0
       grad.desc = TRUE ## Also test gradient descent step
-      converged = (L2norm(obj.cur$grad) < grad.tol)
+      converged = (Lp(obj.cur$grad) < grad.tol)
       ## cat("\nBefore: range(grad):",range(obj.cur$grad),"\n")
       ## converged = (RDM < RDM.tol) && all(abs(grad) < grad.tol)
       MaxStepHalving = 15
@@ -1073,7 +1074,7 @@ DALSM <- function(y, formula1,formula2, w, data,
           RDM = obj.cur$RDM ; RDM2 = obj.cur$RDM2
           ## RDM = with(obj.cur, sum(grad * dtheta)) / ntheta
           conv.RDM = (0 < RDM & RDM < RDM.tol) || (RDM2 < RDM.tol)
-          conv.grad = (L2norm(grad) < grad.tol) ## all(abs(grad) < grad.tol)
+          conv.grad = (Lp(grad) < grad.tol) ## all(abs(grad) < grad.tol)
           conv.gain = (gain > 0 & gain < fun.tol)
           converged = (conv.RDM && conv.gain) && conv.grad
           if (verbose){
@@ -1122,7 +1123,6 @@ DALSM <- function(y, formula1,formula2, w, data,
       theta <- theta0
       ntheta <- length(theta)
       lambda <- lambda_init
-      L2norm <- function(x) sqrt(sum(x^2)) ## Euclidean norm function
       obj.cur <- g(theta0, Dtheta=TRUE)
       g.start = obj.cur$g
       ##
@@ -1164,12 +1164,12 @@ DALSM <- function(y, formula1,formula2, w, data,
               if (nreject > 10) break
               lambda <- lambda * lambda_factor
           }
-          if (verbose) cat("L2(grad):",L2norm(obj.cur$grad),"\n")
+          if (verbose) cat("Lp(grad):",Lp(obj.cur$grad),"\n")
           ## Compute RDM
           grad = obj.cur$grad
           RDM = sum(grad * dtheta) / ntheta
           ## Check convergence
-          converged = (L2norm(obj.cur$grad) < grad.tol)
+          converged = (Lp(obj.cur$grad) < grad.tol)
           if (converged) break
           ## if ((converged) || (abs(g.dif) < fun.tol)) break
       } ## End iteration loop
@@ -1289,7 +1289,7 @@ DALSM <- function(y, formula1,formula2, w, data,
             with(regr.LM,
                  cat("\nLevenberg-Marquardt: niter=",iter,
                      " ; RDM=",RDM,
-                     " ; L2(grad)=",L2norm(grad),
+                     " ; Lp(grad)=",Lp(grad),
                      " ; converged=",converged,
                      "\n",sep=""))
         }
@@ -1504,10 +1504,8 @@ DALSM <- function(y, formula1,formula2, w, data,
     eps = grad.tol
     ##
     if (!final.iteration){
-      converged.loc = (L2(obj.cur$U.psi1) < eps)   ## L2 criterion
-      converged.disp = (L2(obj.cur$U.psi2) < eps)  ## L2 criterion
-      ## converged.loc = (max(abs(obj.cur$U.psi1)) < eps)   ## Linf criterion
-      ## converged.disp = (max(abs(obj.cur$U.psi2)) < eps)  ## Linf criterion
+      converged.loc = (Lp(obj.cur$U.psi1) < eps)   ## Lp-norm criterion
+      converged.disp = (Lp(obj.cur$U.psi2) < eps)  ## Lp-norm criterion
       ##
       ## Check if the EDs of the additive terms stabilize
       if (J1 > 0) converged.ED1 = ifelse(iter<=itermin,
@@ -1523,7 +1521,7 @@ DALSM <- function(y, formula1,formula2, w, data,
     ok.psi = (ok.psi1 & ok.psi2)
     ## When the EDs of the additive terms stabilize,
     ##  perform a final iteration to get the final estimates for the regression parms <psi1> & <psi2>
-    green = all(c(ok.psi,converged.ED1,converged.ED2)) ## Necessary condition to complete the estimation process
+    green = all(c(ok.psi,converged.ED1,converged.ED2,iter > itermin)) ## Necessary condition to complete the estimation process
     ## Necessary & sufficient condition to complete the estimation process: green light followed by one last iteration
     if (final.iteration & green) converged = TRUE
     final.iteration = green ## One final iteration required after the 1st green light to complete the estimation process
@@ -1725,7 +1723,7 @@ DALSM <- function(y, formula1,formula2, w, data,
   ## Output
   ## ------
   ans = list(converged=converged,
-             y=y, data=data,
+             y=y, weights=w, data=data,
              formula1=formula1, formula2=formula2,
              n=n,sw=sw,resp=resp,is.IC=is.IC,
              n.uncensored=n.uncensored, n.IC=n.IC, n.RC=n.RC,

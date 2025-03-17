@@ -4,7 +4,7 @@
 \alias{DALSM}
 \title{Fit a double additive location-scale model (DALSM) with a flexible error distribution}
 \usage{
-DALSM(y, formula1,formula2, w, data,
+DALSM(y, formula1,formula2, weights=NULL, data,
        K1=10, K2=10, pen.order1=2, pen.order2=2,
        a.pen=1, b.pen=1e-4, lambda1.min=1, lambda2.min=1,
        phi.0=NULL,psi1.0=NULL,psi2.0=NULL,
@@ -17,6 +17,7 @@ DALSM(y, formula1,formula2, w, data,
        K.error=20, rmin=NULL,rmax=NULL,
        ci.level=.95,
        grad.tol=1e-2, RDM.tol=1e-4, fun.tol=1e-3,
+       Lnorm=c("Linf","L2"),
        iterlim=50,verbose=FALSE)
 }
 \arguments{
@@ -26,7 +27,7 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{formula2}{model formula for dispersion (i.e. for the log of the conditional standard deviation).}
 
-\item{w}{vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).}
+\item{weights}{vector of length \code{n} containing (non-negative) weights (default: rep(1,n)).}
 
 \item{data}{data frame containing the model covariates.}
 
@@ -84,11 +85,13 @@ DALSM(y, formula1,formula2, w, data,
 
 \item{ci.level}{(optional) nominal level for the reported credible intervals (default: .95)}
 
-\item{grad.tol}{tolerance threshold for the L2-norm of the gradient when monitoring convergence. (default: 1e-2).}
+\item{grad.tol}{tolerance threshold for the L-norm of the gradient when monitoring convergence. (default: 1e-2).}
 
 \item{RDM.tol}{tolerance thershold for the Relative Damping Measure (= RDM) when monitoring convergence (default: 1e-4).}
 
 \item{fun.tol}{tolerance threshold for variations in the maximized function during the final iterations of posterior mode computation and convergence monitoring (default: 1e-3).}
+
+\item{Lnorm}{Lp norm used to evaluate the gradient for convergence assessment. Options are "Linf" (default) or "L2".}
 
 \item{iterlim}{(optional) maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 50).}
 
