@@ -160,7 +160,7 @@ plot.DALSM = function(x, ngrid=300, ci.level=.95, pages=0, select=NULL,
       par(mar=mar)
       curve(obj.fit$derr$ddist(x),
             xlim=xlim0,ylim=ylim0,
-            xlab=bquote(z), ylab="Error density", type="n",...)
+            xlab=bquote(error), ylab="Error density", type="n",...)
             ## xlab="Standardized error", ylab="Error density", type="n",...)
       grid(lwd=.5,lty=1)
       curve(obj.fit$derr$ddist(x),lwd=1.5,col="blue",

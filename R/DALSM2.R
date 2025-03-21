@@ -752,7 +752,7 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
               theta.j = psi1.cur[idx]
               quad.j = sum(theta.j*c(Pd1.x%*%theta.j))
               Hes0.psi1j = Hes0.psi1[idx,idx,drop=FALSE]
-              ev1.lst[[j]] = ev.fun(BwB=Hes0.psi1j,Pd=regr1$Pd.x)$dj
+              ev1.lst[[j]] = ev.fun(BwB=-Hes0.psi1j,Pd=regr1$Pd.x)$dj
               temp = update.lambda.fun(lambda1[j],quad.j,ev1.lst[[j]],rk1)
               lambda1[j] = temp$lambda
               se.lambda1[j] = temp$se.lambda
@@ -775,7 +775,7 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
               theta.j = psi2.cur[idx] ## psi.cur[idx] ## <---- Correction 2025.02.21 !!
               quad.j = sum(theta.j*c(Pd2.x%*%theta.j))
               Hes0.psi2j = Hes0.psi2[idx,idx,drop=FALSE]
-              ev2.lst[[j]] = ev.fun(BwB=Hes0.psi2j,Pd=regr2$Pd.x)$dj
+              ev2.lst[[j]] = ev.fun(BwB=-Hes0.psi2j,Pd=regr2$Pd.x)$dj
               temp = update.lambda.fun(lambda2[j],quad.j,ev2.lst[[j]],rk2)
               lambda2[j] = temp$lambda
               se.lambda2[j] = temp$se.lambda
