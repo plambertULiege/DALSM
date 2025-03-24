@@ -4,17 +4,17 @@
 \alias{s}
 \title{Internal function to specify smooth terms in DALSM formulas}
 \usage{
-s(x)
+s(x, ref = NULL)
 }
 \arguments{
-\item{x}{A variable for which an additive term is requested.}
+\item{x}{Name of the variable for which an additive term is requested.}
+
+\item{ref}{(Optional) reference value for \code{x} where the additive term is zero.}
 }
 \value{
-Returns `x` unchanged.
+The submitted variable for which an additive term is required.
 }
 \description{
-This function serves as a placeholder for marking additive terms in formulas
-passed to `DALSM()`. It does not perform any computation but allows users
-to specify smooth terms explicitly.
+Internal function to specify smooth terms in DALSM formulas
 }
 \keyword{internal}

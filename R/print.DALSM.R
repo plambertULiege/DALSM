@@ -114,7 +114,7 @@ print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3
     cat("Uncensored data: ", obj$n.uncensored, " (", round(100*obj$n.uncensored/obj$sw,2)," percents)\n",sep="")
     cat("Interval Censored data: ",obj$n.IC, " (",round(100*sum(obj$n.IC)/obj$sw,2), " percents)\n",sep="")
     cat("Right censored data: ",obj$n.RC, " (",round(100*obj$n.RC/obj$sw,2)," percents)\n",sep="")
-    cat("\n---------------------------------------------------------------\n")
+    cat("---------------------------------------------------------------\n")
     cat("logEvid:",round(obj$logEvid,2),
         "  Dev:",round(obj$dev,2),
         "  AIC:",round(obj$AIC,2),

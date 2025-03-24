@@ -4,36 +4,53 @@
 \alias{DesignFormula}
 \title{Internal function extracting design matrices from formulas in the DALSM function and computing penalty related matrices}
 \usage{
-DesignFormula(formula, data, K = 10, pen.order = 2, n = NULL)
+DesignFormula(
+  formula,
+  data,
+  K = 10,
+  pen.order = 2,
+  knots.x = NULL,
+  n = NULL,
+  nointercept = FALSE
+)
 }
 \arguments{
-\item{formula}{a formula describing the fixed effects and the additive terms in a regression model.}
+\item{formula}{A formula describing the fixed effects and the additive terms in a regression model.}
 
-\item{data}{a dataframe containing the data.}
+\item{data}{A dataframe containing the data.}
 
-\item{K}{number of B-splines to describe an additive term.}
+\item{K}{Number of B-splines to describe an additive term.}
 
-\item{pen.order}{desired penalty order for the spline parameters in the additive terms.}
+\item{pen.order}{Desired penalty order for the spline parameters in the additive terms.}
 
-\item{n}{number of units (Default: number of rows in the design matrix constructed from the formula and the data frame).}
+\item{knots.x}{(Optional) list of length J with the knots associated to each of the J additive terms. Automatically specified from the data by default.}
+
+\item{n}{Number of units (Default: number of rows in the design matrix constructed from the formula and the data frame).}
+
+\item{nointercept}{Logical indicating if the intercept should be set to zero (Default: FALSE).}
 }
 \value{
-a list with
+A list with
 \itemize{
-\item \code{Z} : (n x nfixed) design matrix with fixed effects (including a first column of 1).
-\item \code{X} : (n x J) design matrix with the covariates involved in the additive terms.
-\item \code{nfixed} : number of fixed effect regression parameters.
 \item \code{J} : number of additive terms.
 \item \code{K} : number of B-splines in a basis used to estimate an additive term.
+\item \code{Z} : (n x nfixed) design matrix with fixed effects (including a first column of 1 if nointercept is FALSE).
+\item \code{X} : (n x J) design matrix with the covariates involved in the additive terms.
+\item \code{Xcal} : Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels).
+\item \code{nfixed} : number of fixed effect regression parameters.}
+
+If additive terms are specified in the formula, the following elements also appear:
+\itemize{
+\item \code{Bcal} : column-stacked matrix with the J centered B-spline bases.
 \item \code{Bx} : list with J objects (one per additive term) including (B,Dd,Pd,K,cm).
 \item \code{Pd.x, Dd.x} : penalty and difference penalty matrices applied on the spline parameters of an additive term.
 \item \code{knots.x} : list of length J with the knots associated to each of the J additive terms.
-\item \code{Bcal} : column-stacked matrix with the J centered B-spline bases.
-\item \code{Xcal} : Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels).
 \item \code{pen.order} : penalty order for the spline parameters in the additive terms.
 \item \code{additive.lab} : labels for the columns in <Bcal> associated to the additive terms.
 \item \code{lambda.lab} : labels for the penalty parameters.
-}
+\item \code{has.ref} : vector of J logicals indicating whether reference values were specified for a given additive term.
+\item \code{ref.values} : specified reference values for the the J additive terms.
+\item \code{cm.values} : list of length J with the values of the B-spline basis at the reference values specified (if any) for each of the additive terms.}
 }
 \description{
 Internal function extracting design matrices from formulas in the DALSM function and computing penalty related matrices.
