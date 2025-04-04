@@ -1,8 +1,8 @@
-## -------------------------------------------------------
-## Philippe LAMBERT (ULiege, Oct 2018, Revised in Oct 2024
+## ----------------------------------------------------------
+## Philippe LAMBERT (ULiege, Oct 2018, Revised in April 2025)
 ## Email:  p.lambert@uliege.be
 ## Web: http://www.statsoc.ulg.ac.be
-## -------------------------------------------------------
+## ----------------------------------------------------------
 #' Plot visual information on a \code{DALSM.object}
 #' @description Visualize the estimated additive terms and error density corresponding to a Double Additive Location-Scale Model (DALSM) object.
 #'
@@ -68,195 +68,156 @@ plot.DALSM = function(x, ngrid=300, ci.level=.95, pages=0, select=NULL,
                        fill=TRUE, pointwise=TRUE, mar=c(4,5,1,1),
                        xlim0=NULL, ylim0=NULL, xlim1=NULL, ylim1=NULL, xlim2=NULL, ylim2=NULL,
                        equal.ylims=TRUE,...){
-                      ## mfrow.loc=NULL, mfrow.disp=NULL,
-                      ## equal.ylims=TRUE, true.loc=NULL,true.disp=NULL,
-                      ## error.lim = NULL, add.residuals=FALSE, true.derr=NULL,
-                      ## new.dev=TRUE, ...){
-  obj.fit = x
-  alpha = 1-ci.level
-  z.alpha = qnorm(1-.5*alpha)
-  ## ## Make sure to restore graphical user's options after function call
-  ## oldpar <- par(no.readonly = TRUE) ; on.exit(par(oldpar))
-  ##
-  ## ## Plot fitted density
-  ## if (new.dev) dev.new()
-  ## par(mfrow=c(1,1))
-  ##
-  npar.tot = with(obj.fit,length(psi1)+length(psi2))
-  E.error = with(obj.fit$derr, mean.dist) ## Mean of the current density estimate
-  V.error = with(obj.fit$derr, var.dist) ## Variance of the current density estimate
-  ##
-  perc.obs = obj.fit$perc.obs ## Percentage exactly observed
-  perc.IC = obj.fit$perc.IC ## Percentage Interval Censored
-  perc.RC = obj.fit$perc.RC ## Percentage Right Censored
-  ##
-  ## if (is.null(error.lim)) error.lim = c(obj.fit$rmin,obj.fit$rmax)
-  ## if (add.residuals){
-  ##   plot.densLPS(obj.fit$derr,histRC=TRUE,breaks=25,xlim=error.lim,
-  ##                                 xlab="Std.residuals",
-  ##                                 main=paste("n = ",obj.fit$n," (Unc: ",perc.obs,"% ; IC: ",perc.IC,"% ; RC: ",perc.RC,"%)",sep=""))
-  ##   if (!is.null(true.derr)) curve(true.derr,lwd=2,col="red",add=T)
-  ## } else {
-  ##   rmin = error.lim[1]
-  ##   rmax = error.lim[2]
-  ##   rseq = seq(.99*rmin,.99*rmax,length=501) ;
-  ##   ylim = 1.05*range(c(obj.fit$derr$ddist(rseq),dnorm(rseq))) ## Make sure that dnorm() will be fully pictured
-  ##   with(obj.fit$derr, curve(ddist,rmin,rmax,lwd=2,type="l",
-  ##                            ylim=ylim,
-  ##                            main="",
-  ##                            xlab="Error",ylab="Error density",col="blue")
-  ##   )
-  ##   curve(dnorm,add=T,lwd=2,lty="dotted")
-  ##   legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated density","N(0,1)"),bty='n')
-  ##   if (!is.null(true.derr)) with(obj.fit, curve(true.derr,rmin,rmax,lwd=2,col="red",add=T))
-  ## }
-  ##
-  ## Compute the additive terms
-  ## --------------------------
-  fhat = DALSM_additive(obj.fit, ci.level=ci.level)
-  ##
-  ## Plot organization (extracted from mgcv::plot.gam)
-  ## -------------------------------------------------
-  if (is.null(select)){
-      n.plots = 1 + fhat$J1 + fhat$J2 ## Number of plots: f0, F0 + additive terms
-  } else {
-      n.plots = length(select)
-      ## if (all(select == 0)) n.plots = 1
-  }
-  if (pages > n.plots) pages = n.plots
-  if (pages < 0) pages = 0
-  if (pages != 0) {
-      ppp = n.plots%/%pages
-      if (n.plots%%pages != 0) {
-          ppp = ppp + 1
-          while (ppp * (pages - 1) >= n.plots) pages = pages - 1
-      }
-      c = r = trunc(sqrt(ppp))
-      if (c < 1) r = c = 1
-      if (c * r < ppp) c = c + 1
-      if (c * r < ppp) r = r + 1
-      oldpar = par(mfrow = c(r, c))
-  }
-  else {
-      ppp = 1
-      oldpar = par()
-  }
-  if ((pages == 0 && prod(par("mfcol")) < n.plots && dev.interactive()) ||
-      pages > 1 && dev.interactive())
-      ask = TRUE
-  else ask = FALSE
-  if (!is.null(select) && (all(select!=0))) {
-      ask = FALSE
-  }
-  if (ask) {
-      oask = devAskNewPage(TRUE)
-      on.exit(devAskNewPage(oask))
-  }
-  ## Plot baseline f0
-  ## ----------------
-  if (is.null(xlim0)) xlim0 = with(obj.fit$derr, c(ymin,ymax))
-  ## Plot only f0 if select=0
+    ## Make sure to restore graphical user's options after function call
+    oldpar <- par(no.readonly = TRUE)
+    on.exit(par(oldpar))
+    ##
+    obj.fit = x
+    alpha = 1-ci.level
+    z.alpha = qnorm(1-.5*alpha)
+    ##
+    npar.tot = with(obj.fit,length(psi1)+length(psi2))
+    E.error = with(obj.fit$derr, mean.dist) ## Mean of the current density estimate
+    V.error = with(obj.fit$derr, var.dist) ## Variance of the current density estimate
+    ##
+    perc.obs = obj.fit$perc.obs ## Percentage exactly observed
+    perc.IC = obj.fit$perc.IC ## Percentage Interval Censored
+    perc.RC = obj.fit$perc.RC ## Percentage Right Censored
+    ##
+    ## Compute the additive terms
+    ## --------------------------
+    fhat = DALSM_additive(obj.fit, ci.level=ci.level)
+    ##
+    ## Plot organization (extracted from mgcv::plot.gam)
+    ## -------------------------------------------------
+    if (is.null(select)){
+        n.plots = 1 + fhat$J1 + fhat$J2 ## Number of plots: f0, F0 + additive terms
+    } else {
+        n.plots = length(select)
+        ## if (all(select == 0)) n.plots = 1
+    }
+    if (pages > n.plots) pages = n.plots
+    if (pages < 0) pages = 0
+    if (pages != 0) {
+        ppp = n.plots%/%pages
+        if (n.plots%%pages != 0) {
+            ppp = ppp + 1
+            while (ppp * (pages - 1) >= n.plots) pages = pages - 1
+        }
+        c = r = trunc(sqrt(ppp))
+        if (c < 1) r = c = 1
+        if (c * r < ppp) c = c + 1
+        if (c * r < ppp) r = r + 1
+        par(mfrow = c(r, c))
+    }
+    else {
+        ppp = 1
+    }
+    if ((pages == 0 && prod(par("mfcol")) < n.plots && dev.interactive()) ||
+        pages > 1 && dev.interactive())
+        ask = TRUE
+    else ask = FALSE
+    if (!is.null(select) && (all(select!=0))) {
+        ask = FALSE
+    }
+    if (ask) {
+        oask = devAskNewPage(TRUE)
+        on.exit(devAskNewPage(oask))
+    }
+    ## Plot baseline f0
+    ## ----------------
+    if (is.null(xlim0)) xlim0 = with(obj.fit$derr, c(ymin,ymax))
+    ## Plot only f0 if select=0
     if (is.null(select) | (any(select==0))){
-      par(mar=mar)
-      curve(obj.fit$derr$ddist(x),
-            xlim=xlim0,ylim=ylim0,
-            xlab=bquote(error), ylab="Error density", type="n",...)
-            ## xlab="Standardized error", ylab="Error density", type="n",...)
-      grid(lwd=.5,lty=1)
-      curve(obj.fit$derr$ddist(x),lwd=1.5,col="blue",
-            xlim=xlim0,ylim=ylim0, add=TRUE)
-      curve(dnorm,add=T,lwd=2,lty="dotted")
-      legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated","N(0,1)"),bty='n')
+        par(mar=mar)
+        curve(obj.fit$derr$ddist(x),
+              xlim=xlim0,ylim=ylim0,
+              xlab=bquote(error), ylab="Error density", type="n",...)
+        ## xlab="Standardized error", ylab="Error density", type="n",...)
+        grid(lwd=.5,lty=1)
+        curve(obj.fit$derr$ddist(x),lwd=1.5,col="blue",
+              xlim=xlim0,ylim=ylim0, add=TRUE)
+        curve(dnorm,add=T,lwd=2,lty="dotted")
+        legend('topright',col=c("blue","black"),lty=c("solid","dotted"),lwd=2,legend=c("Estimated","N(0,1)"),bty='n')
 
-  }
-  ## Plot Additive terms
-  ## -------------------
-  plotAdd = function(x,y,y2=NULL,col=1,colfill=c("#CCCCCC80","#E5E5E580"),las=1,...) {
-      matplot(x, y,type="n",col=col,las=las,
-              xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
-              lwd=c(1.5,1,1),lty=c(1,2,2),...)
-      grid(lwd=.5,lty=1)
-      if (!fill){
-          if (!is.null(y2)){
-              matplot(x,y2,type="l",add=TRUE,col="grey",las=las,
-                      xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
-                      lwd=c(1.5,1,1),lty=c(1,3,3),...)
-          }
-          matplot(x,y,type="l",add=TRUE,col=col,las=las,
-                  xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
-                  lwd=c(1.5,1,1),lty=c(1,2,2),...)
-      } else {
-          if (!is.null(y2)){
-              plotRegion(x,y2,add=TRUE,col=col,colfill=colfill[2],las=las,
-                         xlim=xlims,ylim=ylims,
-                         xlab=xlab,ylab=ylab,lwd=2,...)
-          }
-          plotRegion(x,y,add=TRUE,col=col,colfill=colfill[1],las=las,
-                     xlim=xlims,ylim=ylims,
-                     xlab=xlab,ylab=ylab,lwd=2,...)
-      }
-  }
-  ##
-  if (fhat$J1 > 0){
-      xlims = ylims = NULL
-      if (equal.ylims){
-          if (pointwise){
-              ylims =  range(lapply(fhat$f.loc.grid, function(x) range(x$y.mat)))
-          } else {
-              ylims =  range(lapply(fhat$f.loc.grid, function(x) range(x$y.mat2)))
-          }
-      }
-      if (!is.null(ylim1)) ylims = ylim1
-      if (!is.null(xlim1)) xlims = xlim1
-      for (j in 1:fhat$J1){
-          if ((is.null(select)) || (any(select == j))){
-              par(mar=mar)
-              xlab = names(fhat$f.loc.grid)[j]
-              ylab = bquote('f'[.(j)]^{~mu}*(.(xlab)))
-              if (!pointwise) {
-                  with(fhat$f.loc.grid[[j]], plotAdd(x,y.mat,y.mat2,...))
-              } else {
-                  with(fhat$f.loc.grid[[j]], plotAdd(x,y.mat,...))
-              }
-              ## if (obj.fit$regr1$has.ref[j]){
-              ##     xt = obj.fit$regr1$ref.values[j]
-              ##     rug(xt,ticksize=-.015,lwd=1)
-              ##     rug(xt,ticksize=.015,lwd=1)
-              ## }
-          }
-      }
-  }
-  ##
-  if (fhat$J2 > 0){
-      xlims = ylims = NULL
-      if (equal.ylims){
-          if (pointwise){
-              ylims =  range(lapply(fhat$f.disp.grid, function(x) range(x$y.mat)))
-          } else {
-              ylims =  range(lapply(fhat$f.disp.grid, function(x) range(x$y.mat2)))
-          }
-      }
-      if (!is.null(ylim2)) ylims = ylim2
-      if (!is.null(xlim2)) xlims = xlim2
-      for (j in 1:fhat$J2){
-          if ((is.null(select)) || (any(select == fhat$J1+j))){
-              par(mar=mar)
-              xlab = names(fhat$f.disp.grid)[j]
-              ylab = bquote('f'[.(j)]^{~sigma}*(.(xlab)))
-              if (!pointwise) {
-                  with(fhat$f.disp.grid[[j]], plotAdd(x,y.mat,y.mat2,...))
-              } else {
-                  with(fhat$f.disp.grid[[j]], plotAdd(x,y.mat,...))
-              }
-              ## if (obj$regr2$has.ref[j]){
-              ##     xt = obj$regr2$ref.values[j]
-              ##     rug(xt,ticksize=-.015,lwd=1)
-              ##     rug(xt,ticksize=.015,lwd=1)
-              ## }
-          }
-      }
-  }
-  ##
-  if (pages > 0) par(oldpar)
-  return(invisible(fhat))
+    }
+    ## Plot Additive terms
+    ## -------------------
+    plotAdd = function(x,y,y2=NULL,col=1,colfill=c("#CCCCCC80","#E5E5E580"),las=1,...) {
+        matplot(x, y,type="n",col=col,las=las,
+                xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
+                lwd=c(1.5,1,1),lty=c(1,2,2),...)
+        grid(lwd=.5,lty=1)
+        if (!fill){
+            if (!is.null(y2)){
+                matplot(x,y2,type="l",add=TRUE,col="grey",las=las,
+                        xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
+                        lwd=c(1.5,1,1),lty=c(1,3,3),...)
+            }
+            matplot(x,y,type="l",add=TRUE,col=col,las=las,
+                    xlim=xlims,ylim=ylims,xlab=xlab,ylab=ylab,
+                    lwd=c(1.5,1,1),lty=c(1,2,2),...)
+        } else {
+            if (!is.null(y2)){
+                plotRegion(x,y2,add=TRUE,col=col,colfill=colfill[2],las=las,
+                           xlim=xlims,ylim=ylims,
+                           xlab=xlab,ylab=ylab,lwd=2,...)
+            }
+            plotRegion(x,y,add=TRUE,col=col,colfill=colfill[1],las=las,
+                       xlim=xlims,ylim=ylims,
+                       xlab=xlab,ylab=ylab,lwd=2,...)
+        }
+    }
+    ##
+    if (fhat$J1 > 0){
+        xlims = ylims = NULL
+        if (equal.ylims){
+            if (pointwise){
+                ylims =  range(lapply(fhat$f.loc.grid, function(x) range(x$y.mat)))
+            } else {
+                ylims =  range(lapply(fhat$f.loc.grid, function(x) range(x$y.mat2)))
+            }
+        }
+        if (!is.null(ylim1)) ylims = ylim1
+        if (!is.null(xlim1)) xlims = xlim1
+        for (j in 1:fhat$J1){
+            if ((is.null(select)) || (any(select == j))){
+                par(mar=mar)
+                xlab = names(fhat$f.loc.grid)[j]
+                ylab = bquote('f'[.(j)]^{~mu}*(.(xlab)))
+                if (!pointwise) {
+                    with(fhat$f.loc.grid[[j]], plotAdd(x,y.mat,y.mat2,...))
+                } else {
+                    with(fhat$f.loc.grid[[j]], plotAdd(x,y.mat,...))
+                }
+            }
+        }
+    }
+    ##
+    if (fhat$J2 > 0){
+        xlims = ylims = NULL
+        if (equal.ylims){
+            if (pointwise){
+                ylims =  range(lapply(fhat$f.disp.grid, function(x) range(x$y.mat)))
+            } else {
+                ylims =  range(lapply(fhat$f.disp.grid, function(x) range(x$y.mat2)))
+            }
+        }
+        if (!is.null(ylim2)) ylims = ylim2
+        if (!is.null(xlim2)) xlims = xlim2
+        for (j in 1:fhat$J2){
+            if ((is.null(select)) || (any(select == fhat$J1+j))){
+                par(mar=mar)
+                xlab = names(fhat$f.disp.grid)[j]
+                ylab = bquote('f'[.(j)]^{~sigma}*(.(xlab)))
+                if (!pointwise) {
+                    with(fhat$f.disp.grid[[j]], plotAdd(x,y.mat,y.mat2,...))
+                } else {
+                    with(fhat$f.disp.grid[[j]], plotAdd(x,y.mat,...))
+                }
+            }
+        }
+    }
+    ##
+    return(invisible(fhat))
 }
