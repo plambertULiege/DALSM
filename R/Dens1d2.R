@@ -123,6 +123,22 @@ Dens1d = function(y, event=NULL, w, ymin=NULL, ymax=NULL,
   ##   Unit with a precise event time or censoring time have the containing bin indicated.
   C = matrix(0,nrow=n,ncol=ngrid)
   C = 0 + (1-outer(ylow,bins[-1],">=")) * outer(yup,bins[-length(bins)],">")
+  ##
+  get_row_bounds <- function(C) {
+      n <- nrow(C)
+      start_idx <- end_idx <- rep(NA_integer_, n)
+      for (i in seq_len(n)) {
+          nz <- which(C[i, ] != 0)
+          if (length(nz) > 0) {
+              start_idx[i] <- min(nz)
+              end_idx[i] <- max(nz)
+          }
+      }
+      list(start = start_idx, end = end_idx)
+  }
+  Cbounds = get_row_bounds(C)
+  attr(C,"start") = Cbounds$start
+  attr(C,"end") = Cbounds$end
   ## C = as(C,"sparseMatrix")
   ##
   ## Other data summaries
