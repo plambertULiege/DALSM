@@ -246,9 +246,9 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
   ## EDF.fun: Effective dimensions of additive terms
   ## -------
   parms1 = list(q=q1, nfixed=nfixed1, K=K1, J=J1,
-                addnames=colnames(regr1$X), Pd.x=Pd1.x)
+                addnames=regr1$additive.lab, Pd.x=Pd1.x)
   parms2 = list(q=q2, nfixed=nfixed2, K=K2, J=J2,
-                addnames=colnames(regr2$X), Pd.x=Pd2.x)
+                addnames=regr2$additive.lab, Pd.x=Pd2.x)
   ##
   EDF.fun <- function(Hes0.psi, lambda1, lambda2, parms1, parms2, joint.computation=TRUE){
       ## parms1 = with(regr1, list(q=ncol(Xcal), nfixed=nfixed, K=K, J=J, addnames=colnames(X), Pd.x=Pd.x))
@@ -1794,7 +1794,7 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
           list(
               res=res,mu=obj.cur$mu,sd=obj.cur$sd,
               REML=REML,diag.only=diag.only,
-              dev=obj.cur$dev, llik=obj.cur$llik, logEvid=logEvid,
+              dev=obj.cur$dev, llik=obj.cur$llik, lpost=obj.cur$lpost, logEvid=logEvid,
               AIC=AIC, BIC=BIC, ED.tot=obj.cur$ED.tot,
               iter=iter,
               call=cl,

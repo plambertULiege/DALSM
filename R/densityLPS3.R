@@ -1,5 +1,6 @@
 ## Author: Philippe LAMBERT (ULg, UCL, Belgium), Nov 2018 ;
 ##  Updated in October 2024 to handle weights.
+##  Updated in May 2025: code cleaning with Newton-Raphson
 ###################################################################################
 #' Constrained density estimation from censored data using Laplace P-splines
 #' @description P-spline estimation of the density (pdf), cumulative distribution (cdf),
@@ -7,11 +8,11 @@
 #' mean and/or variance constraints. The penalty parameter \eqn{\tau} tuning the smoothness of
 #' the log-hazard can be selected using the Laplace P-splines (LPS) method maximizing an approximation to the marginal posterior
 #' of \eqn{\tau} (also named the 'evidence')  or using Schall's method.
-#' @usage densityLPS(obj.data,
+#' @usage densityLPS2(obj.data,
 #'        is.density=TRUE, Mean0=NULL, Var0=NULL,
 #'        fixed.penalty=FALSE, method=c("LPS","Schall"),
 #'        fixed.phi=FALSE,phi.ref=NULL, phi0=NULL,tau0=exp(5),tau.min=.1,
-#'        verbose=FALSE)
+#'        itermax=21, verbose=FALSE)
 #' @param obj.data a list created from potentially right- or interval-censored data using \code{\link{Dens1d}}. It includes summary statistics, the assumed density support, the knots for the B-spline basis, etc.
 #' @param is.density (optional) logical indicating whether the estimated density should integrate to 1.0 over the range of the knots in obj.data$knots (default: TRUE).
 #' @param Mean0 (optional) constrained value for the mean of the fitted density (defaut: NULL).
@@ -23,6 +24,11 @@
 #' @param phi0 starting value for the spline parameters (default: spline parameters corresponding to a Student density with 5 DF).
 #' @param tau0 (optional) initial value for the penalty parameter \eqn{\tau} (default: exp(5)).
 #' @param tau.min (optional) minimal value for the penalty parameter \eqn{\tau} (default: .1).
+#' @param Lnorm Default Lp-norm for vectors: "Linf" (default) or "L2".
+#' @param grad.tol Tolerance value for the Lp-norm of the gradient at convergence (default: 1e-2).
+#' @param RDM.tol Tolerance value for the RDM (= Relative Damping Measure) at convergence (default: 1e-2).
+#' @param fun.tol Tolerance value for changes in function \code{g} to declare convergence (default: 1e-3).
+#' @param itermax Maximum number of iterations (after which the algorithm is interrupted with a non-convergence diagnostic) (default: 101).
 #' @param verbose (optional) logical indicating whether estimation step details should be displayed (default: FALSE).
 #'
 #' @return a \code{\link{densLPS.object}} containing the density estimation results.
@@ -108,17 +114,21 @@
 #' legend("topright",col=c("black","red","grey"),lwd=c(2,2,10),lty=c(1,2,1),
 #'        legend=c("Estimated density","True density","Observed grouped data"),bty="n")
 #'
-densityLPS <- function(obj.data,
-                       is.density=TRUE,Mean0=NULL, Var0=NULL,
-                       fixed.penalty=FALSE,method=c("LPS","Schall"),
-                       fixed.phi=FALSE,phi.ref=NULL,
-                       phi0=NULL,tau0=exp(5),tau.min=.1,
-                       verbose=FALSE){
+densityLPS3 = function(obj.data,
+                    is.density=TRUE,Mean0=NULL, Var0=NULL,
+                    fixed.penalty=FALSE,method=c("LPS","Schall"),
+                    fixed.phi=FALSE,phi.ref=NULL,
+                    phi0=NULL,tau0=exp(5),tau.min=.1,
+                    Lnorm=c("Linf","L2"),
+                    grad.tol=1e-2, RDM.tol=1e-2, fun.tol=1e-3, itermax=101,
+                    verbose=FALSE, criterion=c("AIC","dev","L2"), crit.tol=1e-2){
   method = match.arg(method)
+  Lnorm = match.arg(Lnorm)
+  criterion = match.arg(criterion)
   if (fixed.penalty) method = "Fixed penalty"
   if (is.null(obj.data)){
-    print("Data object prepared using <Dens1d> required !!")
-    return(NA)
+        print("Data object prepared using <Dens1d> required !!")
+        return(NA)
   }
   ##
   nconstraints = (is.density) + (!is.null(Mean0)) + (!is.null(Var0)) ## Number of active moment constraints
@@ -137,6 +147,8 @@ densityLPS <- function(obj.data,
   bins = obj.data$bins ## Small bin limits
   nbins = obj.data$nbins ## Number of small bins
   C = obj.data$C ## (n x ngrid) Matrix <C>: indicates in which bin the event or censoring occured ;
+  library(Matrix)
+  CC <- as(C, "dgCMatrix")
   ##  For RC data, all the possible bins are indicated.
   fg = obj.data$fgrid ## Number of events within a given bin
   rg = obj.data$rgrid ## Number of units at risk within a given bin
@@ -155,12 +167,12 @@ densityLPS <- function(obj.data,
   ##  mean.y = mean(ymid) ; sd.y = sd(ymid)
   haz.t = (1/sd.y)*dt((ugrid-mean.y)/sd.y,df=5)/(1-pt((ugrid-mean.y)/sd.y,df=5))
   ## haz.norm = dnorm(ugrid,mean.y,sd.y)/(1-pnorm(ugrid,mean.y,sd.y))
-  if (is.null(phi0)) phi.cur = c(solve(t(Bg)%*%Bg)%*%t(Bg)%*%log(haz.t)) ## phi.cur = rep(log(dd/T),K)+runif(K,-.1,.1) ##
+  if (is.null(phi0)) phi.cur = phi0 = c(solve(t(Bg)%*%Bg)%*%t(Bg)%*%log(haz.t)) ## phi.cur = rep(log(dd/T),K)+runif(K,-.1,.1) ##
   else phi.cur = phi0
   ##
   if (is.null(phi.ref)) phi.ref = 0*phi.cur
   nphi = length(phi.cur)
-  tau = tau.min+abs(tau0)
+  tau = max(tau.min,abs(tau0))
   ##
   if (!fixed.penalty){
     if (verbose){
@@ -175,14 +187,12 @@ densityLPS <- function(obj.data,
   llik.cur = sum(fg*eta.cur-expctd) ## Log-lik
   quad.cur = sum((phi.cur-phi.ref)*c(Pd%*%(phi.cur-phi.ref)))
   lpost.cur = llik.cur +.5*(K-pen.order)*log(tau)-.5*tau*quad.cur ## Log-posterior
-  dev = -2*sum(fg*log(h.cur)-expctd) ## Deviance
+  ## dev = -2*sum(fg*log(h.cur)-expctd) ## Deviance
   ##
   ## Start estimation process
   ## ########################
   ptm <- proc.time() ## ---------->
   ##
-  niter = 0
-  if (verbose) cat("Iteration",niter,": Deviance =",round(dev,2),"; tau =",round(tau,2),"\n")
   omega0 = omega1 = omega2 = NULL ## Lagrange multipliers for Mean and Variance constraints
   if (is.density) omega0 = 0
   if (!is.null(Mean0)) omega1 = 0
@@ -204,14 +214,6 @@ densityLPS <- function(obj.data,
   Finfty.fun = function(phi) Moment.fun(phi,pow=0) ## \int f(x)dx
   Mean.fun = function(phi) Moment.fun(phi,pow=1) ## Mean function
   Var.fun = function(phi) return(Moment.fun(phi,pow=2)-(Moment.fun(phi,pow=1))^2) ## Variance function
-  ## Var.fun = function(phi){
-  ##     eta.grid = c(Bg %*% phi)
-  ##     h.grid = exp(eta.grid)
-  ##     H.grid = cumsum(h.grid*du)-.5*h.grid*du
-  ##     Mean = sum(ugrid * h.grid*exp(-H.grid) * du)
-  ##     Var = sum((ugrid-Mean)^2 * h.grid*exp(-H.grid) * du)
-  ##     return(Var)
-  ## }
   ## Analytical gradient of a moment constraint
   gradMoment.fun = function(phi,pow){
     eta.grid = c(Bg %*% phi)
@@ -219,8 +221,10 @@ densityLPS <- function(obj.data,
     H.grid = cumsum(h.grid*du) -.5*h.grid*du ## <---- remove .5*du !!
     dens.grid = h.grid*exp(-H.grid)
     ##
-    Hb.jk = apply(h.grid*Bg*du,2,cumsum)
-    ans = c(t(Bg) %*% ((ugrid^pow)*dens.grid*du*(1+.5*h.grid*du)) - t(Hb.jk) %*% ((ugrid^pow)*dens.grid*du)) ## <---- remove .5*du !!
+    Hb.jk = matrixStats::colCumsums(h.grid * Bg * du)
+    ## Hb.jk = apply(h.grid*Bg*du,2,cumsum)
+    temp = (ugrid^pow)*dens.grid*du
+    ans = c(t(Bg) %*% (temp*(1+.5*h.grid*du)) - t(Hb.jk) %*% temp) ## <---- remove .5*du !!
     return(ans)
   }
   ##
@@ -270,119 +274,106 @@ densityLPS <- function(obj.data,
     ## denom = sum(n*ev/(tau+n*ev)) ## cf. Evidence based method
     ed = sum(t(solve(BWB+tau*Pd))*BWB) ## cf. Schall's method
   }
+  ## --------------------------------------------------------
+  ## -- Function: Lagrangian with its gradient and Hessian --
+  ## --------------------------------------------------------
+  E.step <- function(phi){
+      ## -- Current estimate for hazard, cumulative hazard and density --
+      eta.grid = c(Bg %*% phi)
+      h.grid = exp(eta.grid)
+      H.grid = cumsum(h.grid*du) -.5*h.grid*du
+      dens.grid = h.grid*exp(-H.grid)
+      ## -- E-step for IC data: revise <fgrid> and <rgrid> using current density estimate --
+      ##    (fgrid = Nbr of events per bin & rgrid = Nbr at risk per bin)
+      if (is.matrix(y)){ ## i.e. if IC data present
+          ##   <fgrid>: grid frequencies (= weighted number of events within a given bin)
+          ##   <rgrid>: weighted number of units 'still at risk' in a given bin defined by the grid
+          temp = t(dens.grid*t(C)) ## (n x ngrid) matrix
+          normCst = rowSums(temp)
+          temp = ifelse(normCst==0,0,1/normCst) * temp
+          temp = w * temp  ## Account for weights
+          fg = colSums(temp[event==1,,drop=FALSE])
+          temp2 = colSums(temp)
+          rg = sw-c(0,cumsum(temp2)[-ngrid]) ## Weighted number of units 'still at risk' in a given bin
+      }
+      ans = list(fg=fg, rg=rg)
+      return(ans)
+  }
   ##
-  converged = FALSE
-  while (!(converged | fixed.phi)){ ## Proceed with iterations if (!converged & !fixed.phi)
-    niter = niter + 1
-    dev.old = dev
-    ok.phi = FALSE ; niter.phi = 0
-    phi.old = phi.cur
-    ##
-    ## (0) E-step for IC data: revise <fgrid> and <rgrid> using current density estimate
-    ##    (fgrid = Nbr of events per bin & rgrid = Nbr at risk per bin)
-    ## --------------------------------------------------
-    if (is.matrix(y)){ ## i.e. if IC data present
+  ## E.step2 <- function(phi) {
+  ##     eta.grid <- c(Bg %*% phi)
+  ##     h.grid <- exp(eta.grid)
+  ##     H.grid <- cumsum(h.grid * du) - 0.5 * h.grid * du
+  ##     dens.grid <- h.grid * exp(-H.grid)
+  ##     ##
+  ##     start_idx = attr(C,"start")
+  ##     end_idx = attr(C,"end")
+  ##     n <- length(start_idx)
+  ##     ngrid <- length(dens.grid)
+  ##     temp <- matrix(0, n, ngrid)
+  ##     ##
+  ##     for (i in seq_len(n)) {
+  ##         s <- start_idx[i]
+  ##         e <- end_idx[i]
+  ##         if (!is.na(s) && s <= e) {
+  ##             row_vals <- dens.grid[s:e]
+  ##             norm <- sum(row_vals)
+  ##             if (norm > 0) {
+  ##                 temp[i, s:e] <- (row_vals / norm) * w[i]
+  ##             }
+  ##         }
+  ##     }
+  ##     ##
+  ##     fg <- colSums(temp[event == 1, , drop = FALSE])
+  ##     temp2 <- colSums(temp)
+  ##     rg <- sw - c(0, cumsum(temp2)[-ngrid])
+  ##     ##
+  ##     ans = list(fg = fg, rg = rg)
+  ##     return(ans)
+  ## }
+  ##
+  g.fun <- function(theta,Dtheta=TRUE){
+      phi.cur = theta[1:nphi]
+      ##
+      ## -- Current estimate for hazard, cumulative hazard and density --
       eta.grid = c(Bg %*% phi.cur)
       h.grid = exp(eta.grid)
-      H.grid = cumsum(h.grid*du) -.5*h.grid*du ## <---- remove .5*du !!
+      H.grid = cumsum(h.grid*du) -.5*h.grid*du
       dens.grid = h.grid*exp(-H.grid)
+      pi.grid = dens.grid*du ## / sum(dens.grid)
       ##
-      ## Prepare for update of <fgrid> and <rgrid>
-      ##   <fgrid>: grid frequencies (= weighted number of events within a given bin)
-      ##   <rgrid>: weighted number of units 'still at risk' in a given bin defined by the grid
-      temp = t(dens.grid*t(C)) ## (ngrid x n) matrix
-      normCst = rowSums(temp) ## apply(temp,1,sum)
-      temp = ifelse(normCst==0,0,1/normCst) * temp
-      temp = w * temp  ## Account for weights
-      ## Update <fgrid> with IC units contributing to a given bin
-      ##    proportionnally to the current density estimate
-      fg = colSums(temp[event==1,]) ## apply(temp[event==1,],2,sum)
-      ## Update <rgrid> computing the number of units at risks within a given bin
-      ##  (accordingly to the current density estimate)
-      temp2 = colSums(temp) ## apply(temp,2,sum)
-      rg = sw-c(0,cumsum(temp2)[-ngrid]) ## Weighted number of units 'still at risk' in a given bin defined by the grid
-      ## rg = n-c(0,cumsum(temp2)[-ngrid]) ## Number of units 'still at risk' in a given bin defined by the grid
-      ## rg = rg - .5*fg ## Account for the fact that a person is at risk half the time when having the event
+      ## -- Likelihood and log-posterior --
+      expctd = rg*(h.grid*du)
+      llik = sum(fg*eta.grid-expctd) ## LogLik for complete data
+      ## llik.obs = ifelse(is.density, sum(w * log(c(C %*% pi.grid))), NULL) ## LogLik for observed data
+      quad.cur = sum((phi.cur-phi.ref)*c(Pd%*%(phi.cur-phi.ref)))
+      lcur = llik +.5*(K-pen.order)*log(tau) -.5*tau * quad.cur ## Log-posterior
       ##
-      eta.cur = c(Bg %*% phi.cur)
-      h.cur = exp(eta.cur)
-      expctd = rg*(h.cur*du)
-    }
-    ## (1) Iterative update of <phi> and <omega> (given penalty parm <tau>)
-    ## --------------------------------------------------------------------
-    ## U.phi = c(t(Bg) %*% (fg - expctd)) - tau*c(Pd%*%phi.cur)
-    while(!ok.phi){
-      niter.phi = niter.phi + 1
-      ## Current Score function for spline parameters <phi> (given <tau>)
-      U.phi = c(t(Bg) %*% (fg - expctd)) - tau*c(Pd%*%(phi.cur-phi.ref))
-      ##
-      BWB = t(Bg)%*%(expctd*Bg)
+      ## -- Gradient and Hessian (before constraints) --
+      BWB = t(Bg)%*%(expctd*Bg) ## crossprod(sqrt(expctd)*Bg)
+      ## U.phi = colSums(Bg * (fg - expctd)) - tau*c(Pd%*%(phi.cur-phi.ref))
+      ## U.phi = c(t(Bg) %*% (fg - expctd)) - tau*c(Pd%*%(phi.cur-phi.ref))
+      U.phi = crossprod(Bg, fg - expctd) - tau*c(Pd%*%(phi.cur-phi.ref))
       H.phi = -BWB - tau*Pd ## Hessian when no constraints
-      Htot = H.phi
-      if (nconstraints > 0) {
-        ## Extend Score & Hessian if constraints
-        Htot = rbind(cbind(H.phi,-t(Hcal)), cbind(-Hcal,diag(0,nconstraints)))
-        Htot = Htot + diag(1e-5,ncol(Htot)) ## Add ridge penalty to force invertibility of Htot
-        U.parms = c(U.phi,rep(0,nconstraints)) + c(-t(Hcal)%*%omega.cur, -Hcal%*%phi.cur+Const)
-        dparms = -c(MASS::ginv(Htot)%*%U.parms)   ## Direction for updates if constraints ## PHL
-        ## dparms = -c(solve(Htot,U.parms))   ## Direction for updates if constraints
-      } else dparms = -c(solve(H.phi,U.phi)) ## Direction for updates if no constraint
-      ## Update <phi> and Lagrange multipliers <omega>
-      step = 1
-      accept.prop = FALSE
-      ## Newton-Raphson step for with step-halving strategy
-      ## --------------------------------------------------
-      cnt = 0
-      while(!accept.prop){
-        ## Proposal for <phi> and <omega>
-        phi.prop = phi.cur + step*dparms[1:nphi]
-        if (nconstraints > 0) omega.prop = omega.cur + step*dparms[-(1:nphi)]
-        ## Induced hazard & expected values
-        eta.prop = c(Bg %*% phi.prop) ; h.prop = exp(eta.prop)
-        expctd.prop = rg*(h.prop*du)
-        ## Score at proposal
-        Uphi.prop = c(t(Bg) %*% (fg - expctd.prop)) - tau*c(Pd%*%(phi.prop-phi.ref))
-        if (nconstraints > 0) Uparms.prop = c(Uphi.prop,rep(0,nconstraints)) + c(-t(Hcal)%*%omega.prop, -Hcal%*%phi.prop+Const)
-        ## Accept proposal ?
-        if (any(is.nan(Uphi.prop))) accept.prop = FALSE
-        else {
-          if (nconstraints > 0){
-            accept.prop = (L2(Uparms.prop) <= L2(U.parms))
-          } else {
-            accept.prop = (L2(Uphi.prop) <= L2(U.phi))
-          }
-        }
-        if (!accept.prop) step = .5*step ## Step-halving if proposal rejected
-      }
-      ## Update <phi> and <omega> when accepted
-      phi.update = phi.prop - phi.cur
-      phi.cur = phi.prop
-      U.phi = Uphi.prop
-      if (nconstraints > 0){
-        omega.cur = omega.prop
-        U.parms = Uparms.prop
-      }
-      eta.cur = eta.prop ; expctd = expctd.prop
-      ##
-      ## Update linear approximation to the constraints (if any) to the new <phi> value
-      ## ------------------------------------------------------------------------------
-      ## Linearization of the mean and variance constraints
-      ##  F1(phi) = f1  <--> Mean(phi) = Mean0
-      ##  F2(phi) = f2  <--> Var(phi) = Var0
-      ##       become (linearly)
-      ##  Hcal %*% phi = Const  with  Hcal = rbind(H1,H2)
-      ##   with row vectors  H1=grad.F1(phi) and H2=grad.F2(phi)
+      Hes = H.phi
+      grad = U.phi
+      gcur = lcur
+      ## -- Constraints --
+      F0 = F1 = F2 = NULL
+      ## Density constraint
       if (is.density){
         H0 = gradMoment.fun(phi.cur,pow=0) ## Current grad.F0(phi.cur)
         F0 = Finfty.fun(phi.cur) ## Current F(infty) = F0(phi.cur)
         const0 = 1 - F0    ## Current constraint failure
       }
+      ## Mean constraint
       if (!is.null(Mean0)){
         H1 = gradMoment.fun(phi.cur,pow=1) ## Current grad.F1(phi.cur)
         ## H1 = grad(Mean.fun,phi.cur) ## Current grad.F1(phi.cur)
         F1 = Mean.fun(phi.cur) ## Current mean = F1(phi.cur)
         const1 = Mean0 - F1    ## Current constraint failure
       }
+      ## Variance constraint
       if (!is.null(Var0)){
         if (is.null(Mean0)){
           H1 = gradMoment.fun(phi.cur,pow=1) ## Current grad.F1(phi.cur)
@@ -393,48 +384,124 @@ densityLPS <- function(obj.data,
         F2 = Var.fun(phi.cur)  ## Current variance = F2(phi.cur)
         const2 = Var0 - F2     ## Current constraint failure
       }
+      ## -- Gradient and Hessian (after constraints) --
       if (nconstraints > 0) {
-        Hcal = rbind(H0,H1,H2) ## Linearizer of (F1,F2)(phi)
-        Const = c(Hcal%*%phi.cur) + c(const0,const1,const2)
+          omega.cur = theta[-(1:nphi)]
+          Hcal = rbind(H0,H1,H2) ## Linearizer of (F1,F2)(phi)
+          Const = c(Hcal%*%phi.cur) + c(const0,const1,const2)
+          ## Extend Score & Hessian due to constraints (Lagrange multiplier method)
+          Hes = rbind(cbind(H.phi,-t(Hcal)),
+                      cbind(-Hcal,diag(0,nconstraints)))
+          Hes = Hes + diag(1e-5,ncol(Hes)) ## Add ridge penalty to force invertibility of Hes
+          grad = c(U.phi-c(t(Hcal)%*%omega.cur), c(-Hcal%*%phi.cur+Const))
+          ## Lagrangian
+          gcur = lcur - sum(omega.cur * c(Hcal%*%phi.cur - Const))
       } else Const = NULL
-      ##
-      ## Update the score
-      U.phi = c(t(Bg) %*% (fg - expctd)) - tau*c(Pd%*%(phi.cur-phi.ref))
-      if (nconstraints > 0) U.parms = c(U.phi,rep(0,nconstraints)) + c(-t(Hcal)%*%omega.cur, -Hcal%*%phi.cur+Const)
-      ##
-      ## Convergence criteria
-      if (nconstraints > 0) ok.phi = all(abs(U.parms) <= 1e-3) | (niter.phi > 15)
-      else ok.phi = all(abs(U.phi) <= 1e-3)
-    }
-    ## (2) Iterative selection of penalty parameter <tau> (given current spline parm estimates <phi>)
-    ## ----------------------------------------------------------------------------------------------
-    quad = sum(diff(phi.cur,diff=pen.order)^2)
-    ok.tau = FALSE ; niter.tau = 0
-    while(!ok.tau){
-      niter.tau = niter.tau + 1
-      tau.old = tau
-      if (method=="LPS"){
-        ## Evidence-based method
-        denom = sum(sw*ev/(tau+sw*ev))
-        tau = max(tau.min,denom/quad)
-      }
-      if (method=="Schall"){
-        ## Schall's method
-        ed = sum(t(solve(BWB+tau*Pd))*BWB) ## = sum(diag(solve(BWB+tau*Pd)%*%BWB))
-        tau = max(tau.min,(ed-pen.order)/quad)
-      }
-      ok.tau = (abs(tau-tau.old)/tau) < 1e-2
-    }
-    dev = -2*sum(fg*eta.cur-expctd)
-    if (verbose) cat("Iteration",niter,"(",niter.phi,niter.tau,"): Deviance =",round(dev,2),"; tau =",round(tau,2),"\n")
-    if (verbose & is.density) cat("  >>> int f(x)dx = :",F0,"\n")
-    if (verbose & nconstraints>0) cat("  >>> Target moment value(s):",c(Mean0,Var0),"; Fitted value(s):",c(F1,F2),"\n")
+      ## -- Return: Lagrangian with its gradient and Hessian --
+      edf = sum(solve(BWB + tau * Pd) * BWB) ##  edf = sum(diag(solve(BWB + tau * Pd, BWB)))
+      dev = -2*llik ##-2*llik.obs
+      AIC = dev + 2*edf
+      grid = list(eta=eta.grid, h=h.grid, H=H.grid, dens=dens.grid, pi=pi.grid, expctd=expctd)
+      ans = list(g=gcur, theta=theta, grad=grad, Hes=Hes, ## Strictly necessary for Newton-Raphson
+                 llik=llik, dev=dev, AIC=AIC, ## Monitoring GoF
+                 F0=F0, F1=F1, F2=F2, ## Monitoring constraints
+                 BWB=BWB, edf=edf, grid=grid) ## BWB + EDF + Density related quantities at gridpoints
+      return(ans)
+  } ## End g.fun
+  ## -----------------------------------------------------------------------------
+  ## -- Algorithm for density estimation from right- and interval-censored data --
+  ## -----------------------------------------------------------------------------
+  theta.cur = c(phi.cur, omega.cur)
+  g.cur = g.fun(theta.cur)
+  niter = 0
+  ## if (verbose) cat("Iteration",niter,
+  ##                  ": tau =",round(tau,2),
+  ##                  "; Deviance =",round(g.cur$dev,2),
+  ##                  "; AIC =",round(g.cur$AIC,2),"\n\n")
+  converged = FALSE
+  while (!(converged | fixed.phi)){ ## Proceed with iterations if (!converged & !fixed.phi)
+    niter = niter + 1
+    ok.phi = FALSE ; niter.phi = 0
+    phi.old = phi.cur
+    AIC.old = g.cur$AIC
+    dev.old = g.cur$dev
     ##
+    ##
+    ## -- (1) Iterative update of <phi> and <omega> (given penalty parm <tau>) --
+    obj.NR = AFTcure::NewtonRaphson(g.fun, theta.cur, itermax=5,
+                                    grad.tol=grad.tol, RDM.tol=RDM.tol, fun.tol=fun.tol,
+                                    Lnorm=Lnorm, verbose=FALSE)
+    ## obj.LM = LevMarq(g.fun, theta.cur, verbose=verbose)
+                   ## grad.tol=grad.tol, RDM.tol=RDM.tol, Lnorm=Lnorm,
+    ##
+    ## g.fn = function(x) g.fun(x)$g
+    ## gr.fn = function(x) g.fun(x)$grad
+    ## Hes.fn = function(x) g.fun(x)$Hes
+    ## bele = marqLevAlg(theta.cur, fn=g.fn, gr=gr.fn, hess=Hes.fn)
+    niter.phi = obj.NR$iter
+    theta.cur = obj.NR$theta
+    phi.cur = theta.cur[1:nphi]
+    U.phi = obj.NR$grad[1:nphi]
+    ok.phi = obj.NR$converged
+    ##
+    g.cur = g.fun(theta.cur) ## Update g.cur after Newton-Raphson
+    ## ed = g.cur$edf ## Current EDF
+    ##
+    ## -- (2) Iterative selection of penalty parameter <tau> (given <phi>) --
+    if (!fixed.penalty){
+        quad = sum(diff((phi.cur-phi.ref),diff=pen.order)^2)
+        ok.tau = FALSE ; niter.tau = 0
+        while(!ok.tau){
+            niter.tau = niter.tau + 1
+            tau.old = tau
+            if (method=="LPS"){
+                ## Evidence-based method
+                denom = sum(sw*ev/(tau+sw*ev))
+                tau = max(tau.min,denom/quad)
+            }
+            if (method=="Schall"){
+                ## Schall's method
+                ed = sum(t(solve(g.cur$BWB+tau*Pd))*g.cur$BWB) ## = sum(diag(solve(BWB+tau*Pd)%*%BWB))
+                tau = max(tau.min,(ed-pen.order)/quad)
+            }
+            ok.tau = (abs(tau-tau.old)/tau) < 1e-2
+        }
+        ## Update g.cur after <tau> update
+        g.cur = g.fun(theta.cur)
+    } else {
+        ok.tau = TRUE
+        niter.tau = 0
+        quad = sum(diff((phi.cur-phi.ref),diff=pen.order)^2)
+    }
+    ##
+    ## -- (3) E-step --
+    E = E.step(phi.cur) ; fg = E$fg ; rg = E$rg
+    ##
+    if (verbose){
+        cat("Iteration",niter,"(",niter.phi,niter.tau,"): tau =",round(tau,2),
+            "; Deviance =",round(g.cur$dev,2),
+            "; EDF =",round(g.cur$edf,2),
+            "; AIC =",round(g.cur$AIC,2),"\n")
+        if (is.density) cat("  >>> int f(x)dx = :",g.cur$F0,"\n")
+        if (nconstraints > 1) cat("  >>> Target moment value(s):",c(Mean0,Var0),
+                                  "; Fitted value(s):",round(c(g.cur$F1,g.cur$F2),3),"\n")
+        ## if (nconstraints > 0) cat("\n")
+    }
     ## (4) Convergence criteria
     ## ------------------------
-    converged = all(ok.phi & ((L1(phi.old-phi.cur)/L1(phi.cur))<1e-2) ) | (niter > 20) ##
-    if ((niter > 20) & verbose){
-        cat("Convergence in density estimation did not occur after",niter,"iterations\n")
+    ## converged = ((ok.phi & ok.tau) | (niter > itermax))
+    ok.AIC = (abs(AIC.old - g.cur$AIC) < crit.tol)
+    ok.dev = (abs(dev.old - g.cur$dev) < crit.tol)
+    ok.dphi = ((L2(phi.old-phi.cur)/L2(phi.cur)) < .1*crit.tol)
+    if (criterion=="AIC"){
+        converged = (ok.AIC && ok.phi && ok.tau)  | (niter >= itermax)
+    } else if (criterion=="dev"){
+        converged = (ok.dev && ok.phi && ok.tau)  | (niter >= itermax)
+    } else if (criterion=="L2"){
+        converged = (ok.dphi && ok.phi && ok.tau)  | (niter >= itermax)
+    }
+    if ((niter >= itermax) & verbose){
+        message("Convergence in density estimation did not occur after ",niter," iterations\n")
     }
   }
   elapsed.time <- (proc.time()-ptm)[1] ## <------------
@@ -449,6 +516,9 @@ densityLPS <- function(obj.data,
   h.bins = exp(c(Bb %*% phi.cur))
   H.bins = cumsum(c(0,.5*(h.bins[-nbins]+h.bins[-1])*du)) ## Trapeze integration
   dens.bins = h.bins*exp(-H.bins)
+  ##
+  expctd = rg*(h.grid*du)
+  BWB = t(Bg)%*%(expctd*Bg) ## crossprod(sqrt(expctd)*Bg)
   ##
   ## Estimated functions in relation to the fitted density
   ## #####################################################
@@ -505,22 +575,6 @@ densityLPS <- function(obj.data,
   ## (d) Estimated cdf (as a function)
   ## ---------------------------------
   pdist = function(x) 1-exp(-Hdist(x))
-  ##
-  ## pdist = function(x),pdist.out=c(1e-12,1)){
-  ##     out = (x<bins[1]) | (x>=tail(bins,n=1))
-  ##     ans = 0*x
-  ##     ans[x<bins[1]] = pdist.out[1]
-  ##     ans[x>=tail(bins,n=1)] = pdist.out[2]
-  ##     ##
-  ##     xx = x[!out]
-  ##     idx = (xx-bins[1])/du
-  ##     ilow = floor(idx)+1
-  ##     ##
-  ##     frac = idx%%1
-  ##     cdf.bins = cumsum(dens.bins) * du
-  ##     ans[!out] = cdf.bins[ilow] + frac*(cdf.bins[ilow+ceiling(frac)]-cdf.bins[ilow])
-  ##     return(ans)
-  ## }
   ##
   ## Estimated mean and variance
   mean.dist = sum(ugrid*du*dens.grid)

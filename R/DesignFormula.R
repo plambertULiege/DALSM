@@ -23,7 +23,7 @@
 #' \item \code{X} : (n x J) design matrix with the covariates involved in the additive terms.
 #' \item \code{Xcal} : Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels).
 #' \item \code{nfixed} : number of fixed effect regression parameters.
-#' \item \code{parms} : a list with elements \code{q} (the number of regression and spline parameters), \code{nfixed}, \code{K}, \code{J}, \code{addnames} (with the variables names of the \code{J} additive terms), \code{Pd.x}, \code{knots.x} and \code{cm.values} (see below).
+#' \item \code{parms} : a list with elements \code{q} (the number of regression and spline parameters), \code{nfixed}, \code{K}, \code{J}, \code{addnames} (with the variables names of the \code{J} additive terms), \code{pen.order}, \code{Dd.x}, \code{Pd.x}, \code{knots.x} and \code{cm.values} (see below).
 #' }
 #'
 #' If additive terms are specified in the formula, the following elements also appear:
@@ -156,7 +156,8 @@ DesignFormula = function(formula, data, K=10, pen.order=2, knots.x=NULL, n=NULL,
     Dd.x = Bx[[1]]$Dd ## Same difference matrix for all functional components
   }
   ##
-  parms = list(q=ncol(Xcal), nfixed=nfixed, K=K, J=J, addnames=colnames(X), Pd.x=Pd.x,
+  parms = list(q=ncol(Xcal), nfixed=nfixed, K=K, J=J, addnames=colnames(X),
+               pen.order=pen.order, Dd.x=Dd.x, Pd.x=Pd.x,
                knots.x=knots.x, cm.values=cm.values)
   ans = list(J=J,K=K,Z=Z,X=X,Xcal=Xcal,
              nfixed=nfixed, parms=parms)
