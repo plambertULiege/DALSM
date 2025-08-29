@@ -38,7 +38,7 @@ A list with
 \item \code{X} : (n x J) design matrix with the covariates involved in the additive terms.
 \item \code{Xcal} : Z column-stacked with the J centered B-spline bases to yield the full design matrix (with column labels).
 \item \code{nfixed} : number of fixed effect regression parameters.
-\item \code{parms} : a list with elements \code{q} (the number of regression and spline parameters), \code{nfixed}, \code{K}, \code{J}, \code{addnames} (with the variables names of the \code{J} additive terms) and \code{Pd.x} (see below).
+\item \code{parms} : a list with elements \code{q} (the number of regression and spline parameters), \code{nfixed}, \code{K}, \code{J}, \code{addnames} (with the variables names of the \code{J} additive terms), \code{pen.order}, \code{Dd.x}, \code{Pd.x}, \code{knots.x} and \code{cm.values} (see below).
 }
 
 If additive terms are specified in the formula, the following elements also appear:

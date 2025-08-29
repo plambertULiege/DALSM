@@ -1770,7 +1770,7 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
                  lambda1=lambda1.mat,
                  ## lambda1=cbind(lambda1.hat=lambda1.min+exp(xi1.cur),
                  ##               lambda1.low=lambda1.min+exp(xi1.low),lambda1.up=lambda1.min+exp(xi1.up)),
-                 ED1=cbind(ED1,low=ED1.low,up=ED1.up)))
+                 ED1=cbind(ED1,low=ED1.low,up=ED1.up)[,c(1,4,5,2,3)]))
   }
   if (J2 > 0){
     ED2 = cbind(EDF=obj.cur$ED2,Chi2=Chi2.horiz2,Pval=Pval.horiz2)
@@ -1787,7 +1787,7 @@ DALSM <- function(y, formula1,formula2, weights=NULL, data,
                  lambda2=lambda2.mat,
                  ## lambda2=cbind(lambda2.hat=lambda2.min+exp(xi2.cur),
                  ##               lambda2.low=lambda2.min+exp(xi2.low),lambda2.up=lambda2.min+exp(xi2.up)),
-                 ED2=cbind(ED2,low=ED2.low,up=ED2.up)))
+                 ED2=cbind(ED2,low=ED2.low,up=ED2.up)[,c(1,4,5,2,3)]))
   }
   ##
   ans = c(ans,

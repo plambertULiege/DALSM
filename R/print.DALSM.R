@@ -95,7 +95,8 @@ print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3
         cat("\n",length(obj$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect\n",sep="")
         ##    cat("\n",length(obj$ED1[,1])," additive term(s) in Location: Eff.dim / Test No effect or Linearity\n",sep="")
         if (ncol(obj$ED1) > 3){
-            printMat(obj$ED1[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+            printMat(obj$ED1[,1:5,drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+            ## printMat(obj$ED1[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
         } else {
             printMat(obj$ED1[,c(1,2,3),drop=FALSE],cs.edf=1,cs.tst=2,cs.Pval=3)
         }
@@ -107,7 +108,8 @@ print.DALSM = function(x, digits.est=3,digits.edf=2,digits.tst=2,digits.Pvalue=3
         cat("\n",length(obj$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect\n",sep="")
         ##    cat("\n",length(obj$ED2[,1])," additive term(s) in Dispersion: Eff.dim / Test No effect or Linearity\n",sep="")
         if (ncol(obj$ED2) > 3){
-            printMat(obj$ED2[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+            printMat(obj$ED2[,1:5,drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
+            ## printMat(obj$ED2[,c(1,4,5,2,3),drop=FALSE],cs.edf=1:3,cs.tst=4,cs.Pval=5)
         } else {
             printMat(obj$ED2[,c(1,2,3),drop=FALSE],cs.edf=1,cs.tst=2,cs.Pval=3)
         }
